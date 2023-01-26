@@ -1,4 +1,6 @@
 cd root/kernel
-gcc -o funcs.o funcs.c
+gcc -o nexus.o nexus.c
 as -o kernel.o kernel.asm
-ld -o START.ELF kernel.o funcs.o -Tlink.ld
+ld -o START.ELF kernel.o nexus.o -Tlink.ld
+cd ../..
+grub-mkrescue -o nexus.iso root/
