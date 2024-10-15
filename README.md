@@ -1,5 +1,5 @@
 # Munix
-A operative system
+An operative system
 ------------------------
 this is free software those who want to contribute can do so
 ------------------------
