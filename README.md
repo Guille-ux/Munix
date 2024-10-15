@@ -3,4 +3,9 @@ A operative system
 ------------------------
 this is free software those who want to contribute can do so
 ------------------------
-to contribute: guillermoleiratemes@protonmail.com
+
+## REQUISTES 
+(AND PREREQUISITES)
+-------------------------------
+HAVE INSTALLED AND EXPORTED PATH TO THE COMPILER "I386-ELF"
+-------------------------------
