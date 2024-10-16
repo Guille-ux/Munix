@@ -19,14 +19,6 @@ void shell() { //el bucle de la shell
 				print("Stalin Say's No", 15, posi.posc);
 			}
 			posi.posc += 80;
-		} if (strcmp(shellbuffer, "qwave\n")) {
-			posi.posc += 80;
-			for (int i = 0; i < 80; i++) {
-				if (i % 2 == 0) {
-					putcolor(0x21, posi.posc+i);
-				}
-			}
-			posi.posc += 80;
 		}
 		buffclean(shellbuffer);
 		if (posi.posc >= 80*23) {
