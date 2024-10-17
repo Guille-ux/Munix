@@ -1,3 +1,4 @@
+#define DISK_BUFF 256//BUFFER DISK length in uint16_t
 
 //status
 #define ATA_SR_BSY     0x80    // Busy
@@ -55,3 +56,47 @@
 
 #define ATA_MASTER     0x00
 #define ATA_SLAVE      0x01
+
+//ATA OTHER THINGS
+#define ATA_PRIMARY_IO 0x1F0
+#define ATA_CONTROL_REG 0x3F6
+#define ATA_REG_DEVICE 0x06
+#define LBA_LOW 0x03
+#define LBA_MID 0x04
+#define LBA_HI 0x05
+#define ATA_CMD_OF 0x07
+
+//My structures for lba
+
+typedef struct {
+	uint8_t low;
+	uint8_t mid;
+	uint8_t hi;
+} Lba;
+
+void ata_select() {
+	outb(ATA_REG_DEVICE + ATA_PRIMARY_IO, 0xE0); // select the master disk
+}
+void ata_config_ns(uint16_t ns) {
+	outb(ATA_PRIMARY_IO + 0x02, ns); //0x02 = ata number of sector select
+}
+
+void ata_conf_lba(Lba lba) {
+	outb(ATA_PRIMARY_IO+LBA_LOW, lba.low);
+	outb(ATA_PRIMARY_IO+LBA_MID, lba.mid);
+	outb(ATA_PRIMARY_IO+LBA_HI, lba.hi);
+}
+
+void ata_wait_busy() {
+
+}
+
+void ata_read(Lba lba, uint16_t *buffer, uint16_t ns) {
+	ata_select();
+	ata_config_ns(ns);
+	outb(ATA_PRIMARY_IO + ATA_CMD_OF, ATA_CMD_READ);
+	for (int i = 0; i < 256; i++) {
+		uint16_t data = inw(ATA_PRIMARY_IO);
+		buffer[i] = data;
+	}
+}
