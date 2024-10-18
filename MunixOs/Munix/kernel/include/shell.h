@@ -1,4 +1,6 @@
 void shell() { //el bucle de la shell
+	print_banner();
+	save_mat();
 	int seed = 0;
 	char shellbuffer[BUFFER_SIZE];
 	Pos posi;

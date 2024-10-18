@@ -8,6 +8,20 @@
 
 char cmat[LINS][COLS];
 
+void print_banner() {
+	for (int y = 0; y < 3; y++) {
+		for (int x = 0; x < COLS; x++) {
+			if (y == 0) {
+				putcolor(RED << 4, COLS*y+x);
+			} else if (y == 1) {
+				putcolor(YELLOW << 4, COLS*y+x);
+			} else if (y == 2) {
+				putcolor(MAGENTA << 4, COLS*y+x);
+			}
+		}
+	}
+}
+
 void init_mat() {
 	clear(NORMAL_COLOR);
 	save_mat();
