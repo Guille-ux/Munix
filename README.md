@@ -12,6 +12,6 @@ this is free software those who want to contribute can do so
 
 # Things To Do
 
--add a filesystem
--add internet
--add protected blocks to avoid memory overwritting
+- add a filesystem
+- add internet
+- add protected blocks to avoid memory overwritting
