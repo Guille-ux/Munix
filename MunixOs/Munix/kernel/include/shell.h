@@ -24,6 +24,10 @@ void shell() { //el bucle de la shell
 		} else if (strcmp(shellbuffer, "error\n")) {
 			raise_zero_error();
 			save_mat();
+		} else if (strcmp(shellbuffer, "clear\n")) {
+			posi.posc = 0;
+			clear(NORMAL_COLOR);
+			load_mat();
 		}
 		buffclean(shellbuffer);
 		if (posi.posc >= 80*23) {
