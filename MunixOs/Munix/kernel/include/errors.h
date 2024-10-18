@@ -1,4 +1,4 @@
 void raise_zero_error() {
-	clear(0xF4);
-	print("Zero Division Error", 15, 0);
+	clear(0x4F);
+	print("Zero Division Error", 20, 0);
 }
