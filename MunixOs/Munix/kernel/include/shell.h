@@ -19,6 +19,8 @@ void shell() { //el bucle de la shell
 				print("Stalin Say's No", 15, posi.posc);
 			}
 			posi.posc += 80;
+		} else if (strcmp(shellbuffer, "test\n")) {
+			raise_zero_error();
 		}
 		buffclean(shellbuffer);
 		if (posi.posc >= 80*23) {

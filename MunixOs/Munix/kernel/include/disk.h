@@ -92,7 +92,7 @@ void ata_wait_busy() {
 }
 
 void ata_wait_ready() {
-	while (!inb(ATA_PRIMARY + ATA_CONTROL_REG) & ATA_SR_DRQ);
+	while (!inb(ATA_PRIMARY_IO + ATA_CONTROL_REG) & ATA_SR_DRQ);
 }
 
 void ata_read(Lba lba, uint16_t *buffer, uint16_t ns) {
@@ -132,12 +132,12 @@ Lba int_lba(uint32_t address) {
 }
 void read_disk(uint16_t *buffer, uint32_t lba) {
 	Lba address = int_lba(lba);
-	ns = DISK_BUFF / 256;
+	uint16_t ns = DISK_BUFF / 256;
 	ata_read(address, buffer, ns);
 }
 void write_disk(uint16_t *buffer, uint32_t lba) {
         Lba address = int_lba(lba);
-        ns = DISK_BUFF / 256;
+        uint16_t ns = DISK_BUFF / 256;
         ata_write(address, buffer, ns);
 }
 
