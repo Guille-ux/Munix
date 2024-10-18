@@ -88,15 +88,38 @@ void ata_conf_lba(Lba lba) {
 }
 
 void ata_wait_busy() {
+	while (inb(ATA_PRIMARY_IO + ATA_CONTROL_REG) & ATA_SR_BSY);
+}
 
+void ata_wait_ready() {
+	while (!inb(ATA_PRIMARY + ATA_CONTROL_REG) & ATA_SR_DRQ);
 }
 
 void ata_read(Lba lba, uint16_t *buffer, uint16_t ns) {
 	ata_select();
 	ata_config_ns(ns);
-	outb(ATA_PRIMARY_IO + ATA_CMD_OF, ATA_CMD_READ);
-	for (int i = 0; i < 256; i++) {
+	ata_conf_lba(lba);
+	ata_wait_busy();
+	ata_wait_ready();
+	outb(ATA_PRIMARY_IO + ATA_CMD_OF, ATA_CMD_READ_PIO);
+	ata_wait_busy();
+	ata_wait_ready();
+	for (int i = 0; i < 256*ns; i++) {
 		uint16_t data = inw(ATA_PRIMARY_IO);
 		buffer[i] = data;
+	}
+}
+void ata_write(Lba lba, uint16_t *buffer, uint16_t ns) {
+	ata_select();
+	ata_config_ns(ns);
+	ata_conf_lba(lba);
+	ata_wait_busy();
+	ata_wait_ready();
+	outb(ATA_PRIMARY_IO + ATA_CMD_OF, ATA_CMD_WRITE_PIO);
+	ata_wait_busy();
+	ata_wait_ready();
+	for (int i = 0; i < ns*256; i++) {
+		outw(ATA_PRIMARY_IO, buffer[i]);
+	ata_wait_busy();
 	}
 }
