@@ -13,7 +13,7 @@
 #include "include/shell.h"
 
 void kernel_entry() {
-    fill(0x0F);
+    init_mat();
     print("Viva Stalin!", 12, 0);
     int init_pos = 12;
     const char buffer[BUFFER_SIZE];

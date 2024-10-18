@@ -96,7 +96,7 @@ Pos key_handler(Pos pos, char scancode, int min, char *buffer, int all) {
 }
 
 
-int input(int len, char *buffer, int line, int all) {
+int input(int len, char *buffer, int line, int all, int ac) {
 	Pos posi;
 	posi.pos = len;
 	posi.posc = line;
@@ -105,7 +105,7 @@ int input(int len, char *buffer, int line, int all) {
 	while (scancode != 0x1C) {
 		scancode = getch();
 		posi = key_handler(posi, scancode, len, buffer, all);
-		drawc(posi.pos+posi.posc);
+		drawc(posi.pos+posi.posc, ac);
 		buffer[now] = en_US[scancode];
 		if (scancode == 0x0E) {
 			if (now > 0) {

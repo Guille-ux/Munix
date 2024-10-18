@@ -6,7 +6,7 @@ void shell() { //el bucle de la shell
 	posi.posc = 80;
 	while (1) {
 		putchar(posi.posc, '$');
-		input(2, shellbuffer, posi.posc, 1);
+		input(2, shellbuffer, posi.posc, 1, 1);
 		if (ccmp(shellbuffer, "stalin", 6)) {
 			posi.posc += 80;
 			if (seed == 0) {
@@ -19,13 +19,15 @@ void shell() { //el bucle de la shell
 				print("Stalin Say's No", 15, posi.posc);
 			}
 			posi.posc += 80;
-		} else if (strcmp(shellbuffer, "test\n")) {
+		} else if (strcmp(shellbuffer, "error\n")) {
 			raise_zero_error();
+			save_mat();
 		}
 		buffclean(shellbuffer);
 		if (posi.posc >= 80*23) {
 			clear(0x0F);
 			posi.posc = 0;
+			posi.pos = 3;
 		}
 	}
 }

@@ -21,8 +21,8 @@
 
 //STRUCTS AND MORE
 typedef struct {
-	uint8_t text;
 	uint8_t background;
+	uint8_t text;
 } Color;
 
 typedef struct {
