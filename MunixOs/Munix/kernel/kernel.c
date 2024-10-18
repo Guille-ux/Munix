@@ -1,5 +1,7 @@
 #define BUFFER_SIZE 200
 
+#include "include/errors.h"
+#include "include/disk.h"
 #include "include/io.h"
 #include "include/speaker.h"
 #include "include/ports.h"
