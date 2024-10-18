@@ -123,3 +123,10 @@ void ata_write(Lba lba, uint16_t *buffer, uint16_t ns) {
 	ata_wait_busy();
 	}
 }
+Lba int_lba(uint32_t address) {
+	Lba lba;
+	lba.low = address & 0xFF;
+	lba.mid = (address >> 8) & 0xFF;
+	lba.hi = (address >> 16) & 0xFF;
+	return lba;
+}
