@@ -130,3 +130,14 @@ Lba int_lba(uint32_t address) {
 	lba.hi = (address >> 16) & 0xFF;
 	return lba;
 }
+void read_disk(uint16_t *buffer, uint32_t lba) {
+	Lba address = int_lba(lba);
+	ns = DISK_BUFF / 256;
+	ata_read(address, buffer, ns);
+}
+void write_disk(uint16_t *buffer, uint32_t lba) {
+        Lba address = int_lba(lba);
+        ns = DISK_BUFF / 256;
+        ata_write(address, buffer, ns);
+}
+
