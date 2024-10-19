@@ -3,6 +3,7 @@
 #include "include/io.h"
 #include "include/errors.h"
 #include "include/disk.h"
+#include "include/timer.h"
 #include "include/speaker.h"
 #include "include/ports.h"
 #include "include/types.h"
