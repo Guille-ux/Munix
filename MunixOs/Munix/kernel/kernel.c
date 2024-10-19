@@ -1,4 +1,5 @@
 #define BUFFER_SIZE 200
+#define SIZE ((uint32_t)27796)
 
 #include "include/includer.h"
 

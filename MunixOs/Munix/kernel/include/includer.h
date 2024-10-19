@@ -9,6 +9,5 @@
 #include "ciphers.h"
 #include "math.h"
 #include "display.h"
+#include "fs.h"
 #include "shell.h"
-
-
