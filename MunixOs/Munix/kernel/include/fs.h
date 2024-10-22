@@ -9,6 +9,7 @@
 #define NS_POS 1// the position on a sector that tells the number of sectors of the file
 #define NAME_POS 3 //position where begins the name
 #define DATA_BEGIN 27 // begin of the important data
+#define DATA_END_SYMBOL 0xF7F2
 //struct of a File
 
 typedef struct {
@@ -72,6 +73,23 @@ void add_header(uint16_t *data, uint16_t sectors, const char *name) {
         data[i] = 0;
     }
 }
-uint16_t new_content(uint16_t *data) {
-	int is_begin = 1; //without finnish
+void new_content(uint16_t *data, uint16_t size, const char *name) { // data necesita acabar con '\n'
+	int is_begin = 1;
+	//data necesita medir un multiplo de 256 y estar la info desplazada 53 bytes
+	for (int i = 0; i < size; i++) {
+		if (is_begin == 1) {
+			is_begin = 0;
+			add_header(data[0], size, name);
+		}
+	}
+}
+int size_of_file(uint16_t *data) {
+	int z = 0;
+	for (int i = 0; data[z][i] != DATA_END_SYMBOL; i++) {
+		if (i >= 255) {
+			i = 0;
+			z += 1;
+		}
+	return z*256+i;
+	}
 }
