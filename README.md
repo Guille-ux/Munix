@@ -14,4 +14,10 @@ this is free software those who want to contribute can do so
 
 - add a filesystem
 - add internet
-- add protected blocks to avoid memory overwritting
+- add GUI
+
+# Things Finished (from the to do list)
+
+- add protected blocks to avoid memory overwritting 
+- add timers
+- add a shell
