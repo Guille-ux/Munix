@@ -83,9 +83,9 @@ void new_content(uint16_t *data, uint16_t size, const char *name) { // data nece
 		}
 	}
 }
-int size_of_file(uint16_t *data) { //size in uitn16_t
+int size_of_file(uint16_t **file) { //size in uitn16_t of a matrix file
 	int z = 0;
-	for (int i = 0; data[z][i] != DATA_END_SYMBOL; i++) {
+	for (int i = 0; file[z][i] != DATA_END_SYMBOL; i++) {
 		if (i > 256) {
 			i = 0;
 			z += 1;
@@ -93,31 +93,33 @@ int size_of_file(uint16_t *data) { //size in uitn16_t
 	return z*256+i;
 	}
 }
-void make_file(uint16_t *content, const char *name) { // *content needs to finnish in DATA_END_SYMBOL and be a matrix
-	int size = size_of_file; // size in uint16_t
-	int inv_size = 256 - (size % 256);
-	if (inv_size > 27) { // we have enough space for the header?
-		int tmp1 = size / 256;
-		int tmp2 = size % 256;
-		int sum = 27;
-		uint16_t tmp[tmp1][tmp2];
-		for (int y = 0; y < tmp1; y++) {
-			for (int x = sum; x < tmp2; x++) {
-				tmp[y][x] = content[y][x];
-			}
-		}
-	} else {
-		int tmp1 = (size + 256) / 256;
-		int tmp2 = size % 256;
-                int sum = 27;
-                uint16_t tmp[tmp1][tmp2];
-                for (int y = 0; y < tmp1; y++) {
-                        for (int x = sum; x < tmp2; x++) {
-                                tmp[y][x] = content[y][x];
-                        }
-                }
 
+int size(uint16_t *data) { // midiendo tamaños de una forma normal
+	int file_size = 0;
+	while (data[file_size] != DATA_END_SYMBOL) {
+		file_size++;
 	}
-	int new_size = tmp1 + tmp2;
-	new_content(tmp, new_size, name);
+	return file_size;
+}
+
+void write_new_file(const char *name, uint16_t *data) {
+	int data_size = size(data);
+	uint16_t tmp[data_size + 256];
+	for (int i = 0; i < data_size; i++) {
+		tmp[i+256] = data[i];
+	}
+	sectors = data_size / 256 + 256;
+	add_header(tmp, sectors, name);
+	write_file(sectors, *data);
+}
+
+void read_file(const char *name) {
+	//work on this
+}
+int search_file(const char *name) { // returns the number on the File Table
+	//work on this also
+}
+
+void remove_file(const char *name) { //changes all bits to 0
+	//work on this also
 }
