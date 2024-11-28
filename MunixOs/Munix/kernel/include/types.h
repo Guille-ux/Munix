@@ -119,3 +119,40 @@ int ccmp(char *str1, char *str2, int leng) {
         return 1;
 
 }
+int sccmp(char *str1, char *str2, int leng, int begin) {
+         if (len(*str1 ) > leng) {
+                for (int i = 0; i < leng; i++) {
+                        if (str1[i + begin] != str2[i]) {
+                                return 0;
+                        }
+                }
+        } else {
+		return 0;
+	}
+        return 1;
+
+}
+int cinter(char *text, int len, int begin) {
+	int i = 0;
+	int result;
+	int sign;
+	while (text[i + begin] == ' ') {
+		i++;
+	}
+	if (text[i + begin] > '9' || text[i + begin] < '0') {
+		return 0;
+	} else if (text[i + begin] == '-') {
+		sign = -1;
+		i++;
+	} else if (text[i + begin] == '+') {
+		sign = 1;
+		i++;
+	} else {
+		sign = 1;
+	}
+	while (text[i + begin] <= '9' && text[i + begin] >= '0' || i => len) {
+		result = result*10 + text[i + begin]-'0';
+		i++;
+	}
+	return result;
+}
