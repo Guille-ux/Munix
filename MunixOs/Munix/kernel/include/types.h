@@ -150,7 +150,7 @@ int cinter(char *text, int len, int begin) {
 	} else {
 		sign = 1;
 	}
-	while (text[i + begin] <= '9' && text[i + begin] >= '0' || i => len) {
+	while (text[i + begin] <= '9' && text[i + begin] >= '0' || i >= len) {
 		result = result*10 + text[i + begin]-'0';
 		i++;
 	}

@@ -51,7 +51,7 @@ uint16_t list_files() {
 
 void write_file(uint16_t sectors, uint16_t *data) { //the data needs to finish with '\n'
 	uint16_t last_file = list_files() - 1;
-	uint32_t pos = FileTable[last_file].ns + FileTable[last_file];
+	uint32_t pos = FileTable[last_file].ns + FileTable[last_file].begin;
 	for (uint16_t sector = 0; sector < sectors; sector++) {
 		uint16_t *buffer = data + 256 * sector;
 		write_block(pos+sector, buffer);
@@ -108,7 +108,7 @@ void write_new_file(const char *name, uint16_t *data) {
 	for (int i = 0; i < data_size; i++) {
 		tmp[i+256] = data[i];
 	}
-	sectors = data_size / 256 + 256;
+	int sectors = data_size / 256 + 256;
 	add_header(tmp, sectors, name);
 	write_file(sectors, *data);
 }
