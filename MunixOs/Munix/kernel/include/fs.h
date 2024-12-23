@@ -114,10 +114,16 @@ void write_new_file(const char *name, uint16_t *data) {
 }
 
 void read_file(const char *name) {
-	//work on this
+	int nfile = search_file(name);
+	int begin_pos = FileTable[nfile].begin;
+	int number_sectors = FileTable[nfile].ns;
 }
 int search_file(const char *name) { // returns the number on the File Table
-	//work on this also
+	for (int i = 0; i < MAX_FILES; i++) {
+		if (strcmp(FileTable[i].name, name) == 1) {
+			return i;
+		}
+	}
 }
 
 void remove_file(const char *name) { //changes all bits to 0
