@@ -13,6 +13,13 @@
 //struct of a File
 
 typedef struct {
+	char name[51];
+	uint16_t len;
+	uint16_t *data;
+	uint16_t header[256];
+} FileRead;
+
+typedef struct {
 	uint16_t ns;
 	uint32_t begin;
 	char name[51];
@@ -113,10 +120,15 @@ void write_new_file(const char *name, uint16_t *data) {
 	write_file(sectors, *data);
 }
 
-void read_file(const char *name) {
+uint16_t **read_file(const char *name) {
 	int nfile = search_file(name);
 	int begin_pos = FileTable[nfile].begin;
 	int number_sectors = FileTable[nfile].ns;
+	uint16_t file[ns-1][256];
+	for (int i = ns-1; i < 256; i++) {
+		read_block(begin + i, file[i]);
+	}
+	return file;
 }
 int search_file(const char *name) { // returns the number on the File Table
 	for (int i = 0; i < MAX_FILES; i++) {
