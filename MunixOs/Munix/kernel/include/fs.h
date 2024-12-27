@@ -126,7 +126,7 @@ uint16_t **read_file(const char *name) {
 	int number_sectors = FileTable[nfile].ns;
 	uint16_t file[ns-1][256];
 	for (int i = ns-1; i < 256; i++) {
-		read_block(begin + i, file[i]);
+		read_block(begin_pos + i, file[i]);
 	}
 	return file;
 }
