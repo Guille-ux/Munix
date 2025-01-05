@@ -124,8 +124,8 @@ uint16_t **read_file(const char *name) {
 	int nfile = search_file(name);
 	int begin_pos = FileTable[nfile].begin;
 	int number_sectors = FileTable[nfile].ns;
-	uint16_t file[ns-1][256];
-	for (int i = ns-1; i < 256; i++) {
+	uint16_t file[number_sectors-1][256];
+	for (int i = number_sectors-1; i < 256; i++) {
 		read_block(begin_pos + i, file[i]);
 	}
 	return file;
@@ -138,6 +138,11 @@ int search_file(const char *name) { // returns the number on the File Table
 	}
 }
 
+uint16_t zeros[256] = {0};
+
 void remove_file(const char *name) { //changes all bits to 0
-	//work on this also
+	int nf = search_file(name);
+	File file = FileTable[i];
+	uint32_t begin = file.begin; // in this code i'm going to delete de header
+	write_block(begin, zeros);
 }
