@@ -1,10 +1,10 @@
 //stnio.h
 
 #include "keyboard.h"
+char *cpt = (char *)0xB8000;
 
 void putchar(int pos, unsigned char ch) {
-    char *cpt = (char *)0xB8000;
-    cpt += pos * 2;
+    cpt[pos * 2];
     *cpt = ch;
 }
 char getchar() {

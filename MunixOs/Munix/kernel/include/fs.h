@@ -56,9 +56,19 @@ uint16_t list_files() {
 	return files;
 }
 
-void write_file(uint16_t sectors, uint16_t *data) { //the data needs to finish with '\n'
+void write_file(uint16_t sectors, uint16_t *data) {
 	uint16_t last_file = list_files() - 1;
-	uint32_t pos = FileTable[last_file].ns + FileTable[last_file].begin;
+	uint32_t pos;
+	char win = 1;
+	for (int i = 0; i < last_file; i++) {
+		if ((FileTable[i].begin + FileTable[i].ns) - (FileTable[i+1].begin + FileTable[i].ns) > sectors) {
+			pos = FileTable[i].begin + FileTable[i].ns;
+			win = 0;
+		}
+	}
+	if (win) {
+		pos = FileTable[last_file].begin + FileTable[last_file].ns;
+	}
 	for (uint16_t sector = 0; sector < sectors; sector++) {
 		uint16_t *buffer = data + 256 * sector;
 		write_block(pos+sector, buffer);
