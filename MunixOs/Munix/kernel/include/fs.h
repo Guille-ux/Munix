@@ -146,6 +146,7 @@ int search_file(const char *name) { // returns the number on the File Table
 			return i;
 		}
 	}
+	return -1;
 }
 
 uint16_t zeros[256] = {0};

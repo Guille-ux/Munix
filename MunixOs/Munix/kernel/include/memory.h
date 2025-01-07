@@ -1,12 +1,12 @@
-#define RAM_LEN 4294967296 // 2**32
+#define RAM_LEN 134217728
 
 typedef struct {
 	const char name[6];
-	int data;
+	char data;
 	char free = 1;
 } Var;
 
-Var virtual_ram[RAM_LEN]; // 2**32
+Var virtual_ram[RAM_LEN]; 
 
 void ram_init() {
 	for (int i = 0; i < RAM_LEN; i++) {
@@ -14,7 +14,7 @@ void ram_init() {
 	}
 }
 
-int new_var(const char *name, int data) {
+int new_var(const char *name, char data) {
 	int res = search_var();
 	if (res > 0) {
 		return 0;
