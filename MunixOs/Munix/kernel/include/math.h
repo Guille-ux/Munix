@@ -1,8 +1,8 @@
 //math.h
 
 typedef struct {
-	unsigned int high;
-	unsigned int low;
+	int high;
+	int low;
 } Int64;
 
 typedef struct {
@@ -15,6 +15,9 @@ Int64 add_64(Int64 first, Int64 second) {
 	int low_sum = first.low + second.low;
 	result.high = first.high + second.high + (low_sum < first.low);
 	result.low = low_sum;
+	if (low_sum < first.low) {
+		result.low = result.low * -1;
+	}
 	return result;
 }
 
@@ -23,6 +26,9 @@ Int64 sub_64(Int64 first, Int64 second) {
 	int low_diff = first.low - second.low;
 	result.high = first.high - second.high - (low_diff > first.low);
 	result.low = low_diff;
+        if (low_diff > first.low) {
+                result.low = result.low * -1;
+        }
 	return result;
 }
 
@@ -34,6 +40,10 @@ Int64 mul_64(Int64 a, Int64 b) {
 	int cross mul2 = a.high * b.low;
 	result.low = low_mul;
 	result.high = high_mul + (cross_mul1 + cross_mul2) + (low_mul < a.low);
+        if (low_mul < a.low) {
+                result.low = result.low * -1;
+        }
+
 	return result;
 }
 
