@@ -1,8 +1,8 @@
 //math.h
 
 typedef struct {
-	int high;
-	int low;
+	unsigned int high;
+	unsigned int low;
 } Int64;
 
 typedef struct {
@@ -60,9 +60,7 @@ Int64 div_64(Int64 a, Int64 b) { //do this thing is hard
 }
 
 Int64 mod_64(Int64 first, Int64 second) {
-    Int64 result;
-    result.low = first.low % second.low;
-    result.high = first.high % second.high;
+    Int64 result = sub_64(first, mul_64(div_64(first, second), second)); // first - first / second * second
     return result;
 }
 
