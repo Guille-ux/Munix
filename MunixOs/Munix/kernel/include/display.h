@@ -1,4 +1,6 @@
 //display.h
+#ifndef _DISPLAY_H
+#define _DISPLAY_H
 
 #define CURSOR_COLOR 0x21
 #define NORMAL_COLOR 0x0F
@@ -69,3 +71,5 @@ void load_mat() {
         }
 
 }
+
+#endif

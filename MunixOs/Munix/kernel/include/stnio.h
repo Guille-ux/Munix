@@ -1,4 +1,6 @@
 //stnio.h
+#ifndef _STNIO_H
+#define _STNIO_H
 
 #include "keyboard.h"
 
@@ -125,3 +127,5 @@ void buffclean(char *buffer) {
 		buffer[i] = 0;
 	}
 }
+
+#endif
