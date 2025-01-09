@@ -1,5 +1,8 @@
 //fs.h
 
+#ifndef HEADER_FS_H
+#define HEADER_FS_H
+
 #define PROTECTED_BLOCKS ((uint32_t)SIZE/512)//size of the os. SIZE / 512
 #define MAX_FILES 1000//the max number of files that the filesystem can handle
 #define MAX_SECTORS ((uint32_t)8574934592) //near 8  gb of memory
@@ -9,7 +12,7 @@
 #define NS_POS 1// the position on a sector that tells the number of sectors of the file
 #define NAME_POS 3 //position where begins the name
 #define DATA_BEGIN 27 // begin of the important data
-#define DATA_END_SYMBOL 0xF7F2
+#define DATA_END_SYMBOL 0xF7F2 //NO SE USA
 //struct of a File
 
 typedef struct {
@@ -157,3 +160,5 @@ void remove_file(const char *name) { //changes all bits to 0
 	uint32_t begin = file.begin; // in this code i'm going to delete de header
 	write_block(begin, zeros);
 }
+
+#endif

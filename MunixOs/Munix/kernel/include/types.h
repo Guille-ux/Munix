@@ -1,5 +1,7 @@
 //types.h
 
+#ifndef _TYPES_H
+#define _TYPES_H
 
 //COLORS
 #define BLACK 0x00
@@ -156,3 +158,5 @@ int cinter(char *text, int len, int begin) {
 	}
 	return result;
 }
+
+#endif

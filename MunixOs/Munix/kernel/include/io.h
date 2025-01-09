@@ -7,6 +7,9 @@ typedef unsigned int uint32_t;
 typedef unsigned long long uint64_t;
 #endif
 
+#ifndef IO_H
+#define IO_H
+
 static inline void outb(uint8_t data, uint16_t port){
 	asm volatile("outb %0, %1" : : "a"(data), "Nd"(port));
 }
@@ -23,3 +26,4 @@ static inline uint16_t inw(uint16_t port) {
 static inline void outw(uint16_t port, uint16_t data) {
 	asm volatile("outw %0, %1" : : "a"(data), "Nd"(port));
 }
+#endif

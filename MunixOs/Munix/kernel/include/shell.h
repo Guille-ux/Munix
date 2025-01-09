@@ -1,3 +1,6 @@
+#ifndef MSHELL_H
+#define MSHELL_H
+
 void shell() { //el bucle de la shell
 	print_banner();
 	save_mat();
@@ -39,3 +42,4 @@ void shell() { //el bucle de la shell
 }
 
 //cosas que tiene la shell
+#endif

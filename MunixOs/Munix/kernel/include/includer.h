@@ -1,3 +1,6 @@
+#ifndef MUNIX_KERNEL
+#define MUNIX_KERNEL
+
 #include "io.h"
 #include "errors.h"
 #include "disk.h"
@@ -11,3 +14,5 @@
 #include "display.h"
 #include "fs.h"
 #include "shell.h"
+
+#endif

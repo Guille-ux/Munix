@@ -1,4 +1,6 @@
 //math.h
+#ifndef _MATH_H
+#define MATH_H
 
 typedef struct {
 	int high;
@@ -107,3 +109,5 @@ int small_random(int seed) {
 	int out = ((g * seed*m)/(g+seed-m)) % p;
 	return out;
 }
+
+#endif
