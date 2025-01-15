@@ -99,7 +99,7 @@ void new_content(uint16_t *data, uint16_t size, const char *name) { // data nece
 	for (int i = 0; i < size; i++) {
 		if (is_begin == 1) {
 			is_begin = 0;
-			add_header(data[0], size, name);
+			add_header(data, size, name);
 		}
 	}
 }
@@ -130,18 +130,22 @@ void write_new_file(const char *name, uint16_t *data) {
 	}
 	int sectors = data_size / 256 + 256;
 	add_header(tmp, sectors, name);
-	write_file(sectors, *data);
+	write_file(sectors, data);
+	list_files();
 }
 
-uint16_t **read_file(const char *name) {
+void read_file(const char *name, uint16_t *data, int sectors) {
 	int nfile = search_file(name);
 	int begin_pos = FileTable[nfile].begin;
 	int number_sectors = FileTable[nfile].ns;
-	uint16_t file[number_sectors-1][256];
-	for (int i = number_sectors-1; i < 256; i++) {
-		read_block(begin_pos + i, file[i]);
+	int nsread = sectors;
+	uint16_t min[256];
+	for (int i = 0; i < nsread; i++) {
+		for (int a = 0; a < 256; a++) {
+			min[a] = data[a+i*256];
+		}
+		read_block(begin_pos + i, min);
 	}
-	return file;
 }
 int search_file(const char *name) { // returns the number on the File Table
 	for (int i = 0; i < MAX_FILES; i++) {
@@ -156,7 +160,7 @@ uint16_t zeros[256] = {0};
 
 void remove_file(const char *name) { //changes all bits to 0
 	int nf = search_file(name);
-	File file = FileTable[i];
+	File file = FileTable[nf];
 	uint32_t begin = file.begin; // in this code i'm going to delete de header
 	write_block(begin, zeros);
 }

@@ -39,7 +39,7 @@ Int64 mul_64(Int64 a, Int64 b) {
 	int low_mul = a.low * b.low;
 	int high_mul = a.high * b.high;
 	int cross_mul1 = a.low * b.high;
-	int cross mul2 = a.high * b.low;
+	int cross_mul2 = a.high * b.low;
 	result.low = low_mul;
 	result.high = high_mul + (cross_mul1 + cross_mul2) + (low_mul < a.low);
         if (low_mul < a.low) {
@@ -52,7 +52,7 @@ Int64 mul_64(Int64 a, Int64 b) {
 Int64 div_64(Int64 a, Int64 b) { //do this thing is hard
 	Int64 result;
 	result.high = 0;
-	resutl.low = 0;
+	result.low = 0;
 	if (b.low == 0) {
 		result.low = 0;
 	} else {
