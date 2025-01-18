@@ -16,3 +16,5 @@
 #include "shell.h"
 
 #endif
+
+#include "packets.h"
