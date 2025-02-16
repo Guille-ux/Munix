@@ -103,9 +103,9 @@ int power(int base, int exp) {
 }
 
 int small_random(int seed) {
-	int p = 61351;
-	int g = 48793;
-	int m = 36283;
+	int p = 61343;
+	int g = 48799;
+	int m = 36277;
 	int out = ((g * seed*m)/(g+seed-m)) % p;
 	return out;
 }
