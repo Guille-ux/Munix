@@ -18,8 +18,8 @@ this is free software those who want to contribute can do so
 - add cryptography
 - add multitasking
 - add memory magnement (isn't finished at all)
-- finish VASM
-
+- Big Maths, (doesn't work actually)
+  
 # Things Finished (from the to do list)
 
 - add protected blocks to avoid memory overwritting 
