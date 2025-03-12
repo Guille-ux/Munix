@@ -110,4 +110,38 @@ int small_random(int seed) {
 	return out;
 }
 
+void heapify(int heap[], int n, int i) { // i hate this, but it's efficient
+	int largest=i;
+	int r_son=i*2+2;
+	int l_son=i*2+1;
+	if (l_son < n && heap[l_son]> heap[largest]){
+		largest=l_son;
+	}
+	if (r_son < n && heap[r_son]> heap[largest]) {
+		largest=r_son;
+	}
+	if (largest != i) {
+		int temp = heap[i];
+		heap[i] = heap[largest];
+		heap[largest]=temp;
+		heapify(heap, n, largest);
+	}
+}
+
+void build_heap(int heap[], int n) { // wtf??
+	for (int i=(n-1)/2; i>=0; i--) {
+		heapify(heap, n, i)
+	}
+}
+
+void swap(int *a, int *b) { // Oh a simple swap function for do little things
+	int temp = *a;
+	*a = *b;
+	*b = temp;
+}
+
+void quick_sort(int arr[], unsigned int len, ) {
+	// Finnish this thing
+}
+
 #endif

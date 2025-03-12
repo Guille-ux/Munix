@@ -6,4 +6,9 @@ void raise_zero_error() {
 	print("Zero Division Error", 20, 0);
 }
 
+void mem_error() {
+	clear(0x4F);
+	print("Not Enough Memory", 20, 0);
+}
+
 #endif
