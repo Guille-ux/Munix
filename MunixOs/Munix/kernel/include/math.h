@@ -130,7 +130,7 @@ void heapify(int heap[], int n, int i) { // i hate this, but it's efficient
 
 void build_heap(int heap[], int n) { // wtf??
 	for (int i=(n-1)/2; i>=0; i--) {
-		heapify(heap, n, i)
+		heapify(heap, n, i);
 	}
 }
 
@@ -144,7 +144,7 @@ long long bin_pow(long long base, long long exp) {
 	long long ret=1;
 	long long quad_base=base;
 	while (exp > 0) {
-		if (long long exp % 2 == 1) {
+		if (exp % 2 == 1) {
 			ret *= quad_base;
 		}
 		quad_base *= quad_base;

@@ -1,6 +1,6 @@
 #define CODE_LEN 4096 //number of instructions can handle a process
-#define MAX_P 1024
-#define CYCLES 1024
+#define MAX_P 100
+#define CYCLES 100
 
 typedef struct {
 	char free; //is the task free or not
@@ -57,7 +57,7 @@ void calc_priors(unsigned int cycles, unsigned int total_votes) {
 	}
 }
 void manage(unsigned int n_cycles) {
-	unsigned int total_votes;
+	unsigned int total_votes=0;
 	for (int i=0; i < MAX_P; i++) {
 		total_votes += ps[i].votes;
 	}
