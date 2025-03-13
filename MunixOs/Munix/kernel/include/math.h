@@ -140,8 +140,17 @@ void swap(int *a, int *b) { // Oh a simple swap function for do little things
 	*b = temp;
 }
 
-void quick_sort(int arr[], unsigned int len, ) {
-	// Finnish this thing
+long long bin_pow(long long base, long long exp) {
+	long long ret=1;
+	long long quad_base=base;
+	while (exp > 0) {
+		if (long long exp % 2 == 1) {
+			ret *= quad_base;
+		}
+		quad_base *= quad_base;
+		exp /= 2;
+	}
+	return ret;
 }
 
 #endif
