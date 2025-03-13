@@ -2,6 +2,7 @@
 #define MUNIX_KERNEL
 
 #include "io.h"
+#include "memory.h"
 #include "errors.h"
 #include "disk.h"
 #include "speaker.h"
