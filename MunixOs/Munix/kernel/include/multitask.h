@@ -53,6 +53,7 @@ int new_process(uint16_t votes) {
 		ps[id].free=0;
 		ps[id].votes=votes;
 		ps[id].id=id;
+		ps[id].cycles=0;
 		init_mach(&ps[id].mach);
 		actual_id++;
 	}
