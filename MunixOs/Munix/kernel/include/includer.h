@@ -21,6 +21,7 @@
 #include "speaker.h"
 #include "timer.h"
 #include "ports.h"
+#include "rsdp.h"
 #include "types.h"
 #include "stnio.h"
 #include "ciphers.h"
