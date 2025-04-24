@@ -41,7 +41,7 @@ typedef struct {
 
 typedef struct MemBlock {
     uint8_t value;
-    void *next;
+    MemBlock *next;
     Bool free;
 } MemBlock;
 
@@ -63,14 +63,14 @@ void init_block_manager(BlockManager *manager, MemBlock *memory, uint32_t size) 
     manager->size = size;
     manager->free_list = memory;
     manager->free_list->value=0;
-    manager->free_list->next = NULL;
+    manager->free_list->next = (MemBlock *)NULL;
     manager->free_list->free = true;
 }
 
 void init_block(MemBlock *block, BlockManager *manager, uint32_t pos) {
     block->free=true;
     block->value=0;
-    block->next=NULL;
+    block->next=(MemBlock *)NULL;
 }
 
 void init_blocks(BlockManager *manager) {
@@ -131,7 +131,7 @@ void free_block(MemBlock *ptr) { //más simple todavia
             cnext=ptr;
             ptr->free=true;
             ptr=(MemBlock *)ptr->next;
-            cnext->next=NULL;
+            cnext->next=(MemBlock *)NULL;
         }
         
     }
