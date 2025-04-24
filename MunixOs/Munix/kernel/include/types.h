@@ -16,6 +16,27 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
+
+
+//definiendo tipos importantes
+
+typedef unsigned char Bool;
+#define true 1
+#define false 0
+
+//-------------------------------------------------//
+// toca definir uint
+//-------------------------------------------------//
+
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+
+
+//oh, NULL
+
+#define NULL ( (void *) 0)
+
 //COLORS
 #define BLACK 0x00
 #define BLUE 0x01
