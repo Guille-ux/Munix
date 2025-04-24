@@ -29,8 +29,12 @@ void tmemcpy(uint8_t *recv, uint8_t *sender, uint32_t large) {
 void blocpy(MemBlock *recv, MemBlock *sender, uint32_t large) {
     uint32_t i = 0;
     while (i < large) {
-
+        recv->value=sender->value;
         sender=sender->next;
+        if (sender->next==(MemBlock *)NULL || recv->next==(MemBlock *)NULL) {
+            //en el futuro dar error
+            break;
+        }
         recv=recv->next;
         i++;
     }
