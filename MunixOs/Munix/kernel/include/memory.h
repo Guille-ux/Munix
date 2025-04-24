@@ -58,13 +58,11 @@ typedef struct {
 
 #include "../types.h"
 #include "mem_structs.h"
+#include "stdio.h" //quitar luego
 
 void init_block_manager(BlockManager *manager, MemBlock *memory, uint32_t size) {
     manager->size = size;
     manager->free_list = memory;
-    manager->free_list->value=0;
-    manager->free_list->next = (MemBlock *)NULL;
-    manager->free_list->free = true;
 }
 
 void init_block(MemBlock *block, BlockManager *manager, uint32_t pos) {
@@ -74,7 +72,7 @@ void init_block(MemBlock *block, BlockManager *manager, uint32_t pos) {
 }
 
 void init_blocks(BlockManager *manager) {
-    for (uint32_t i=1; i<manager->size;i++) {
+    for (uint32_t i=0; i<manager->size;i++) {
         init_block(&manager->free_list[i], manager, i);
     }
 }
@@ -120,20 +118,13 @@ void *allocate_block(BlockManager *manager, uint32_t size) { // es simple, el si
     }
 }
 
-
-void free_block(MemBlock *ptr) { //más simple todavia
-    MemBlock *cnext;
+void free_block(MemBlock *ptr) {
     while (1) {
-        if (ptr->next==NULL) {
-            ptr->free=true;
+        if (ptr==NULL) {
             break;
-        } else {
-            cnext=ptr;
-            ptr->free=true;
-            ptr=(MemBlock *)ptr->next;
-            cnext->next=(MemBlock *)NULL;
         }
-        
+        ptr->free=true;
+        ptr=ptr->next;
     }
 }
 
