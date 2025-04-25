@@ -21,7 +21,7 @@
 #ifndef _MEM_STRUCTS_H
 #define _MEM_STRUCTS_H
 
-#include "../types.h"
+#include "io.h"
 
 typedef struct {
     uint8_t *mem; // puntero al bloque principal
@@ -56,9 +56,7 @@ typedef struct {
 #ifndef _BLOCKS_H
 #define _BLOCKS_H
 
-#include "../types.h"
-#include "mem_structs.h"
-#include "stdio.h" //quitar luego
+#include "io.h"
 
 void init_block_manager(BlockManager *manager, MemBlock *memory, uint32_t size) {
     manager->size = size;
