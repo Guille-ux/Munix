@@ -119,27 +119,36 @@ int inter(char *text) {
 	return result;
 }
 void sprint(char *buffer, int nmum) {
-	int num = nmum*10;
-	int i = 0;
-	int is_nega = 0;
-	int nlen = 0;
-	char m[BUFFER_SIZE];
-	if (num < 0) {
-		is_nega = 1;
-	}
-	while (num != 0) {
-		m[i] = num % 10 + '0';
-		i++;
-		num /= 10;
-	}
-	if (is_nega == 1) {
-		m[i] = '-';
-	}
-	for (int x = i; x > 0; x--) {
-		buffer[x-1] = m[x];
-	}
-	buffer[i++] = '\n';
+    unsigned int unum;
+    int i = 0;
+    int is_nega = 0;
+    char temp[BUFFER_SIZE];
+
+    if (nmum == 0) {
+        buffer[i++] = '0';
+        buffer[i++] = '\n';
+        return;
+    }
+    if (nmum < 0) {
+        is_nega = 1;
+        unum = (unsigned int)(-(nmum + 1)) + 1;
+    } else {
+        unum = (unsigned int)nmum;
+    }
+    while (unum > 0) {
+        temp[i++] = (unum % 10) + '0';
+        unum /= 10;
+    }
+
+    if (is_nega) {
+        temp[i++] = '-';
+    }
+    for (int j = 0; j < i; j++) {
+        buffer[j] = temp[i - (j + 1)];
+    }
+    buffer[i++] = '\n';
 }
+
 int ccmp(char *str1, char *str2, int leng) {
          if (len(*str1 ) > leng) {
                 for (int i = 0; i < leng; i++) {
@@ -153,7 +162,7 @@ int ccmp(char *str1, char *str2, int leng) {
         return 1;
 
 }
-int sccmp(char *str1, char *str2, int leng, int begin) {
+int sccmp(char *str1, char *str2, unsigned int leng, unsigned int begin) {
          if (len(*str1 ) > leng) {
                 for (int i = 0; i < leng; i++) {
                         if (str1[i + begin] != str2[i]) {

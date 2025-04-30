@@ -45,6 +45,8 @@ void shell() { //el bucle de la shell
 			posi.posc = 0;
 			clear(NORMAL_COLOR);
 			load_mat();
+		} else if (ccmp(shellbuffer, "write\n", 5)) {
+			//???
 		}
 		buffclean(shellbuffer);
 		if (posi.posc >= 80*23) {
