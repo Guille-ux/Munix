@@ -30,6 +30,7 @@
 #include "display.h"
 #include "fs.h"
 #include "shell.h"
+#include "multitask.h"
 
 #endif
 

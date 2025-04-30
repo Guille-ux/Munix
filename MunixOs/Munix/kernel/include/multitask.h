@@ -61,7 +61,7 @@ int new_process(uint16_t votes) {
 }
 void kill_process(uint16_t id) {
 	ps[id].free=1;
-	ps[id].votes=0
+	ps[id].votes=0;
 	actual_id--;
 }
 
