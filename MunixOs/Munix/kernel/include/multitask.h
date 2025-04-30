@@ -89,7 +89,7 @@ void manage(unsigned int n_cycles) {
 						break;
 					}
 					else {
-						exec(ps[i].code[ps[i].mach.counter], ps[i].mach);
+						exec(ps[i].code[ps[i].mach.counter], &ps[i].mach);
 					}
 				}
 			}

@@ -14,10 +14,10 @@
 #ifndef MUNIX_KERNEL
 #define MUNIX_KERNEL
 
+#include "packets.h"
 #include "io.h"
 #include "types.h"
 #include "memory.h"
-#include "tmem.h"
 #include "errors.h"
 #include "disk.h"
 #include "speaker.h"
@@ -34,4 +34,4 @@
 
 #endif
 
-#include "packets.h"
+

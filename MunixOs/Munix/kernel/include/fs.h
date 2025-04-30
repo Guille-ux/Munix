@@ -62,7 +62,7 @@ uint16_t list_files() {
 			FileTable[files].ns = buffer[NS_POS];
 			FileTable[files].begin = i;
 			for (int f = 0; f < 50; f++){
-				FileTable[files].name[f] = (uint8_t)buffer[NAME_POS+f];
+				FileTable[files].name[f] = (uint8_t *)buffer[NAME_POS+f];
 			}
 			FileTable[files].name[51] = '\n';
 			i += FileTable[files].ns;

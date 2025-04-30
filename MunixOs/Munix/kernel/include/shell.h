@@ -45,11 +45,6 @@ void shell() { //el bucle de la shell
 			posi.posc = 0;
 			clear(NORMAL_COLOR);
 			load_mat();
-		} else if (strcmp(shellbuffer, "ls\n")) {
-			posi.posc += 80;
-			sprint(ret, list_files());
-			print(ret, len(ret), posi.posc);
-
 		}
 		buffclean(shellbuffer);
 		if (posi.posc >= 80*23) {
