@@ -31,6 +31,8 @@
 #include "fs.h"
 #include "shell.h"
 #include "multitask.h"
+#include "pixels.h"
+#include "draw.h"
 
 #endif
 
