@@ -33,6 +33,7 @@
 #include "multitask.h"
 #include "pixels.h"
 #include "draw.h"
+#include "../../../../.conduitpkg/libzynk/src/zynk.h"
 
 #endif
 

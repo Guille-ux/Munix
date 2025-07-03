@@ -1,7 +1,7 @@
 /* This program is free software: you can redistribute it and/or modify
 /* it under the terms of the GNU General Public License as published by
 /* the Free Software Foundation, either version 3 of the License, or
-/* (at your option) any later version.
+/* any later version.
 /* This program is distributed in the hope that it will be useful,
 /* but WITHOUT ANY WARRANTY; without even the implied warranty of
 /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
@@ -11,14 +11,19 @@
 /* Copyright (c) 2025 Guillermo Leira Temes
 /* */
 
+#include <stdint.h>
+#include <stddef.h>
+/*
+
 #ifndef _STDINT_H
 #define _STDINT_H
-
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
 typedef unsigned long long uint64_t;
 #endif
+
+*/
 
 #ifndef IO_H
 #define IO_H
