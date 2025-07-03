@@ -1,0 +1,1 @@
+{"libzynk-build": "cd libzynk;cd src; bash build.sh", "libzynk-files": "cd libzynk/src ; ./where.sh"}

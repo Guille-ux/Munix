@@ -1,0 +1,1 @@
+{"version": "1.0.0", "name": "libzynk", "author": "Guillermo Leira Temes", "author_email": "guillermoleiratemes@protonmail.com", "mantainer_email": "NULL", "license": "LGPL", "dependencies": [], "entries": {"libzynk-build":"cd libzynk;cd src; bash build.sh", "libzynk-files":"cd libzynk/src ; ./where.sh"}} 

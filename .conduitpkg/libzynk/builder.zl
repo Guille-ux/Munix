@@ -1,0 +1,3 @@
+var h=((3+2)*5);
+
+call print(h);
