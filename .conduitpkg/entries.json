@@ -1,1 +1,1 @@
-{"libzynk-build": "cd libzynk;cd src; bash build.sh", "libzynk-files": "cd libzynk/src ; ./where.sh"}
+{"libzynk-build": "cd libzynk;cd src; bash build.sh", "libzynk-files": "cd libzynk/src ; ./where.sh", "libcs2-build": "cd libcs2 ; cd src ; echo \"Type: \"chmod u+x $(pwd)/configure\" and then type \"$(pwd)/configure [C compiler path] [C compiler flags]\"\"", "libcs2-get-build": "cd libcs2 ; cd src ; cat pybuild.py"}

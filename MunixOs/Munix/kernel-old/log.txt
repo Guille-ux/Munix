@@ -1,0 +1,15 @@
+i386-elf-ld: warning: multiboot.o: missing .note.GNU-stack section implies executable stack
+i386-elf-ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+i386-elf-ld: kernel.o: in function `sprint':
+kernel.c:(.text+0xeb1): undefined reference to `__stack_chk_fail_local'
+i386-elf-ld: kernel.o: in function `input':
+kernel.c:(.text+0x19a4): undefined reference to `__stack_chk_fail_local'
+i386-elf-ld: kernel.o: in function `read_disk':
+kernel.c:(.text+0x1d2f): undefined reference to `__stack_chk_fail_local'
+i386-elf-ld: kernel.o: in function `write_disk':
+kernel.c:(.text+0x1d9c): undefined reference to `__stack_chk_fail_local'
+i386-elf-ld: kernel.o: in function `mod_64':
+kernel.c:(.text+0x21c7): undefined reference to `__stack_chk_fail_local'
+i386-elf-ld: kernel.o:kernel.c:(.text+0x271c): more undefined references to `__stack_chk_fail_local' follow
+i386-elf-ld: kernel.ELF: hidden symbol `__stack_chk_fail_local' isn't defined
+i386-elf-ld: final link failed: bad value

@@ -1,0 +1,43 @@
+En el fichero incluido desde include/PASM/src/exec.h:14,
+                 desde include/PASM/pasm.h:17,
+                 desde include/packets.h:15,
+                 desde include/includer.h:17,
+                 desde kernel.c:17:
+include/PASM/src/out-drivs.h:16:6: aviso: conflicting types for built-in function ‘putchar’; expected ‘int(int)’ [-Wbuiltin-declaration-mismatch]
+   16 | void putchar(int pos, unsigned char ch);
+      |      ^~~~~~~
+include/PASM/src/out-drivs.h:1:1: nota: ‘putchar’ is declared in header ‘<stdio.h>’
+  +++ |+#include <stdio.h>
+    1 | /* This program is free software: you can redistribute it and/or modify
+En el fichero incluido desde include/includer.h:19:
+include/types.h:56:9: aviso: ‘WHITE’ redefined
+   56 | #define WHITE 0x0F
+      |         ^~~~~
+include/types.h:48:9: nota: esta es la ubicación de la definición previa
+   48 | #define WHITE 0x07
+      |         ^~~~~
+En el fichero incluido desde include/includer.h:23:
+include/timer.h: En la función ‘pit_time_init’:
+include/speaker.h:14:18: aviso: la conversión sin signo de ‘int’ a ‘uint16_t’ {también conocido como ‘short unsigned int’} cambia el valor de ‘1193182’ a ‘13534’ [-Woverflow]
+   14 | #define PIT_FREQ 1193182
+      |                  ^~~~~~~
+include/timer.h:22:28: nota: en expansión de macro ‘PIT_FREQ’
+   22 |         uint16_t divisor = PIT_FREQ;
+      |                            ^~~~~~~~
+i386-elf-ld: warning: multiboot.o: missing .note.GNU-stack section implies executable stack
+i386-elf-ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+xorriso 1.5.6 : RockRidge filesystem manipulator, libburnia project.
+
+Drive current: -outdev 'stdio:munix.iso'
+Media current: stdio file, overwriteable
+Media status : is blank
+Media summary: 0 sessions, 0 data blocks, 0 data,  593g free
+Added to ISO image: directory '/'='/tmp/grub.rWpZc6'
+xorriso : UPDATE :    1010 files added in 1 seconds
+Added to ISO image: directory '/'='/run/media/femboy/KINGSTON/GPacks/Munix/MunixOs/Munix'
+xorriso : UPDATE :    1059 files added in 1 seconds
+xorriso : NOTE : Copying to System Area: 512 bytes from file '/usr/lib/grub/i386-pc/boot_hybrid.img'
+ISO image produced: 14771 sectors
+Written to medium : 14771 sectors at LBA 0
+Writing to 'stdio:munix.iso' completed successfully.
+

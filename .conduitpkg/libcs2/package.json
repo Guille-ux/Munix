@@ -1,0 +1,15 @@
+{
+	"version":"1.0.2b",
+	"name":"libcs2",
+	"author":"Guillermo Leira Temes",
+	"author_email":"guillermoleiratemes@protonmail.com",
+	"mantainer_email":"NULL",
+	"license":"GPL-3.0",
+	"dependencies":[
+
+	],
+	"entries":{
+		"libcs2-build":"cd libcs2 ; cd src ; echo \"Type: \"chmod u+x $(pwd)/configure\" and then type \"$(pwd)/configure [C compiler path] [C compiler flags]\"\"",
+		"libcs2-get-build":"cd libcs2 ; cd src ; cat pybuild.py"
+	}
+}

@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -11,7 +13,7 @@
 # Copyright (c) 2025 Guillermo Leira Temes
 # 
 cd Munix/kernel
-gcc -m32 -c -o kernel.o kernel.c
+gcc -fno-stack-protector -m32 -c -o kernel.o kernel.c
 i386-elf-ld -Tlinker.ld -o kernel.ELF kernel.o multiboot.o -L../../libs -lzynk
 cd ../..
 grub-mkrescue -o munix.iso Munix
