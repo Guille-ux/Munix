@@ -1,0 +1,28 @@
+En el fichero incluido desde include/../../../../.conduitpkg/libcs2/src/include/libcs2.h:4,
+                 desde include/libcs2.h:2,
+                 desde kernel.c:5:
+include/../../../../.conduitpkg/libcs2/src/include/string.h:7:7: aviso: conflicting types for built-in function ‘memset’; expected ‘void *(void *, int,  unsigned int)’ [-Wbuiltin-declaration-mismatch]
+    7 | void *memset(void* block, unsigned char c, size_t n);
+      |       ^~~~~~
+include/../../../../.conduitpkg/libcs2/src/include/string.h:6:1: nota: ‘memset’ is declared in header ‘<string.h>’
+    5 | #include <stddef.h>
+  +++ |+#include <string.h>
+    6 | 
+i386-elf-ld: ../../libs/libcs2.a(vga.o):(.bss+0x0): multiple definition of `stdcolor'; kernel.o:(.bss+0x0): first defined here
+i386-elf-ld: warning: multiboot.o: missing .note.GNU-stack section implies executable stack
+i386-elf-ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+xorriso 1.5.6 : RockRidge filesystem manipulator, libburnia project.
+
+Drive current: -outdev 'stdio:munix.iso'
+Media current: stdio file, overwriteable
+Media status : is blank
+Media summary: 0 sessions, 0 data blocks, 0 data,  593g free
+Added to ISO image: directory '/'='/tmp/grub.NCl1qs'
+xorriso : UPDATE :    1010 files added in 1 seconds
+Added to ISO image: directory '/'='/run/media/femboy/KINGSTON/GPacks/Munix/MunixOs/Munix'
+xorriso : UPDATE :    1068 files added in 1 seconds
+xorriso : NOTE : Copying to System Area: 512 bytes from file '/usr/lib/grub/i386-pc/boot_hybrid.img'
+ISO image produced: 14780 sectors
+Written to medium : 14780 sectors at LBA 0
+Writing to 'stdio:munix.iso' completed successfully.
+

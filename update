@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cpkg --local uninstall libcs2
+
+cpkg --local get pkg libcs2

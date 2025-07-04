@@ -13,7 +13,8 @@
 # Copyright (c) 2025 Guillermo Leira Temes
 # 
 cd Munix/kernel
+nasm -f elf32 -o multiboot.o multiboot.asm
 gcc -fno-stack-protector -m32 -c -o kernel.o kernel.c
-i386-elf-ld -Tlinker.ld -o kernel.ELF kernel.o multiboot.o -L../../libs -lzynk
+i386-elf-ld -Tlinker.ld -o kernel.ELF kernel.o multiboot.o -L../../libs -lzynk -lcs2
 cd ../..
 grub-mkrescue -o munix.iso Munix

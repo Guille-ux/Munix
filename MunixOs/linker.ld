@@ -1,22 +1,16 @@
 OUTPUT_FORMAT(elf32-i386)
-ENTRY(kernel_entry)
-SECTIONS 
+ENTRY(_start)
+SECTIONS
 {
 	. = 1M;
-	.multiboot =
-	{
+	.text BLOCK(4K) : ALIGN(4K) {
 		*(.multiboot)
-	}
-	.text = 
-	{
 		*(.text)
 	}
-	.data = 
-	{
+	.data BLOCK(4K) : ALIGN(4K) {
 		*(.data)
 	}
-	.bss = 
-	{
+	.bss BLOCK(4K) : ALIGN(4K) {
 		*(.bss)
 	}
 }
