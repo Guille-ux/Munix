@@ -1,0 +1,4 @@
+#!/bin/bash
+
+nasm -f elf32 -o boot.o boot.asm
+gcc -c -fno-stack-protector -ffreestanding -nostdlib -o kboot.o boot.c

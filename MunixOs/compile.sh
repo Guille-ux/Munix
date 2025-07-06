@@ -13,8 +13,14 @@
 # Copyright (c) 2025 Guillermo Leira Temes
 # 
 cd Munix/kernel
+nasm -f elf32  -o idt_load.o asm/idt32.asm
+# para idt 64 nasm -f elf64 -o idt_load.o asm/idt64.asm
+nasm -f elf32 -o isr_stubs.o asm/isr_stubs.asm
+nasm -f elf32 -o gdt_load.o asm/gdt.asm
 nasm -f elf32 -o multiboot.o multiboot.asm
+gcc -fno-stack-protector -m32 -c -o gdt.o src/gdt.c
+gcc -fno-stack-protector -m32 -c -o idt.o src/idt.c
 gcc -fno-stack-protector -m32 -c -o kernel.o kernel.c
-i386-elf-ld -Tlinker.ld -o kernel.ELF kernel.o multiboot.o -L../../libs -lzynk -lcs2
+i386-elf-ld -Tlinker.ld -o kernel.ELF gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lzynk -lcs2
 cd ../..
 grub-mkrescue -o munix.iso Munix

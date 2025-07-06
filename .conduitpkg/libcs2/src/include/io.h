@@ -24,4 +24,10 @@ static inline void outw(uint16_t port, uint16_t data) {
 	asm volatile("outw %0, %1" : : "a"(data), "Nd"(port));
 }
 
+static inline void io_wait(void) {
+    asm volatile ("jmp 1f\n\t"
+                  "1: jmp 2f\n\t"
+                  "2:");
+}
+
 #endif
