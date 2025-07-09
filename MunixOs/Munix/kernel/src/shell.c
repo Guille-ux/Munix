@@ -26,5 +26,5 @@ void shell_update() {
     for (int i=1;i<stdout_interface.get_max_x()/8;i++) {
         kprintf("\t");
     }
-    kprintf("\r%s %s ", (const char*)shell_prompt, (const char*)shell_buffer);
+    kprintf("\r%s %s", (const char*)shell_prompt, (const char*)shell_buffer);
 }

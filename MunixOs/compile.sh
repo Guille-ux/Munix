@@ -18,6 +18,9 @@ nasm -f elf32  -o idt_load.o asm/idt32.asm
 nasm -f elf32 -o isr_stubs.o asm/isr_stubs.asm
 nasm -f elf32 -o gdt_load.o asm/gdt.asm
 nasm -f elf32 -o multiboot.o multiboot.asm
+cd mbash
+gcc -fno-stack-protector -m32 -c *.c
+cd ..
 gcc -fno-stack-protector -m32 -c -o shell.o src/shell.c
 gcc -fno-stack-protector -m32 -c -o timer.o src/timer.c
 gcc -fno-stack-protector -m32 -c -o pic.o src/pic.c
@@ -27,6 +30,6 @@ gcc -fno-stack-protector -m32 -c -o idt.o src/idt.c
 gcc -fno-stack-protector -m32 -c -o kernel.o kernel.c
 gcc -fno-stack-protector -m32 -c -o memory.o src/memory.c
 gcc -fno-stack-protector -m32 -c -o ksysarena.o src/sysarena.c
-i386-elf-ld -Tlinker.ld -o kernel.ELF shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lcs2 # -lzynk
+i386-elf-ld -Tlinker.ld -o kernel.ELF mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lcs2 # -lzynk
 cd ../..
 grub-mkrescue -o munix.iso Munix

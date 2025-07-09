@@ -74,8 +74,11 @@ isr_common_stub:
 	pusha
 
 	push ds
+	push es
+	push fs
+	push gs
 
-	mov ax, KERNEL_CODE_SEG_SEL
+	mov ax, KERNEL_DATA_SEG_SEL
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
@@ -84,10 +87,13 @@ isr_common_stub:
 	push esp
 
 	call isr_handler
-	
-	pop ds
 
 	add esp, 4 ; descartar el valor de esp_dummy
+
+	pop gs
+	pop fs
+	pop es
+	pop ds
 
 	popa
 

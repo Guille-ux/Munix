@@ -36,6 +36,8 @@ if [ "$1" == "liball" ]
 then
 	./debug.sh update
 	./debug.sh build-libs
+	cp -r libs/* Munix/libs
+	cp -r ../.conduitpkg/libcs2 Munix/libs
 	exit
 fi
 if [ "$1" == "all" ]

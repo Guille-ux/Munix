@@ -56,11 +56,11 @@ void idt_init() {
 
 	kprintf("Essential Descriptors Installed\n");
 
-	//idt_set_gate(32, (uint32_t)isr32, 0x08, 0x8E, 0);
-	register_timer_handler(); 
+	idt_set_gate(32, (uint32_t)isr32, 0x08, 0x8E, 0);
+	//register_timer_handler();
 	kprintf("IRQ0 (timer) Descriptor Installed\n");
 
-	idt_set_gate(0x21, (uint32_t)kernel_keyboard_handler, 0x08, 0x8E, 0);
+	idt_set_gate(0x21, (uint32_t)isr33, 0x08, 0x8E, 0);
 	kprintf("IRQ1 (keyboard) Descriptor Installed\n");
 
 	kprintf("IRQ Descriptors Installed\n");
@@ -79,5 +79,5 @@ void idt_init() {
 
 	kprintf("IDT Initialized!\n");
 
-	__asm__ volatile("sti");
+	//__asm__ volatile("sti");
 }

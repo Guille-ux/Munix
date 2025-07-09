@@ -14,5 +14,6 @@ extern volatile uint32_t tick_counter;
 void timer_init(int hz);
 void timer_handler(uint32_t *esp);
 void register_timer_handler(void);
+void timer_handler_2();
 
 #endif

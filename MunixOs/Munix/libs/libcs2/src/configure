@@ -1,0 +1,15 @@
+#!/bin/bash
+
+current_dir=$(pwd)
+cpath=$1
+cflags=$2
+source_dir=$(dirname "$(readlink -f "$0")")
+echo "Source Dir : ${source_dir}/src"
+echo "Build Dir : ${current_dir}/build"
+echo "C Flags : ${cflags}"
+echo "C Path : ${cpath}"
+mkdir -p build
+
+echo "{\"cpath\":\"$cpath\",\"cflags\":\"$cflags\",\"build-dir\":\"$current_dir/build\",\"source-dir\":\"$source_dir/src\"}" > pybuild.json
+
+echo "Config Generated!"

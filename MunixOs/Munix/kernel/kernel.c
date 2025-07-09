@@ -55,7 +55,7 @@ void kernel_main() {
 	/*__asm__ volatile("cli");
 	__asm__ volatile("sti");
 	*/
-	
+	__asm__ volatile("sti");
 
 	/*
 	keyboard_interface.handle=ps2_handle;
@@ -67,6 +67,7 @@ void kernel_main() {
 	kprintf("~ MunixOs ~\n");
 	shell_buffer = (char*)kmalloc(SHELL_BUFFER_SIZE);
 	// Una vez finalizada la inicialización activamos los interrupts
+	memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 	shell_update();
 	while (true) {
 		__asm__ volatile("cli");
@@ -80,7 +81,7 @@ void kernel_main() {
 			backspace=false;
 		} else if (send) {
 			kprintf("\n");
-			memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE-1);
+			memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 			shell_index=0;
 			shell_update();
 			send=false;

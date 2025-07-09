@@ -22,6 +22,11 @@ void timer_handler(uint32_t *esp) {
 	
 	pic_eoi(0); // Enviar EOI para IRQ0
 }
+void timer_handler_2() {
+	//kprintf("Tick!\n");
+	tick_counter++;
+	if(tick_counter >= 0xFFFFFFFF) tick_counter = 0; // Reset para evitar overflow
+}
 
 void register_timer_handler() {
 	idt_set_gate(32, (uint32_t)timer_handler, 0x08, 0x8E, 0); // IRQ0 mapped to IDT entry 32
