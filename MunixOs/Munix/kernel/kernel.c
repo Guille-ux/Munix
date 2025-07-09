@@ -12,7 +12,7 @@
 #include "include/timer.h"
 #include "include/pic.h"
 #include "include/shell.h"
-
+#include "minim/minim.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
@@ -81,6 +81,8 @@ void kernel_main() {
 			backspace=false;
 		} else if (send) {
 			kprintf("\n");
+			// temporal...
+			minim((const char*)shell_buffer);
 			memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 			shell_index=0;
 			shell_update();
