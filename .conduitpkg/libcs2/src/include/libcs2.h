@@ -9,5 +9,7 @@
 #include "keymaps.h"
 #include "stdbuff.h"
 #include "printf.h"
+#include "stdlog.h"
+#include "keyboard.h"
 
 #endif

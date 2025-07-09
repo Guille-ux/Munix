@@ -1,0 +1,11 @@
+#!/bin/bash
+
+exec_dir=$(dirname "$(readlink -f "$0")")
+current=$(pwd)
+
+cd $exec_dir
+
+cpkg --local uninstall $1
+cpkg --local get pkg $1
+
+cd $current

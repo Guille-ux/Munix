@@ -1,0 +1,1564 @@
+
+Munix/kernel/isr_stubs.o:     formato del fichero elf32-i386
+
+
+Desensamblado de la sección .text:
+
+00000000 <isr0x00>:
+   0:	fa                   	cli
+   1:	6a 00                	push   $0x0
+   3:	6a 00                	push   $0x0
+   5:	e9 3f 0b 00 00       	jmp    b49 <isr_common_stub>
+
+0000000a <isr0x01>:
+   a:	fa                   	cli
+   b:	6a 00                	push   $0x0
+   d:	6a 01                	push   $0x1
+   f:	e9 35 0b 00 00       	jmp    b49 <isr_common_stub>
+
+00000014 <isr0x02>:
+  14:	fa                   	cli
+  15:	6a 00                	push   $0x0
+  17:	6a 02                	push   $0x2
+  19:	e9 2b 0b 00 00       	jmp    b49 <isr_common_stub>
+
+0000001e <isr0x03>:
+  1e:	fa                   	cli
+  1f:	6a 00                	push   $0x0
+  21:	6a 03                	push   $0x3
+  23:	e9 21 0b 00 00       	jmp    b49 <isr_common_stub>
+
+00000028 <isr0x04>:
+  28:	fa                   	cli
+  29:	6a 00                	push   $0x0
+  2b:	6a 04                	push   $0x4
+  2d:	e9 17 0b 00 00       	jmp    b49 <isr_common_stub>
+
+00000032 <isr0x05>:
+  32:	fa                   	cli
+  33:	6a 00                	push   $0x0
+  35:	6a 05                	push   $0x5
+  37:	e9 0d 0b 00 00       	jmp    b49 <isr_common_stub>
+
+0000003c <isr0x06>:
+  3c:	fa                   	cli
+  3d:	6a 00                	push   $0x0
+  3f:	6a 06                	push   $0x6
+  41:	e9 03 0b 00 00       	jmp    b49 <isr_common_stub>
+
+00000046 <isr0x07>:
+  46:	fa                   	cli
+  47:	6a 00                	push   $0x0
+  49:	6a 07                	push   $0x7
+  4b:	e9 f9 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000050 <isr0x08>:
+  50:	fa                   	cli
+  51:	6a 08                	push   $0x8
+  53:	e9 f1 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000058 <isr0x09>:
+  58:	fa                   	cli
+  59:	6a 00                	push   $0x0
+  5b:	6a 09                	push   $0x9
+  5d:	e9 e7 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000062 <isr0x0A>:
+  62:	fa                   	cli
+  63:	6a 0a                	push   $0xa
+  65:	e9 df 0a 00 00       	jmp    b49 <isr_common_stub>
+
+0000006a <isr0x0B>:
+  6a:	fa                   	cli
+  6b:	6a 0b                	push   $0xb
+  6d:	e9 d7 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000072 <isr0x0C>:
+  72:	fa                   	cli
+  73:	6a 0c                	push   $0xc
+  75:	e9 cf 0a 00 00       	jmp    b49 <isr_common_stub>
+
+0000007a <isr0x0D>:
+  7a:	fa                   	cli
+  7b:	6a 0d                	push   $0xd
+  7d:	e9 c7 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000082 <isr0x0E>:
+  82:	fa                   	cli
+  83:	6a 0e                	push   $0xe
+  85:	e9 bf 0a 00 00       	jmp    b49 <isr_common_stub>
+
+0000008a <isr0x0F>:
+  8a:	fa                   	cli
+  8b:	6a 00                	push   $0x0
+  8d:	6a 0f                	push   $0xf
+  8f:	e9 b5 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000094 <isr0x10>:
+  94:	fa                   	cli
+  95:	6a 00                	push   $0x0
+  97:	6a 10                	push   $0x10
+  99:	e9 ab 0a 00 00       	jmp    b49 <isr_common_stub>
+
+0000009e <isr0x11>:
+  9e:	fa                   	cli
+  9f:	6a 11                	push   $0x11
+  a1:	e9 a3 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000a6 <isr0x12>:
+  a6:	fa                   	cli
+  a7:	6a 00                	push   $0x0
+  a9:	6a 12                	push   $0x12
+  ab:	e9 99 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000b0 <isr0x13>:
+  b0:	fa                   	cli
+  b1:	6a 00                	push   $0x0
+  b3:	6a 13                	push   $0x13
+  b5:	e9 8f 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000ba <isr0x14>:
+  ba:	fa                   	cli
+  bb:	6a 00                	push   $0x0
+  bd:	6a 14                	push   $0x14
+  bf:	e9 85 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000c4 <isr0x15>:
+  c4:	fa                   	cli
+  c5:	6a 15                	push   $0x15
+  c7:	e9 7d 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000cc <isr22>:
+  cc:	fa                   	cli
+  cd:	6a 00                	push   $0x0
+  cf:	6a 16                	push   $0x16
+  d1:	e9 73 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000d6 <isr23>:
+  d6:	fa                   	cli
+  d7:	6a 00                	push   $0x0
+  d9:	6a 17                	push   $0x17
+  db:	e9 69 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000e0 <isr24>:
+  e0:	fa                   	cli
+  e1:	6a 00                	push   $0x0
+  e3:	6a 18                	push   $0x18
+  e5:	e9 5f 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000ea <isr25>:
+  ea:	fa                   	cli
+  eb:	6a 00                	push   $0x0
+  ed:	6a 19                	push   $0x19
+  ef:	e9 55 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000f4 <isr26>:
+  f4:	fa                   	cli
+  f5:	6a 00                	push   $0x0
+  f7:	6a 1a                	push   $0x1a
+  f9:	e9 4b 0a 00 00       	jmp    b49 <isr_common_stub>
+
+000000fe <isr27>:
+  fe:	fa                   	cli
+  ff:	6a 00                	push   $0x0
+ 101:	6a 1b                	push   $0x1b
+ 103:	e9 41 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000108 <isr28>:
+ 108:	fa                   	cli
+ 109:	6a 00                	push   $0x0
+ 10b:	6a 1c                	push   $0x1c
+ 10d:	e9 37 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000112 <isr29>:
+ 112:	fa                   	cli
+ 113:	6a 00                	push   $0x0
+ 115:	6a 1d                	push   $0x1d
+ 117:	e9 2d 0a 00 00       	jmp    b49 <isr_common_stub>
+
+0000011c <isr30>:
+ 11c:	fa                   	cli
+ 11d:	6a 00                	push   $0x0
+ 11f:	6a 1e                	push   $0x1e
+ 121:	e9 23 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000126 <isr31>:
+ 126:	fa                   	cli
+ 127:	6a 00                	push   $0x0
+ 129:	6a 1f                	push   $0x1f
+ 12b:	e9 19 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000130 <isr32>:
+ 130:	fa                   	cli
+ 131:	6a 00                	push   $0x0
+ 133:	6a 20                	push   $0x20
+ 135:	e9 0f 0a 00 00       	jmp    b49 <isr_common_stub>
+
+0000013a <isr33>:
+ 13a:	fa                   	cli
+ 13b:	6a 00                	push   $0x0
+ 13d:	6a 21                	push   $0x21
+ 13f:	e9 05 0a 00 00       	jmp    b49 <isr_common_stub>
+
+00000144 <isr34>:
+ 144:	fa                   	cli
+ 145:	6a 00                	push   $0x0
+ 147:	6a 22                	push   $0x22
+ 149:	e9 fb 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000014e <isr35>:
+ 14e:	fa                   	cli
+ 14f:	6a 00                	push   $0x0
+ 151:	6a 23                	push   $0x23
+ 153:	e9 f1 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000158 <isr36>:
+ 158:	fa                   	cli
+ 159:	6a 00                	push   $0x0
+ 15b:	6a 24                	push   $0x24
+ 15d:	e9 e7 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000162 <isr37>:
+ 162:	fa                   	cli
+ 163:	6a 00                	push   $0x0
+ 165:	6a 25                	push   $0x25
+ 167:	e9 dd 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000016c <isr38>:
+ 16c:	fa                   	cli
+ 16d:	6a 00                	push   $0x0
+ 16f:	6a 26                	push   $0x26
+ 171:	e9 d3 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000176 <isr39>:
+ 176:	fa                   	cli
+ 177:	6a 00                	push   $0x0
+ 179:	6a 27                	push   $0x27
+ 17b:	e9 c9 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000180 <isr40>:
+ 180:	fa                   	cli
+ 181:	6a 00                	push   $0x0
+ 183:	6a 28                	push   $0x28
+ 185:	e9 bf 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000018a <isr41>:
+ 18a:	fa                   	cli
+ 18b:	6a 00                	push   $0x0
+ 18d:	6a 29                	push   $0x29
+ 18f:	e9 b5 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000194 <isr42>:
+ 194:	fa                   	cli
+ 195:	6a 00                	push   $0x0
+ 197:	6a 2a                	push   $0x2a
+ 199:	e9 ab 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000019e <isr43>:
+ 19e:	fa                   	cli
+ 19f:	6a 00                	push   $0x0
+ 1a1:	6a 2b                	push   $0x2b
+ 1a3:	e9 a1 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001a8 <isr44>:
+ 1a8:	fa                   	cli
+ 1a9:	6a 00                	push   $0x0
+ 1ab:	6a 2c                	push   $0x2c
+ 1ad:	e9 97 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001b2 <isr45>:
+ 1b2:	fa                   	cli
+ 1b3:	6a 00                	push   $0x0
+ 1b5:	6a 2d                	push   $0x2d
+ 1b7:	e9 8d 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001bc <isr46>:
+ 1bc:	fa                   	cli
+ 1bd:	6a 00                	push   $0x0
+ 1bf:	6a 2e                	push   $0x2e
+ 1c1:	e9 83 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001c6 <isr47>:
+ 1c6:	fa                   	cli
+ 1c7:	6a 00                	push   $0x0
+ 1c9:	6a 2f                	push   $0x2f
+ 1cb:	e9 79 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001d0 <isr48>:
+ 1d0:	fa                   	cli
+ 1d1:	6a 00                	push   $0x0
+ 1d3:	6a 30                	push   $0x30
+ 1d5:	e9 6f 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001da <isr49>:
+ 1da:	fa                   	cli
+ 1db:	6a 00                	push   $0x0
+ 1dd:	6a 31                	push   $0x31
+ 1df:	e9 65 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001e4 <isr50>:
+ 1e4:	fa                   	cli
+ 1e5:	6a 00                	push   $0x0
+ 1e7:	6a 32                	push   $0x32
+ 1e9:	e9 5b 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001ee <isr51>:
+ 1ee:	fa                   	cli
+ 1ef:	6a 00                	push   $0x0
+ 1f1:	6a 33                	push   $0x33
+ 1f3:	e9 51 09 00 00       	jmp    b49 <isr_common_stub>
+
+000001f8 <isr52>:
+ 1f8:	fa                   	cli
+ 1f9:	6a 00                	push   $0x0
+ 1fb:	6a 34                	push   $0x34
+ 1fd:	e9 47 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000202 <isr53>:
+ 202:	fa                   	cli
+ 203:	6a 00                	push   $0x0
+ 205:	6a 35                	push   $0x35
+ 207:	e9 3d 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000020c <isr54>:
+ 20c:	fa                   	cli
+ 20d:	6a 00                	push   $0x0
+ 20f:	6a 36                	push   $0x36
+ 211:	e9 33 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000216 <isr55>:
+ 216:	fa                   	cli
+ 217:	6a 00                	push   $0x0
+ 219:	6a 37                	push   $0x37
+ 21b:	e9 29 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000220 <isr56>:
+ 220:	fa                   	cli
+ 221:	6a 00                	push   $0x0
+ 223:	6a 38                	push   $0x38
+ 225:	e9 1f 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000022a <isr57>:
+ 22a:	fa                   	cli
+ 22b:	6a 00                	push   $0x0
+ 22d:	6a 39                	push   $0x39
+ 22f:	e9 15 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000234 <isr58>:
+ 234:	fa                   	cli
+ 235:	6a 00                	push   $0x0
+ 237:	6a 3a                	push   $0x3a
+ 239:	e9 0b 09 00 00       	jmp    b49 <isr_common_stub>
+
+0000023e <isr59>:
+ 23e:	fa                   	cli
+ 23f:	6a 00                	push   $0x0
+ 241:	6a 3b                	push   $0x3b
+ 243:	e9 01 09 00 00       	jmp    b49 <isr_common_stub>
+
+00000248 <isr60>:
+ 248:	fa                   	cli
+ 249:	6a 00                	push   $0x0
+ 24b:	6a 3c                	push   $0x3c
+ 24d:	e9 f7 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000252 <isr61>:
+ 252:	fa                   	cli
+ 253:	6a 00                	push   $0x0
+ 255:	6a 3d                	push   $0x3d
+ 257:	e9 ed 08 00 00       	jmp    b49 <isr_common_stub>
+
+0000025c <isr62>:
+ 25c:	fa                   	cli
+ 25d:	6a 00                	push   $0x0
+ 25f:	6a 3e                	push   $0x3e
+ 261:	e9 e3 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000266 <isr63>:
+ 266:	fa                   	cli
+ 267:	6a 00                	push   $0x0
+ 269:	6a 3f                	push   $0x3f
+ 26b:	e9 d9 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000270 <isr64>:
+ 270:	fa                   	cli
+ 271:	6a 00                	push   $0x0
+ 273:	6a 40                	push   $0x40
+ 275:	e9 cf 08 00 00       	jmp    b49 <isr_common_stub>
+
+0000027a <isr65>:
+ 27a:	fa                   	cli
+ 27b:	6a 00                	push   $0x0
+ 27d:	6a 41                	push   $0x41
+ 27f:	e9 c5 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000284 <isr66>:
+ 284:	fa                   	cli
+ 285:	6a 00                	push   $0x0
+ 287:	6a 42                	push   $0x42
+ 289:	e9 bb 08 00 00       	jmp    b49 <isr_common_stub>
+
+0000028e <isr67>:
+ 28e:	fa                   	cli
+ 28f:	6a 00                	push   $0x0
+ 291:	6a 43                	push   $0x43
+ 293:	e9 b1 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000298 <isr68>:
+ 298:	fa                   	cli
+ 299:	6a 00                	push   $0x0
+ 29b:	6a 44                	push   $0x44
+ 29d:	e9 a7 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002a2 <isr69>:
+ 2a2:	fa                   	cli
+ 2a3:	6a 00                	push   $0x0
+ 2a5:	6a 45                	push   $0x45
+ 2a7:	e9 9d 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002ac <isr70>:
+ 2ac:	fa                   	cli
+ 2ad:	6a 00                	push   $0x0
+ 2af:	6a 46                	push   $0x46
+ 2b1:	e9 93 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002b6 <isr71>:
+ 2b6:	fa                   	cli
+ 2b7:	6a 00                	push   $0x0
+ 2b9:	6a 47                	push   $0x47
+ 2bb:	e9 89 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002c0 <isr72>:
+ 2c0:	fa                   	cli
+ 2c1:	6a 00                	push   $0x0
+ 2c3:	6a 48                	push   $0x48
+ 2c5:	e9 7f 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002ca <isr73>:
+ 2ca:	fa                   	cli
+ 2cb:	6a 00                	push   $0x0
+ 2cd:	6a 49                	push   $0x49
+ 2cf:	e9 75 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002d4 <isr74>:
+ 2d4:	fa                   	cli
+ 2d5:	6a 00                	push   $0x0
+ 2d7:	6a 4a                	push   $0x4a
+ 2d9:	e9 6b 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002de <isr75>:
+ 2de:	fa                   	cli
+ 2df:	6a 00                	push   $0x0
+ 2e1:	6a 4b                	push   $0x4b
+ 2e3:	e9 61 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002e8 <isr76>:
+ 2e8:	fa                   	cli
+ 2e9:	6a 00                	push   $0x0
+ 2eb:	6a 4c                	push   $0x4c
+ 2ed:	e9 57 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002f2 <isr77>:
+ 2f2:	fa                   	cli
+ 2f3:	6a 00                	push   $0x0
+ 2f5:	6a 4d                	push   $0x4d
+ 2f7:	e9 4d 08 00 00       	jmp    b49 <isr_common_stub>
+
+000002fc <isr78>:
+ 2fc:	fa                   	cli
+ 2fd:	6a 00                	push   $0x0
+ 2ff:	6a 4e                	push   $0x4e
+ 301:	e9 43 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000306 <isr79>:
+ 306:	fa                   	cli
+ 307:	6a 00                	push   $0x0
+ 309:	6a 4f                	push   $0x4f
+ 30b:	e9 39 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000310 <isr80>:
+ 310:	fa                   	cli
+ 311:	6a 00                	push   $0x0
+ 313:	6a 50                	push   $0x50
+ 315:	e9 2f 08 00 00       	jmp    b49 <isr_common_stub>
+
+0000031a <isr81>:
+ 31a:	fa                   	cli
+ 31b:	6a 00                	push   $0x0
+ 31d:	6a 51                	push   $0x51
+ 31f:	e9 25 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000324 <isr82>:
+ 324:	fa                   	cli
+ 325:	6a 00                	push   $0x0
+ 327:	6a 52                	push   $0x52
+ 329:	e9 1b 08 00 00       	jmp    b49 <isr_common_stub>
+
+0000032e <isr83>:
+ 32e:	fa                   	cli
+ 32f:	6a 00                	push   $0x0
+ 331:	6a 53                	push   $0x53
+ 333:	e9 11 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000338 <isr84>:
+ 338:	fa                   	cli
+ 339:	6a 00                	push   $0x0
+ 33b:	6a 54                	push   $0x54
+ 33d:	e9 07 08 00 00       	jmp    b49 <isr_common_stub>
+
+00000342 <isr85>:
+ 342:	fa                   	cli
+ 343:	6a 00                	push   $0x0
+ 345:	6a 55                	push   $0x55
+ 347:	e9 fd 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000034c <isr86>:
+ 34c:	fa                   	cli
+ 34d:	6a 00                	push   $0x0
+ 34f:	6a 56                	push   $0x56
+ 351:	e9 f3 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000356 <isr87>:
+ 356:	fa                   	cli
+ 357:	6a 00                	push   $0x0
+ 359:	6a 57                	push   $0x57
+ 35b:	e9 e9 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000360 <isr88>:
+ 360:	fa                   	cli
+ 361:	6a 00                	push   $0x0
+ 363:	6a 58                	push   $0x58
+ 365:	e9 df 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000036a <isr89>:
+ 36a:	fa                   	cli
+ 36b:	6a 00                	push   $0x0
+ 36d:	6a 59                	push   $0x59
+ 36f:	e9 d5 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000374 <isr90>:
+ 374:	fa                   	cli
+ 375:	6a 00                	push   $0x0
+ 377:	6a 5a                	push   $0x5a
+ 379:	e9 cb 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000037e <isr91>:
+ 37e:	fa                   	cli
+ 37f:	6a 00                	push   $0x0
+ 381:	6a 5b                	push   $0x5b
+ 383:	e9 c1 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000388 <isr92>:
+ 388:	fa                   	cli
+ 389:	6a 00                	push   $0x0
+ 38b:	6a 5c                	push   $0x5c
+ 38d:	e9 b7 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000392 <isr93>:
+ 392:	fa                   	cli
+ 393:	6a 00                	push   $0x0
+ 395:	6a 5d                	push   $0x5d
+ 397:	e9 ad 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000039c <isr94>:
+ 39c:	fa                   	cli
+ 39d:	6a 00                	push   $0x0
+ 39f:	6a 5e                	push   $0x5e
+ 3a1:	e9 a3 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003a6 <isr95>:
+ 3a6:	fa                   	cli
+ 3a7:	6a 00                	push   $0x0
+ 3a9:	6a 5f                	push   $0x5f
+ 3ab:	e9 99 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003b0 <isr96>:
+ 3b0:	fa                   	cli
+ 3b1:	6a 00                	push   $0x0
+ 3b3:	6a 60                	push   $0x60
+ 3b5:	e9 8f 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003ba <isr97>:
+ 3ba:	fa                   	cli
+ 3bb:	6a 00                	push   $0x0
+ 3bd:	6a 61                	push   $0x61
+ 3bf:	e9 85 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003c4 <isr98>:
+ 3c4:	fa                   	cli
+ 3c5:	6a 00                	push   $0x0
+ 3c7:	6a 62                	push   $0x62
+ 3c9:	e9 7b 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003ce <isr99>:
+ 3ce:	fa                   	cli
+ 3cf:	6a 00                	push   $0x0
+ 3d1:	6a 63                	push   $0x63
+ 3d3:	e9 71 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003d8 <isr100>:
+ 3d8:	fa                   	cli
+ 3d9:	6a 00                	push   $0x0
+ 3db:	6a 64                	push   $0x64
+ 3dd:	e9 67 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003e2 <isr101>:
+ 3e2:	fa                   	cli
+ 3e3:	6a 00                	push   $0x0
+ 3e5:	6a 65                	push   $0x65
+ 3e7:	e9 5d 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003ec <isr102>:
+ 3ec:	fa                   	cli
+ 3ed:	6a 00                	push   $0x0
+ 3ef:	6a 66                	push   $0x66
+ 3f1:	e9 53 07 00 00       	jmp    b49 <isr_common_stub>
+
+000003f6 <isr103>:
+ 3f6:	fa                   	cli
+ 3f7:	6a 00                	push   $0x0
+ 3f9:	6a 67                	push   $0x67
+ 3fb:	e9 49 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000400 <isr104>:
+ 400:	fa                   	cli
+ 401:	6a 00                	push   $0x0
+ 403:	6a 68                	push   $0x68
+ 405:	e9 3f 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000040a <isr105>:
+ 40a:	fa                   	cli
+ 40b:	6a 00                	push   $0x0
+ 40d:	6a 69                	push   $0x69
+ 40f:	e9 35 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000414 <isr106>:
+ 414:	fa                   	cli
+ 415:	6a 00                	push   $0x0
+ 417:	6a 6a                	push   $0x6a
+ 419:	e9 2b 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000041e <isr107>:
+ 41e:	fa                   	cli
+ 41f:	6a 00                	push   $0x0
+ 421:	6a 6b                	push   $0x6b
+ 423:	e9 21 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000428 <isr108>:
+ 428:	fa                   	cli
+ 429:	6a 00                	push   $0x0
+ 42b:	6a 6c                	push   $0x6c
+ 42d:	e9 17 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000432 <isr109>:
+ 432:	fa                   	cli
+ 433:	6a 00                	push   $0x0
+ 435:	6a 6d                	push   $0x6d
+ 437:	e9 0d 07 00 00       	jmp    b49 <isr_common_stub>
+
+0000043c <isr110>:
+ 43c:	fa                   	cli
+ 43d:	6a 00                	push   $0x0
+ 43f:	6a 6e                	push   $0x6e
+ 441:	e9 03 07 00 00       	jmp    b49 <isr_common_stub>
+
+00000446 <isr111>:
+ 446:	fa                   	cli
+ 447:	6a 00                	push   $0x0
+ 449:	6a 6f                	push   $0x6f
+ 44b:	e9 f9 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000450 <isr112>:
+ 450:	fa                   	cli
+ 451:	6a 00                	push   $0x0
+ 453:	6a 70                	push   $0x70
+ 455:	e9 ef 06 00 00       	jmp    b49 <isr_common_stub>
+
+0000045a <isr113>:
+ 45a:	fa                   	cli
+ 45b:	6a 00                	push   $0x0
+ 45d:	6a 71                	push   $0x71
+ 45f:	e9 e5 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000464 <isr114>:
+ 464:	fa                   	cli
+ 465:	6a 00                	push   $0x0
+ 467:	6a 72                	push   $0x72
+ 469:	e9 db 06 00 00       	jmp    b49 <isr_common_stub>
+
+0000046e <isr115>:
+ 46e:	fa                   	cli
+ 46f:	6a 00                	push   $0x0
+ 471:	6a 73                	push   $0x73
+ 473:	e9 d1 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000478 <isr116>:
+ 478:	fa                   	cli
+ 479:	6a 00                	push   $0x0
+ 47b:	6a 74                	push   $0x74
+ 47d:	e9 c7 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000482 <isr117>:
+ 482:	fa                   	cli
+ 483:	6a 00                	push   $0x0
+ 485:	6a 75                	push   $0x75
+ 487:	e9 bd 06 00 00       	jmp    b49 <isr_common_stub>
+
+0000048c <isr118>:
+ 48c:	fa                   	cli
+ 48d:	6a 00                	push   $0x0
+ 48f:	6a 76                	push   $0x76
+ 491:	e9 b3 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000496 <isr119>:
+ 496:	fa                   	cli
+ 497:	6a 00                	push   $0x0
+ 499:	6a 77                	push   $0x77
+ 49b:	e9 a9 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004a0 <isr120>:
+ 4a0:	fa                   	cli
+ 4a1:	6a 00                	push   $0x0
+ 4a3:	6a 78                	push   $0x78
+ 4a5:	e9 9f 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004aa <isr121>:
+ 4aa:	fa                   	cli
+ 4ab:	6a 00                	push   $0x0
+ 4ad:	6a 79                	push   $0x79
+ 4af:	e9 95 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004b4 <isr122>:
+ 4b4:	fa                   	cli
+ 4b5:	6a 00                	push   $0x0
+ 4b7:	6a 7a                	push   $0x7a
+ 4b9:	e9 8b 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004be <isr123>:
+ 4be:	fa                   	cli
+ 4bf:	6a 00                	push   $0x0
+ 4c1:	6a 7b                	push   $0x7b
+ 4c3:	e9 81 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004c8 <isr124>:
+ 4c8:	fa                   	cli
+ 4c9:	6a 00                	push   $0x0
+ 4cb:	6a 7c                	push   $0x7c
+ 4cd:	e9 77 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004d2 <isr125>:
+ 4d2:	fa                   	cli
+ 4d3:	6a 00                	push   $0x0
+ 4d5:	6a 7d                	push   $0x7d
+ 4d7:	e9 6d 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004dc <isr126>:
+ 4dc:	fa                   	cli
+ 4dd:	6a 00                	push   $0x0
+ 4df:	6a 7e                	push   $0x7e
+ 4e1:	e9 63 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004e6 <isr127>:
+ 4e6:	fa                   	cli
+ 4e7:	6a 00                	push   $0x0
+ 4e9:	6a 7f                	push   $0x7f
+ 4eb:	e9 59 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004f0 <isr128>:
+ 4f0:	fa                   	cli
+ 4f1:	6a 00                	push   $0x0
+ 4f3:	68 80 00 00 00       	push   $0x80
+ 4f8:	e9 4c 06 00 00       	jmp    b49 <isr_common_stub>
+
+000004fd <isr129>:
+ 4fd:	fa                   	cli
+ 4fe:	6a 00                	push   $0x0
+ 500:	68 81 00 00 00       	push   $0x81
+ 505:	e9 3f 06 00 00       	jmp    b49 <isr_common_stub>
+
+0000050a <isr130>:
+ 50a:	fa                   	cli
+ 50b:	6a 00                	push   $0x0
+ 50d:	68 82 00 00 00       	push   $0x82
+ 512:	e9 32 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000517 <isr131>:
+ 517:	fa                   	cli
+ 518:	6a 00                	push   $0x0
+ 51a:	68 83 00 00 00       	push   $0x83
+ 51f:	e9 25 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000524 <isr132>:
+ 524:	fa                   	cli
+ 525:	6a 00                	push   $0x0
+ 527:	68 84 00 00 00       	push   $0x84
+ 52c:	e9 18 06 00 00       	jmp    b49 <isr_common_stub>
+
+00000531 <isr133>:
+ 531:	fa                   	cli
+ 532:	6a 00                	push   $0x0
+ 534:	68 85 00 00 00       	push   $0x85
+ 539:	e9 0b 06 00 00       	jmp    b49 <isr_common_stub>
+
+0000053e <isr134>:
+ 53e:	fa                   	cli
+ 53f:	6a 00                	push   $0x0
+ 541:	68 86 00 00 00       	push   $0x86
+ 546:	e9 fe 05 00 00       	jmp    b49 <isr_common_stub>
+
+0000054b <isr135>:
+ 54b:	fa                   	cli
+ 54c:	6a 00                	push   $0x0
+ 54e:	68 87 00 00 00       	push   $0x87
+ 553:	e9 f1 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000558 <isr136>:
+ 558:	fa                   	cli
+ 559:	6a 00                	push   $0x0
+ 55b:	68 88 00 00 00       	push   $0x88
+ 560:	e9 e4 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000565 <isr137>:
+ 565:	fa                   	cli
+ 566:	6a 00                	push   $0x0
+ 568:	68 89 00 00 00       	push   $0x89
+ 56d:	e9 d7 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000572 <isr138>:
+ 572:	fa                   	cli
+ 573:	6a 00                	push   $0x0
+ 575:	68 8a 00 00 00       	push   $0x8a
+ 57a:	e9 ca 05 00 00       	jmp    b49 <isr_common_stub>
+
+0000057f <isr139>:
+ 57f:	fa                   	cli
+ 580:	6a 00                	push   $0x0
+ 582:	68 8b 00 00 00       	push   $0x8b
+ 587:	e9 bd 05 00 00       	jmp    b49 <isr_common_stub>
+
+0000058c <isr140>:
+ 58c:	fa                   	cli
+ 58d:	6a 00                	push   $0x0
+ 58f:	68 8c 00 00 00       	push   $0x8c
+ 594:	e9 b0 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000599 <isr141>:
+ 599:	fa                   	cli
+ 59a:	6a 00                	push   $0x0
+ 59c:	68 8d 00 00 00       	push   $0x8d
+ 5a1:	e9 a3 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005a6 <isr142>:
+ 5a6:	fa                   	cli
+ 5a7:	6a 00                	push   $0x0
+ 5a9:	68 8e 00 00 00       	push   $0x8e
+ 5ae:	e9 96 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005b3 <isr143>:
+ 5b3:	fa                   	cli
+ 5b4:	6a 00                	push   $0x0
+ 5b6:	68 8f 00 00 00       	push   $0x8f
+ 5bb:	e9 89 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005c0 <isr144>:
+ 5c0:	fa                   	cli
+ 5c1:	6a 00                	push   $0x0
+ 5c3:	68 90 00 00 00       	push   $0x90
+ 5c8:	e9 7c 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005cd <isr145>:
+ 5cd:	fa                   	cli
+ 5ce:	6a 00                	push   $0x0
+ 5d0:	68 91 00 00 00       	push   $0x91
+ 5d5:	e9 6f 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005da <isr146>:
+ 5da:	fa                   	cli
+ 5db:	6a 00                	push   $0x0
+ 5dd:	68 92 00 00 00       	push   $0x92
+ 5e2:	e9 62 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005e7 <isr147>:
+ 5e7:	fa                   	cli
+ 5e8:	6a 00                	push   $0x0
+ 5ea:	68 93 00 00 00       	push   $0x93
+ 5ef:	e9 55 05 00 00       	jmp    b49 <isr_common_stub>
+
+000005f4 <isr148>:
+ 5f4:	fa                   	cli
+ 5f5:	6a 00                	push   $0x0
+ 5f7:	68 94 00 00 00       	push   $0x94
+ 5fc:	e9 48 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000601 <isr149>:
+ 601:	fa                   	cli
+ 602:	6a 00                	push   $0x0
+ 604:	68 95 00 00 00       	push   $0x95
+ 609:	e9 3b 05 00 00       	jmp    b49 <isr_common_stub>
+
+0000060e <isr150>:
+ 60e:	fa                   	cli
+ 60f:	6a 00                	push   $0x0
+ 611:	68 96 00 00 00       	push   $0x96
+ 616:	e9 2e 05 00 00       	jmp    b49 <isr_common_stub>
+
+0000061b <isr151>:
+ 61b:	fa                   	cli
+ 61c:	6a 00                	push   $0x0
+ 61e:	68 97 00 00 00       	push   $0x97
+ 623:	e9 21 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000628 <isr152>:
+ 628:	fa                   	cli
+ 629:	6a 00                	push   $0x0
+ 62b:	68 98 00 00 00       	push   $0x98
+ 630:	e9 14 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000635 <isr153>:
+ 635:	fa                   	cli
+ 636:	6a 00                	push   $0x0
+ 638:	68 99 00 00 00       	push   $0x99
+ 63d:	e9 07 05 00 00       	jmp    b49 <isr_common_stub>
+
+00000642 <isr154>:
+ 642:	fa                   	cli
+ 643:	6a 00                	push   $0x0
+ 645:	68 9a 00 00 00       	push   $0x9a
+ 64a:	e9 fa 04 00 00       	jmp    b49 <isr_common_stub>
+
+0000064f <isr155>:
+ 64f:	fa                   	cli
+ 650:	6a 00                	push   $0x0
+ 652:	68 9b 00 00 00       	push   $0x9b
+ 657:	e9 ed 04 00 00       	jmp    b49 <isr_common_stub>
+
+0000065c <isr156>:
+ 65c:	fa                   	cli
+ 65d:	6a 00                	push   $0x0
+ 65f:	68 9c 00 00 00       	push   $0x9c
+ 664:	e9 e0 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000669 <isr157>:
+ 669:	fa                   	cli
+ 66a:	6a 00                	push   $0x0
+ 66c:	68 9d 00 00 00       	push   $0x9d
+ 671:	e9 d3 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000676 <isr158>:
+ 676:	fa                   	cli
+ 677:	6a 00                	push   $0x0
+ 679:	68 9e 00 00 00       	push   $0x9e
+ 67e:	e9 c6 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000683 <isr159>:
+ 683:	fa                   	cli
+ 684:	6a 00                	push   $0x0
+ 686:	68 9f 00 00 00       	push   $0x9f
+ 68b:	e9 b9 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000690 <isr160>:
+ 690:	fa                   	cli
+ 691:	6a 00                	push   $0x0
+ 693:	68 a0 00 00 00       	push   $0xa0
+ 698:	e9 ac 04 00 00       	jmp    b49 <isr_common_stub>
+
+0000069d <isr161>:
+ 69d:	fa                   	cli
+ 69e:	6a 00                	push   $0x0
+ 6a0:	68 a1 00 00 00       	push   $0xa1
+ 6a5:	e9 9f 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006aa <isr162>:
+ 6aa:	fa                   	cli
+ 6ab:	6a 00                	push   $0x0
+ 6ad:	68 a2 00 00 00       	push   $0xa2
+ 6b2:	e9 92 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006b7 <isr163>:
+ 6b7:	fa                   	cli
+ 6b8:	6a 00                	push   $0x0
+ 6ba:	68 a3 00 00 00       	push   $0xa3
+ 6bf:	e9 85 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006c4 <isr164>:
+ 6c4:	fa                   	cli
+ 6c5:	6a 00                	push   $0x0
+ 6c7:	68 a4 00 00 00       	push   $0xa4
+ 6cc:	e9 78 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006d1 <isr165>:
+ 6d1:	fa                   	cli
+ 6d2:	6a 00                	push   $0x0
+ 6d4:	68 a5 00 00 00       	push   $0xa5
+ 6d9:	e9 6b 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006de <isr166>:
+ 6de:	fa                   	cli
+ 6df:	6a 00                	push   $0x0
+ 6e1:	68 a6 00 00 00       	push   $0xa6
+ 6e6:	e9 5e 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006eb <isr167>:
+ 6eb:	fa                   	cli
+ 6ec:	6a 00                	push   $0x0
+ 6ee:	68 a7 00 00 00       	push   $0xa7
+ 6f3:	e9 51 04 00 00       	jmp    b49 <isr_common_stub>
+
+000006f8 <isr168>:
+ 6f8:	fa                   	cli
+ 6f9:	6a 00                	push   $0x0
+ 6fb:	68 a8 00 00 00       	push   $0xa8
+ 700:	e9 44 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000705 <isr169>:
+ 705:	fa                   	cli
+ 706:	6a 00                	push   $0x0
+ 708:	68 a9 00 00 00       	push   $0xa9
+ 70d:	e9 37 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000712 <isr170>:
+ 712:	fa                   	cli
+ 713:	6a 00                	push   $0x0
+ 715:	68 aa 00 00 00       	push   $0xaa
+ 71a:	e9 2a 04 00 00       	jmp    b49 <isr_common_stub>
+
+0000071f <isr171>:
+ 71f:	fa                   	cli
+ 720:	6a 00                	push   $0x0
+ 722:	68 ab 00 00 00       	push   $0xab
+ 727:	e9 1d 04 00 00       	jmp    b49 <isr_common_stub>
+
+0000072c <isr172>:
+ 72c:	fa                   	cli
+ 72d:	6a 00                	push   $0x0
+ 72f:	68 ac 00 00 00       	push   $0xac
+ 734:	e9 10 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000739 <isr173>:
+ 739:	fa                   	cli
+ 73a:	6a 00                	push   $0x0
+ 73c:	68 ad 00 00 00       	push   $0xad
+ 741:	e9 03 04 00 00       	jmp    b49 <isr_common_stub>
+
+00000746 <isr174>:
+ 746:	fa                   	cli
+ 747:	6a 00                	push   $0x0
+ 749:	68 ae 00 00 00       	push   $0xae
+ 74e:	e9 f6 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000753 <isr175>:
+ 753:	fa                   	cli
+ 754:	6a 00                	push   $0x0
+ 756:	68 af 00 00 00       	push   $0xaf
+ 75b:	e9 e9 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000760 <isr176>:
+ 760:	fa                   	cli
+ 761:	6a 00                	push   $0x0
+ 763:	68 b0 00 00 00       	push   $0xb0
+ 768:	e9 dc 03 00 00       	jmp    b49 <isr_common_stub>
+
+0000076d <isr177>:
+ 76d:	fa                   	cli
+ 76e:	6a 00                	push   $0x0
+ 770:	68 b1 00 00 00       	push   $0xb1
+ 775:	e9 cf 03 00 00       	jmp    b49 <isr_common_stub>
+
+0000077a <isr178>:
+ 77a:	fa                   	cli
+ 77b:	6a 00                	push   $0x0
+ 77d:	68 b2 00 00 00       	push   $0xb2
+ 782:	e9 c2 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000787 <isr179>:
+ 787:	fa                   	cli
+ 788:	6a 00                	push   $0x0
+ 78a:	68 b3 00 00 00       	push   $0xb3
+ 78f:	e9 b5 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000794 <isr180>:
+ 794:	fa                   	cli
+ 795:	6a 00                	push   $0x0
+ 797:	68 b4 00 00 00       	push   $0xb4
+ 79c:	e9 a8 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007a1 <isr181>:
+ 7a1:	fa                   	cli
+ 7a2:	6a 00                	push   $0x0
+ 7a4:	68 b5 00 00 00       	push   $0xb5
+ 7a9:	e9 9b 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007ae <isr182>:
+ 7ae:	fa                   	cli
+ 7af:	6a 00                	push   $0x0
+ 7b1:	68 b6 00 00 00       	push   $0xb6
+ 7b6:	e9 8e 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007bb <isr183>:
+ 7bb:	fa                   	cli
+ 7bc:	6a 00                	push   $0x0
+ 7be:	68 b7 00 00 00       	push   $0xb7
+ 7c3:	e9 81 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007c8 <isr184>:
+ 7c8:	fa                   	cli
+ 7c9:	6a 00                	push   $0x0
+ 7cb:	68 b8 00 00 00       	push   $0xb8
+ 7d0:	e9 74 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007d5 <isr185>:
+ 7d5:	fa                   	cli
+ 7d6:	6a 00                	push   $0x0
+ 7d8:	68 b9 00 00 00       	push   $0xb9
+ 7dd:	e9 67 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007e2 <isr186>:
+ 7e2:	fa                   	cli
+ 7e3:	6a 00                	push   $0x0
+ 7e5:	68 ba 00 00 00       	push   $0xba
+ 7ea:	e9 5a 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007ef <isr187>:
+ 7ef:	fa                   	cli
+ 7f0:	6a 00                	push   $0x0
+ 7f2:	68 bb 00 00 00       	push   $0xbb
+ 7f7:	e9 4d 03 00 00       	jmp    b49 <isr_common_stub>
+
+000007fc <isr188>:
+ 7fc:	fa                   	cli
+ 7fd:	6a 00                	push   $0x0
+ 7ff:	68 bc 00 00 00       	push   $0xbc
+ 804:	e9 40 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000809 <isr189>:
+ 809:	fa                   	cli
+ 80a:	6a 00                	push   $0x0
+ 80c:	68 bd 00 00 00       	push   $0xbd
+ 811:	e9 33 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000816 <isr190>:
+ 816:	fa                   	cli
+ 817:	6a 00                	push   $0x0
+ 819:	68 be 00 00 00       	push   $0xbe
+ 81e:	e9 26 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000823 <isr191>:
+ 823:	fa                   	cli
+ 824:	6a 00                	push   $0x0
+ 826:	68 bf 00 00 00       	push   $0xbf
+ 82b:	e9 19 03 00 00       	jmp    b49 <isr_common_stub>
+
+00000830 <isr192>:
+ 830:	fa                   	cli
+ 831:	6a 00                	push   $0x0
+ 833:	68 c0 00 00 00       	push   $0xc0
+ 838:	e9 0c 03 00 00       	jmp    b49 <isr_common_stub>
+
+0000083d <isr193>:
+ 83d:	fa                   	cli
+ 83e:	6a 00                	push   $0x0
+ 840:	68 c1 00 00 00       	push   $0xc1
+ 845:	e9 ff 02 00 00       	jmp    b49 <isr_common_stub>
+
+0000084a <isr194>:
+ 84a:	fa                   	cli
+ 84b:	6a 00                	push   $0x0
+ 84d:	68 c2 00 00 00       	push   $0xc2
+ 852:	e9 f2 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000857 <isr195>:
+ 857:	fa                   	cli
+ 858:	6a 00                	push   $0x0
+ 85a:	68 c3 00 00 00       	push   $0xc3
+ 85f:	e9 e5 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000864 <isr196>:
+ 864:	fa                   	cli
+ 865:	6a 00                	push   $0x0
+ 867:	68 c4 00 00 00       	push   $0xc4
+ 86c:	e9 d8 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000871 <isr197>:
+ 871:	fa                   	cli
+ 872:	6a 00                	push   $0x0
+ 874:	68 c5 00 00 00       	push   $0xc5
+ 879:	e9 cb 02 00 00       	jmp    b49 <isr_common_stub>
+
+0000087e <isr198>:
+ 87e:	fa                   	cli
+ 87f:	6a 00                	push   $0x0
+ 881:	68 c6 00 00 00       	push   $0xc6
+ 886:	e9 be 02 00 00       	jmp    b49 <isr_common_stub>
+
+0000088b <isr199>:
+ 88b:	fa                   	cli
+ 88c:	6a 00                	push   $0x0
+ 88e:	68 c7 00 00 00       	push   $0xc7
+ 893:	e9 b1 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000898 <isr200>:
+ 898:	fa                   	cli
+ 899:	6a 00                	push   $0x0
+ 89b:	68 c8 00 00 00       	push   $0xc8
+ 8a0:	e9 a4 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008a5 <isr201>:
+ 8a5:	fa                   	cli
+ 8a6:	6a 00                	push   $0x0
+ 8a8:	68 c9 00 00 00       	push   $0xc9
+ 8ad:	e9 97 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008b2 <isr202>:
+ 8b2:	fa                   	cli
+ 8b3:	6a 00                	push   $0x0
+ 8b5:	68 ca 00 00 00       	push   $0xca
+ 8ba:	e9 8a 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008bf <isr203>:
+ 8bf:	fa                   	cli
+ 8c0:	6a 00                	push   $0x0
+ 8c2:	68 cb 00 00 00       	push   $0xcb
+ 8c7:	e9 7d 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008cc <isr204>:
+ 8cc:	fa                   	cli
+ 8cd:	6a 00                	push   $0x0
+ 8cf:	68 cc 00 00 00       	push   $0xcc
+ 8d4:	e9 70 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008d9 <isr205>:
+ 8d9:	fa                   	cli
+ 8da:	6a 00                	push   $0x0
+ 8dc:	68 cd 00 00 00       	push   $0xcd
+ 8e1:	e9 63 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008e6 <isr206>:
+ 8e6:	fa                   	cli
+ 8e7:	6a 00                	push   $0x0
+ 8e9:	68 ce 00 00 00       	push   $0xce
+ 8ee:	e9 56 02 00 00       	jmp    b49 <isr_common_stub>
+
+000008f3 <isr207>:
+ 8f3:	fa                   	cli
+ 8f4:	6a 00                	push   $0x0
+ 8f6:	68 cf 00 00 00       	push   $0xcf
+ 8fb:	e9 49 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000900 <isr208>:
+ 900:	fa                   	cli
+ 901:	6a 00                	push   $0x0
+ 903:	68 d0 00 00 00       	push   $0xd0
+ 908:	e9 3c 02 00 00       	jmp    b49 <isr_common_stub>
+
+0000090d <isr209>:
+ 90d:	fa                   	cli
+ 90e:	6a 00                	push   $0x0
+ 910:	68 d1 00 00 00       	push   $0xd1
+ 915:	e9 2f 02 00 00       	jmp    b49 <isr_common_stub>
+
+0000091a <isr210>:
+ 91a:	fa                   	cli
+ 91b:	6a 00                	push   $0x0
+ 91d:	68 d2 00 00 00       	push   $0xd2
+ 922:	e9 22 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000927 <isr211>:
+ 927:	fa                   	cli
+ 928:	6a 00                	push   $0x0
+ 92a:	68 d3 00 00 00       	push   $0xd3
+ 92f:	e9 15 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000934 <isr212>:
+ 934:	fa                   	cli
+ 935:	6a 00                	push   $0x0
+ 937:	68 d4 00 00 00       	push   $0xd4
+ 93c:	e9 08 02 00 00       	jmp    b49 <isr_common_stub>
+
+00000941 <isr213>:
+ 941:	fa                   	cli
+ 942:	6a 00                	push   $0x0
+ 944:	68 d5 00 00 00       	push   $0xd5
+ 949:	e9 fb 01 00 00       	jmp    b49 <isr_common_stub>
+
+0000094e <isr214>:
+ 94e:	fa                   	cli
+ 94f:	6a 00                	push   $0x0
+ 951:	68 d6 00 00 00       	push   $0xd6
+ 956:	e9 ee 01 00 00       	jmp    b49 <isr_common_stub>
+
+0000095b <isr215>:
+ 95b:	fa                   	cli
+ 95c:	6a 00                	push   $0x0
+ 95e:	68 d7 00 00 00       	push   $0xd7
+ 963:	e9 e1 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000968 <isr216>:
+ 968:	fa                   	cli
+ 969:	6a 00                	push   $0x0
+ 96b:	68 d8 00 00 00       	push   $0xd8
+ 970:	e9 d4 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000975 <isr217>:
+ 975:	fa                   	cli
+ 976:	6a 00                	push   $0x0
+ 978:	68 d9 00 00 00       	push   $0xd9
+ 97d:	e9 c7 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000982 <isr218>:
+ 982:	fa                   	cli
+ 983:	6a 00                	push   $0x0
+ 985:	68 da 00 00 00       	push   $0xda
+ 98a:	e9 ba 01 00 00       	jmp    b49 <isr_common_stub>
+
+0000098f <isr219>:
+ 98f:	fa                   	cli
+ 990:	6a 00                	push   $0x0
+ 992:	68 db 00 00 00       	push   $0xdb
+ 997:	e9 ad 01 00 00       	jmp    b49 <isr_common_stub>
+
+0000099c <isr220>:
+ 99c:	fa                   	cli
+ 99d:	6a 00                	push   $0x0
+ 99f:	68 dc 00 00 00       	push   $0xdc
+ 9a4:	e9 a0 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009a9 <isr221>:
+ 9a9:	fa                   	cli
+ 9aa:	6a 00                	push   $0x0
+ 9ac:	68 dd 00 00 00       	push   $0xdd
+ 9b1:	e9 93 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009b6 <isr222>:
+ 9b6:	fa                   	cli
+ 9b7:	6a 00                	push   $0x0
+ 9b9:	68 de 00 00 00       	push   $0xde
+ 9be:	e9 86 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009c3 <isr223>:
+ 9c3:	fa                   	cli
+ 9c4:	6a 00                	push   $0x0
+ 9c6:	68 df 00 00 00       	push   $0xdf
+ 9cb:	e9 79 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009d0 <isr224>:
+ 9d0:	fa                   	cli
+ 9d1:	6a 00                	push   $0x0
+ 9d3:	68 e0 00 00 00       	push   $0xe0
+ 9d8:	e9 6c 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009dd <isr225>:
+ 9dd:	fa                   	cli
+ 9de:	6a 00                	push   $0x0
+ 9e0:	68 e1 00 00 00       	push   $0xe1
+ 9e5:	e9 5f 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009ea <isr226>:
+ 9ea:	fa                   	cli
+ 9eb:	6a 00                	push   $0x0
+ 9ed:	68 e2 00 00 00       	push   $0xe2
+ 9f2:	e9 52 01 00 00       	jmp    b49 <isr_common_stub>
+
+000009f7 <isr227>:
+ 9f7:	fa                   	cli
+ 9f8:	6a 00                	push   $0x0
+ 9fa:	68 e3 00 00 00       	push   $0xe3
+ 9ff:	e9 45 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000a04 <isr228>:
+ a04:	fa                   	cli
+ a05:	6a 00                	push   $0x0
+ a07:	68 e4 00 00 00       	push   $0xe4
+ a0c:	e9 38 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000a11 <isr229>:
+ a11:	fa                   	cli
+ a12:	6a 00                	push   $0x0
+ a14:	68 e5 00 00 00       	push   $0xe5
+ a19:	e9 2b 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000a1e <isr230>:
+ a1e:	fa                   	cli
+ a1f:	6a 00                	push   $0x0
+ a21:	68 e6 00 00 00       	push   $0xe6
+ a26:	e9 1e 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000a2b <isr231>:
+ a2b:	fa                   	cli
+ a2c:	6a 00                	push   $0x0
+ a2e:	68 e7 00 00 00       	push   $0xe7
+ a33:	e9 11 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000a38 <isr232>:
+ a38:	fa                   	cli
+ a39:	6a 00                	push   $0x0
+ a3b:	68 e8 00 00 00       	push   $0xe8
+ a40:	e9 04 01 00 00       	jmp    b49 <isr_common_stub>
+
+00000a45 <isr233>:
+ a45:	fa                   	cli
+ a46:	6a 00                	push   $0x0
+ a48:	68 e9 00 00 00       	push   $0xe9
+ a4d:	e9 f7 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000a52 <isr234>:
+ a52:	fa                   	cli
+ a53:	6a 00                	push   $0x0
+ a55:	68 ea 00 00 00       	push   $0xea
+ a5a:	e9 ea 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000a5f <isr235>:
+ a5f:	fa                   	cli
+ a60:	6a 00                	push   $0x0
+ a62:	68 eb 00 00 00       	push   $0xeb
+ a67:	e9 dd 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000a6c <isr236>:
+ a6c:	fa                   	cli
+ a6d:	6a 00                	push   $0x0
+ a6f:	68 ec 00 00 00       	push   $0xec
+ a74:	e9 d0 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000a79 <isr237>:
+ a79:	fa                   	cli
+ a7a:	6a 00                	push   $0x0
+ a7c:	68 ed 00 00 00       	push   $0xed
+ a81:	e9 c3 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000a86 <isr238>:
+ a86:	fa                   	cli
+ a87:	6a 00                	push   $0x0
+ a89:	68 ee 00 00 00       	push   $0xee
+ a8e:	e9 b6 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000a93 <isr239>:
+ a93:	fa                   	cli
+ a94:	6a 00                	push   $0x0
+ a96:	68 ef 00 00 00       	push   $0xef
+ a9b:	e9 a9 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000aa0 <isr240>:
+ aa0:	fa                   	cli
+ aa1:	6a 00                	push   $0x0
+ aa3:	68 f0 00 00 00       	push   $0xf0
+ aa8:	e9 9c 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000aad <isr241>:
+ aad:	fa                   	cli
+ aae:	6a 00                	push   $0x0
+ ab0:	68 f1 00 00 00       	push   $0xf1
+ ab5:	e9 8f 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000aba <isr242>:
+ aba:	fa                   	cli
+ abb:	6a 00                	push   $0x0
+ abd:	68 f2 00 00 00       	push   $0xf2
+ ac2:	e9 82 00 00 00       	jmp    b49 <isr_common_stub>
+
+00000ac7 <isr243>:
+ ac7:	fa                   	cli
+ ac8:	6a 00                	push   $0x0
+ aca:	68 f3 00 00 00       	push   $0xf3
+ acf:	eb 78                	jmp    b49 <isr_common_stub>
+
+00000ad1 <isr244>:
+ ad1:	fa                   	cli
+ ad2:	6a 00                	push   $0x0
+ ad4:	68 f4 00 00 00       	push   $0xf4
+ ad9:	eb 6e                	jmp    b49 <isr_common_stub>
+
+00000adb <isr245>:
+ adb:	fa                   	cli
+ adc:	6a 00                	push   $0x0
+ ade:	68 f5 00 00 00       	push   $0xf5
+ ae3:	eb 64                	jmp    b49 <isr_common_stub>
+
+00000ae5 <isr246>:
+ ae5:	fa                   	cli
+ ae6:	6a 00                	push   $0x0
+ ae8:	68 f6 00 00 00       	push   $0xf6
+ aed:	eb 5a                	jmp    b49 <isr_common_stub>
+
+00000aef <isr247>:
+ aef:	fa                   	cli
+ af0:	6a 00                	push   $0x0
+ af2:	68 f7 00 00 00       	push   $0xf7
+ af7:	eb 50                	jmp    b49 <isr_common_stub>
+
+00000af9 <isr248>:
+ af9:	fa                   	cli
+ afa:	6a 00                	push   $0x0
+ afc:	68 f8 00 00 00       	push   $0xf8
+ b01:	eb 46                	jmp    b49 <isr_common_stub>
+
+00000b03 <isr249>:
+ b03:	fa                   	cli
+ b04:	6a 00                	push   $0x0
+ b06:	68 f9 00 00 00       	push   $0xf9
+ b0b:	eb 3c                	jmp    b49 <isr_common_stub>
+
+00000b0d <isr250>:
+ b0d:	fa                   	cli
+ b0e:	6a 00                	push   $0x0
+ b10:	68 fa 00 00 00       	push   $0xfa
+ b15:	eb 32                	jmp    b49 <isr_common_stub>
+
+00000b17 <isr251>:
+ b17:	fa                   	cli
+ b18:	6a 00                	push   $0x0
+ b1a:	68 fb 00 00 00       	push   $0xfb
+ b1f:	eb 28                	jmp    b49 <isr_common_stub>
+
+00000b21 <isr252>:
+ b21:	fa                   	cli
+ b22:	6a 00                	push   $0x0
+ b24:	68 fc 00 00 00       	push   $0xfc
+ b29:	eb 1e                	jmp    b49 <isr_common_stub>
+
+00000b2b <isr253>:
+ b2b:	fa                   	cli
+ b2c:	6a 00                	push   $0x0
+ b2e:	68 fd 00 00 00       	push   $0xfd
+ b33:	eb 14                	jmp    b49 <isr_common_stub>
+
+00000b35 <isr254>:
+ b35:	fa                   	cli
+ b36:	6a 00                	push   $0x0
+ b38:	68 fe 00 00 00       	push   $0xfe
+ b3d:	eb 0a                	jmp    b49 <isr_common_stub>
+
+00000b3f <isr255>:
+ b3f:	fa                   	cli
+ b40:	6a 00                	push   $0x0
+ b42:	68 ff 00 00 00       	push   $0xff
+ b47:	eb 00                	jmp    b49 <isr_common_stub>
+
+00000b49 <isr_common_stub>:
+ b49:	fa                   	cli
+ b4a:	50                   	push   %eax
+ b4b:	51                   	push   %ecx
+ b4c:	52                   	push   %edx
+ b4d:	53                   	push   %ebx
+ b4e:	54                   	push   %esp
+ b4f:	55                   	push   %ebp
+ b50:	56                   	push   %esi
+ b51:	57                   	push   %edi
+ b52:	1e                   	push   %ds
+ b53:	66 b8 08 00          	mov    $0x8,%ax
+ b57:	8e d8                	mov    %eax,%ds
+ b59:	8e c0                	mov    %eax,%es
+ b5b:	8e e0                	mov    %eax,%fs
+ b5d:	8e e8                	mov    %eax,%gs
+ b5f:	54                   	push   %esp
+ b60:	e8 fc ff ff ff       	call   b61 <isr_common_stub+0x18>
+ b65:	58                   	pop    %eax
+ b66:	5f                   	pop    %edi
+ b67:	5e                   	pop    %esi
+ b68:	5d                   	pop    %ebp
+ b69:	83 c4 04             	add    $0x4,%esp
+ b6c:	5b                   	pop    %ebx
+ b6d:	5a                   	pop    %edx
+ b6e:	59                   	pop    %ecx
+ b6f:	58                   	pop    %eax
+ b70:	83 c4 08             	add    $0x8,%esp
+ b73:	fb                   	sti
+ b74:	cf                   	iret

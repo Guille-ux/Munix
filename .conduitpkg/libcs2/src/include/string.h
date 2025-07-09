@@ -10,7 +10,7 @@ size_t strlen(const char *str);
 void byte_to_hex_string(uint8_t byte, char* buffer);
 char *strcat(char *dest, const char *src);
 char *strcpy(char *dest, const char *src);
-
+void *memmove(void *dest, const void *src, size_t n);
 
 
 #endif

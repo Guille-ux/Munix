@@ -1,5 +1,3 @@
-[bits 32]
-
 %define KERNEL_CODE_SEG_SEL 0x08
 %define KERNEL_DATA_SEG_SEL 0x10
 
@@ -20,55 +18,83 @@
 		jmp isr_common_stub
 %endmacro
 
-ISR_NOERRCODE 0x00 ; Division By Zero
-ISR_ERRCODE 0x08 ; Double Fault
-ISR_ERRCODE 0x0D ; General Protection Fault
 
-%assign i 1
-%rep 7
-	ISR_NOERRCODE i
-%assign i i + 1
+ISR_NOERRCODE 0 ; 0x00  Divide Error
+ISR_NOERRCODE 1 ; 0x01  Debug Exception
+ISR_NOERRCODE 2 ; 0x02  NMI Interrupt
+ISR_NOERRCODE 3 ; 0x03  Breakpoint
+ISR_NOERRCODE 4 ; 0x04  Overflow
+ISR_NOERRCODE 5 ; 0x05  BOUND Range Exceeded
+ISR_NOERRCODE 6 ; 0x06  Invalid Opcode
+ISR_NOERRCODE 7 ; 0x07  Device Not Available (No Math Coprocessor)
+ISR_ERRCODE   8 ; 0x08  Double Fault 
+ISR_NOERRCODE 9 ; 0x09  Coprocessor Segment Overrun 
+ISR_ERRCODE   10 ; 0x0A  Invalid TSS 
+ISR_ERRCODE   11 ; 0x0B  Segment Not Present 
+ISR_ERRCODE   12 ; 0x0C  Stack-Segment Fault 
+ISR_ERRCODE   13 ; 0x0D  General Protection Fault 
+ISR_ERRCODE   14 ; 0x0E  Page Fault 
+
+ISR_NOERRCODE 15 ; 0x0F  Reserved 
+
+ISR_NOERRCODE 16 ; 0x10  x87 FPU Floating-Point Error
+ISR_ERRCODE   17 ; 0x11  Alignment Check 
+ISR_NOERRCODE 18 ; 0x12  Machine Check
+ISR_NOERRCODE 19 ; 0x13  SIMD Floating-Point Exception
+ISR_NOERRCODE 20 ; 0x14  Virtualization Exception
+ISR_ERRCODE   21 ; 0x15  Control Protection Exception 
+
+
+%assign i  0x16
+%rep 0x1F - 0x16 + 1 
+    ISR_NOERRCODE i
+%assign i  i + 1
 %endrep
 
-ISR_NOERRCODE 0x09 ; Coprocessor Segment Overrun
-ISR_NOERRCODE 0x0A ; Invalid TSS
-ISR_NOERRCODE 0x0B ; Segment Not Present
-ISR_NOERRCODE 0x0C ; Stack Segment Fault
-ISR_ERRCODE 0x0E ; Page Fault
-ISR_NOERRCODE 0x0F ; Reserved
 
-%assign i 0x10
-%rep 0x13-0x10+1
-	ISR_NOERRCODE i
-%assign i i + 1
+
+%assign i  0x20
+%rep 0x2F - 0x20 + 1 
+    ISR_NOERRCODE i
+%assign i  i + 1
 %endrep
 
-ISR_ERRCODE 0x11 ; Alignment check
-ISR_NOERRCODE 0x12 ; Machine check
-ISR_NOERRCODE 0x13 ; SIMD Floating-point Exception
-ISR_NOERRCODE 0x14 ; Virtualization Exception
-ISR_ERRCODE 0x15 ; Control Protection Exception
 
-%assign i 0x16
-%rep 0x1F - 0x16 + 1
-	ISR_NOERRCODE I
-%assign i i + 1
+%assign i  0x30
+%rep 0xFF - 0x30 + 1
+    ISR_NOERRCODE i
+%assign i  i + 1
 %endrep
+
+extern isr_handler
 
 isr_common_stub:
 	cli
 
-	push eax
-	push ecx
-	push edx
-	push ebx
-	push esp
-	push ebp
-	push esi
-	push edi
+	pusha
 
 	push ds
 
 	mov ax, KERNEL_CODE_SEG_SEL
-	mov 
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	push esp
+
+	call isr_handler
+	
+	pop ds
+
+	add esp, 4 ; descartar el valor de esp_dummy
+
+	popa
+
+	add esp, 8
+
+	sti ; rehabilitar las interrupciones
+
+
+	iret ; volver desde donde se llamo la interrupt
 

@@ -28,8 +28,26 @@ fi
 if [ "$1" == "run" ]
 then
 	echo "[ Ejecutando Máquina Virtual... ]"
-	qemu-system-i386 munix.iso
+	qemu-system-i386  munix.iso -s
 	echo "[ Máquina Virtual Finalizada!   ]"
+	exit
+fi
+if [ "$1" == "liball" ]
+then
+	./debug.sh update
+	./debug.sh build-libs
+	exit
+fi
+if [ "$1" == "all" ]
+then
+	./debug.sh compile
+	./debug.sh run
+	exit
+fi
+if [ "$1" == "-a" ]
+then
+	./debug.sh liball
+	./debug.sh all
 	exit
 fi
 

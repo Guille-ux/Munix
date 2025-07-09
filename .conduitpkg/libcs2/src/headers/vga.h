@@ -2,7 +2,7 @@
 #define VGA_HEADERS
 
 #define VGA_TEXT_MODE_STANDARD 80*25
-#define VGA_TEXT_MODE_BEGIN (size_t)0xB8000
+#define VGA_TEXT_MODE_BEGIN ((uint16_t*)0xB8000)
 #define VGA_TEXT_MODE_COLS 80
 #define VGA_TEXT_MODE_LINES 25
 

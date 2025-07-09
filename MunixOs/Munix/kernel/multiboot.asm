@@ -23,5 +23,5 @@ section .text
 		jmp .hang
 section .bss
 	kernel_stack:
-		resb 16384
+		resb 1024*1024*6; 16384
 	stack_top:
