@@ -13,6 +13,9 @@
 #include "include/pic.h"
 #include "include/shell.h"
 #include "minim/minim.h"
+#include "mbash/lexer.h"
+#include "mbash/mbtype.h"
+#include "mbash/parser.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
@@ -23,8 +26,8 @@ char *log[MAX_LOGS];
 #define kfree(ptr) (stdmem_interface.kfree((ptr)))
 
 // Sysarena Things
-#define MAX_ARENAS 16
-#define MEM_SIZE 32
+#define MAX_ARENAS 1024*10
+#define MEM_SIZE 1024*1024
 
 Arena karenas[MAX_ARENAS];
 uint8_t memory_pool[MEM_SIZE];
@@ -63,9 +66,11 @@ void kernel_main() {
 	keyboard_interface.data_port=0x60;
 	keyboard_interface.status_port=0x64;
 	*/
-
+	debug=true;
 	kprintf("~ MunixOs ~\n");
 	shell_buffer = (char*)kmalloc(SHELL_BUFFER_SIZE);
+	Token *t_buff = (Token*)kmalloc(sizeof(Token)*32);
+	kprintf("SOCORRO: %d\n", (int)t_buff);
 	// Una vez finalizada la inicialización activamos los interrupts
 	memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 	shell_update();
@@ -82,7 +87,9 @@ void kernel_main() {
 		} else if (send) {
 			kprintf("\n");
 			// temporal...
-			minim((const char*)shell_buffer);
+			//minim((const char*)shell_buffer);
+			lexer_init(shell_buffer);
+			lexen(t_buff, 32);
 			memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 			shell_index=0;
 			shell_update();

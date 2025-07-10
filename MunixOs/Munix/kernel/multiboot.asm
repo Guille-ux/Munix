@@ -21,7 +21,7 @@ section .text
 		cli
 		hlt
 		jmp .hang
-section .bss
+section .bss:
 	kernel_stack:
 		resb 1024*1024*6; 16384
 	stack_top:
