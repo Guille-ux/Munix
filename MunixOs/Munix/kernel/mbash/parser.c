@@ -9,6 +9,11 @@
  *
  */
 
+#include "parser.h"
+#include "lexer.h"
+#include "mbtype.h"
+#include "../include/memory.h"
+
 #define kmalloc(size) (stdmem_interface.kmalloc((size)))
 #define kfree(ptr) (stdmem_interface.kfree((ptr)))
 

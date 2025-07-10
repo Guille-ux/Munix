@@ -20,8 +20,12 @@ typedef enum {
 	NODE_WHILE_LOOP,
 	NODE_FOR_LOOP,
 	NODE_BREAK,
+	NODE_ECHO,
+	NODE_RETURN,
+	NODE_UNARY,
 } ASTNodeType;
 
+struct BreakNode;
 struct ASTNode;
 struct ProgramNode;
 struct AssignmentNode;
@@ -32,6 +36,9 @@ struct BinExprNode;
 struct IfNode;
 struct WhileNode;
 struct ForNode;
+struct EchoNode;
+struct RetNode;
+struct UnaryNode;
 
 typedef struct ProgramNode {
 	struct ASTNode **stmts;
@@ -50,9 +57,68 @@ typedef struct CommandCallNode {
 } CommandCallNode;
 
 typedef struct VarRefNode {
-/*
- * CONTINUAR!!!
- *
- */
+	char *name;
 } VarRefNode;
+
+typedef struct BinExprNode {
+	TokenType op;
+	struct ASTNode *left;
+	struct ASTNode *right;
+} BinExprNode;
+
+typedef struct IfNode {
+	struct ASTNode *condition;
+	struct ASTNode **thenb;
+	struct ASTNode **elseb;
+	size_t s_then;
+	size_t s_else;
+} IfNode;
+
+typedef struct WhileNode {
+	struct ASTNode *condition;
+	struct ASTNode **body;
+	size_t s_body;
+} WhileNode;
+
+typedef struct ForNode {
+	struct ASTNode *init;
+	struct ASTNode *condition;
+	struct ASTNode *inc;
+	struct ASTNode **body;
+	size_t s_body;
+} ForNode;
+
+typedef struct EchoNode {
+	struct ASTNode *expr;
+} EchoNode;
+
+typedef struct RetNode {
+	struct ASTNode *expr;
+} RetNode;
+
+typedef struct UnaryNode {
+	TokenType op;
+	struct ASTNode *expr;
+} UnaryNode;
+
+typedef struct ASTNode {
+	ASTNodeType type;
+	union {
+		ProgramNode program;
+		AssignmentNode assignment;
+		CommandCallNode command_call;
+		VarRefNode var_ref;
+		BinExprNode binary_expr;
+		IfNode if_stmt;
+		WhileNode while_loop;
+		ForNode for_loop;
+		EchoNode echo_stmt;
+		RetNode ret_stmt;
+		UnaryNode unary_expr;
+
+		char *string_lit;
+		long number_lit;
+	} data;
+} ASTNode;
+
 #endif
