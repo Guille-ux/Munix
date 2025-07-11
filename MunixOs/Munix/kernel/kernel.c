@@ -47,6 +47,7 @@ void kernel_main() {
 		stdout_init_vga();
 	}
 	config_stdmem_sysarena(&manager, karenas, memory_pool, MEM_SIZE, MAX_ARENAS);
+	libcs_mem_init(kmalloc, kfree);
 	config_klog_interface();
 	stdlog_interface.init(buffer_log, MAX_LOGS, MAX_LOG_LEN);
 	gdt_init();

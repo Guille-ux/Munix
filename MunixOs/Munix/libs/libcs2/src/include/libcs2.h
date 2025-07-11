@@ -11,5 +11,7 @@
 #include "printf.h"
 #include "stdlog.h"
 #include "keyboard.h"
+#include "ctype.h"
+#include "memory.h"
 
 #endif

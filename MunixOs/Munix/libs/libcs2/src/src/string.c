@@ -1,5 +1,6 @@
 #include "../include/string.h"
-
+#include "../include/ctype.h"
+#include "../include/memory.h"
 
 char *strcpy(char *dest, const char *src) {
     char *original_dest = dest;
@@ -212,4 +213,36 @@ char *strchr(const char *str, int c) {
         return (char *)str;
     }
     return NULL;
+}
+
+long atol(const char *str) {
+	long res=0;
+	char sign=1;
+	int i=0;
+
+	while (isspace(str[i])) i++; // esto es como un no se, eso .trim() de js
+	if (str[i]=='-') {
+		sign=-1;
+		i++;
+	} else if (str[i]=='+') {
+		i++;
+	}
+
+	while (isdigit(str[i])) {
+		res = res * 10 + (str[i]-'0');
+		i++;
+	}
+	return res*sign;
+}
+
+char *strdup(const char *str) {
+	if (str == NULL) return NULL;
+
+	if (malloc==NULL) return NULL; // hay que inicializar primero las funciones para comunicarse con la memoria, en serio
+	size_t len = strlen(str);
+	char *new_str=(char*)malloc(len+1);
+	if (new_str==NULL) return NULL;
+	memcpy(new_str, (const char*)str, len);
+	new_str[len]='\0';
+	return new_str;
 }

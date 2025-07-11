@@ -25,7 +25,6 @@ typedef enum {
 	NODE_UNARY,
 } ASTNodeType;
 
-struct BreakNode;
 struct ASTNode;
 struct ProgramNode;
 struct AssignmentNode;
@@ -101,6 +100,11 @@ typedef struct UnaryNode {
 	struct ASTNode *expr;
 } UnaryNode;
 
+typedef struct ExportNode {
+	struct ASTNode *var; // no es el nombre de la variable porque
+			     // tambien puede ser una asignación
+} ExportNode;
+
 typedef struct ASTNode {
 	ASTNodeType type;
 	union {
@@ -115,10 +119,15 @@ typedef struct ASTNode {
 		EchoNode echo_stmt;
 		RetNode ret_stmt;
 		UnaryNode unary_expr;
+		ExportNode export_stmt;
 
 		char *string_lit;
 		long number_lit;
 	} data;
 } ASTNode;
+
+void parser_init(Token *token_list);
+ASTNode *parse();
+void parser_free_ast(ASTNode *node);
 
 #endif
