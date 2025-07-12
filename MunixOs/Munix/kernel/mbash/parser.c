@@ -20,9 +20,9 @@
 static Token *tokens;
 static size_t token_index;
 
-static ASTNode *parse_program_node();
+static ASTNode *parse_program();
 static ASTNode *parse_statement();
-static ASTNode *parse_asignment();
+static ASTNode *parse_assignment();
 static ASTNode *parse_command_call();
 static ASTNode *parse_export();
 static ASTNode *parse_if();
@@ -61,9 +61,9 @@ static ASTNode *newASTNode(ASTNodeType type) {
 	return node;
 }
 
-static ASTNode *parse_program_node() {
+static ASTNode *parse_program() {
 	ASTNode *programNode=newASTNode(NODE_PROGRAM);
-	if (programNode->type!=NODE_PROGRAM) return NULL;
+	if (programNode==NULL) return NULL;
 
 	ProgramNode *program_data=&programNode->data.program;
 
@@ -105,7 +105,7 @@ static ASTNode *parse_program_node() {
 			program_data->stmts = new_stmts;
 		}
 
-		program_data->stmts[program_data->size++] == stmt;
+		program_data->stmts[program_data->size++] = stmt;
 
 		if (peek()->type != TOKEN_EOF && (peek()->type == TOKEN_NEW_LINE || peek()->type)) {
 			eat();
@@ -170,7 +170,7 @@ void parser_free_ast(ASTNode *node) {
 
 	switch (node->type) {
 		case NODE_PROGRAM: {
-					for (size_t i=0;i<node->data.program.size) {
+					for (size_t i=0;i<node->data.program.size;i++) {
 						parser_free_ast(node->data.program.stmts[i]);
 					}
 					kfree(node->data.program.stmts);
@@ -254,9 +254,170 @@ void parser_free_ast(ASTNode *node) {
 	kfree(node);
 }
 
-ASTNode *parse_first_expr() {
+static ASTNode *parse_primary_expr() {
 	/*
 	 * Empezando!!!
 	 *
 	 */
+	ASTNode *new_node;
+	Token *current = peek();
+	switch (current->type) {
+		case TOKEN_NUMBER: {
+			eat();
+			new_node = newASTNode(NODE_NUM_LIT);
+			new_node->data.number_lit = atol((const char*)current->value);
+			lexer_free_token(current);
+			break;
+				   }
+		case TOKEN_STRING: {
+			eat();
+			new_node = newASTNode(NODE_STRING_LIT);
+			new_node->data.string_lit = strdup((const char*)current->value);
+			lexer_free_token(current);
+			break;
+				   }
+		case TOKEN_DOLLAR: {
+			lexer_free_token(current);
+			eat();
+			current = peek();
+			if (!match(TOKEN_NUMBER)) return NULL;
+			size_t number = atol(current->value);
+			lexer_free_token(current);
+			current = peek();
+			if (current->type==TOKEN_COLON) {
+				new_node=newASTNode(NODE_VAR_REF);
+				lexer_free_token(current);
+				eat();
+				current = peek();
+				if (current->type!=TOKEN_IDENTIFIER) return NULL;
+				new_node->data.var_ref.name = strdup((const char*)current->value);
+				new_node->data.var_ref.num=number;
+			} else {
+				new_node=newASTNode(NODE_ARG_REF);
+				new_node->data.arg_ref.num=number;
+			}
+			lexer_free_token(current);
+			break;
+				   }
+		case TOKEN_LPAREN: {
+			lexer_free_token(current);
+			current = eat();
+			new_node = parse_expression();
+			if (!match(TOKEN_RPAREN)) {
+				kprintf("Err -> Expected ')'!\n");
+				return NULL;
+			}
+			break;
+				   }
+		default: {
+			kprintf("Err -> Unexpected Token!\n");
+			return NULL;
+			 }
+	}
+	eat();
+	return new_node;
+}
+
+static ASTNode *parse_unary_expr() {
+	Token *current = peek();
+	ASTNode *new_node;
+	switch (current->type) {
+		case TOKEN_MINUS: {
+			lexer_free_token(current);
+			eat();
+			current = peek();
+			new_node = newASTNode(NODE_UNARY);
+			if (new_node==NULL) return NULL;
+			new_node->data.unary_expr.expr = parse_unary_expr();
+			new_node->data.unary_expr.op = TOKEN_MINUS;
+			break;
+				  }
+		case TOKEN_BANG: {
+			lexer_free_token(current);
+			eat();
+			current = peek();
+			new_node = newASTNode(NODE_UNARY);
+			if (new_node==NULL) return NULL;
+			new_node->data.unary_expr.expr = parse_unary_expr();
+			new_node->data.unary_expr.op = TOKEN_BANG;
+			break;
+				 }
+		default: {
+			new_node = parse_primary_expr();
+			break;
+			 }
+	}
+	return new_node;
+}
+
+/*
+ * Definiciones de funciones de la cadena de parseo para expresiones
+ *
+ */
+
+static ASTNode *parse_factor();
+static ASTNode *parse_term();
+
+
+static ASTNode *parse_factor() {
+	return parse_unary_expr();
+}
+
+static ASTNode *parse_term() {
+	ASTNode *left_node = parse_factor();
+	while (peek()->type == TOKEN_MUL || peek()->type == TOKEN_DIV) {
+		Token *op = eat();
+
+		ASTNode *right_node=parse_factor();
+		if (right_node==NULL) {
+			parser_free_ast(left_node);
+			return NULL;
+		}
+		ASTNode *binExpr = newASTNode(NODE_BINARY_EXPR);
+		if (binExpr == NULL) {
+			parser_free_ast(left_node);
+			parser_free_ast(right_node);
+			return NULL;
+		}
+
+		binExpr->data.binary_expr.op=op->type;
+		binExpr->data.binary_expr.left=left_node;
+		binExpr->data.binary_expr.right=right_node;
+
+		left_node = binExpr;
+	}
+	return left_node;
+}
+
+static ASTNode *parse_expression() {
+	ASTNode *left_node = parse_term();
+	while  (peek()->type == TOKEN_PLUS ||
+		peek()->type == TOKEN_MINUS ||
+		peek()->type == TOKEN_EQ ||
+		peek()->type == TOKEN_GT ||
+		peek()->type == TOKEN_LT ||
+		peek()->type == TOKEN_LEQ ||
+		peek()->type == TOKEN_GEQ ||
+		peek()->type == TOKEN_BEQ) {
+		Token *op = eat();
+
+		ASTNode *right_node=parse_factor();
+		if (right_node==NULL) {
+			parser_free_ast(left_node);
+			return NULL;
+		}
+		ASTNode *binExpr = newASTNode(NODE_BINARY_EXPR);
+		if (binExpr == NULL) {
+			parser_free_ast(left_node);
+			parser_free_ast(right_node);
+			return NULL;
+		}
+
+		binExpr->data.binary_expr.op=op->type;
+		binExpr->data.binary_expr.left=left_node;
+		binExpr->data.binary_expr.right=right_node;
+
+		left_node = binExpr;
+	}
+	return left_node;
 }

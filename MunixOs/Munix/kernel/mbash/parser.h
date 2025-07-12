@@ -13,6 +13,7 @@ typedef enum {
 	NODE_COMMAND_CALL,
 	NODE_EXPORT,
 	NODE_VAR_REF,
+	NODE_ARG_REF,
 	NODE_STRING_LIT,
 	NODE_NUM_LIT,
 	NODE_BINARY_EXPR,
@@ -38,13 +39,19 @@ struct ForNode;
 struct EchoNode;
 struct RetNode;
 struct UnaryNode;
+struct ArgRefNode;
 
 typedef struct ProgramNode {
 	struct ASTNode **stmts;
 	size_t size;
 } ProgramNode;
 
+typedef struct ArgRefNode {
+	long num;
+} ArgRefNode;
+
 typedef struct AssignmentNode {
+	long num;
 	char *var_name;
 	struct ASTNode *expr;
 } AssignmentNode;
@@ -120,6 +127,7 @@ typedef struct ASTNode {
 		RetNode ret_stmt;
 		UnaryNode unary_expr;
 		ExportNode export_stmt;
+		ArgRefNode arg_ref;
 
 		char *string_lit;
 		long number_lit;
