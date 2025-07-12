@@ -401,7 +401,7 @@ static ASTNode *parse_expression() {
 		peek()->type == TOKEN_BEQ) {
 		Token *op = eat();
 
-		ASTNode *right_node=parse_factor();
+		ASTNode *right_node=parse_term();
 		if (right_node==NULL) {
 			parser_free_ast(left_node);
 			return NULL;
@@ -420,4 +420,48 @@ static ASTNode *parse_expression() {
 		left_node = binExpr;
 	}
 	return left_node;
+}
+
+static ASTNode *parse_assignment() {
+	ASTNode *new_node=newASTNode(NODE_ASSIGNMENT);
+	if (new_node==NULL) {
+		return NULL;
+	}
+	Token *number = eat();
+	if (!match(TOKEN_COLON)) {
+		kprintf("Err -> Expected ':' after number and before identifier\n");
+		parser_free_ast(new_node);
+		lexer_free_token(number);
+		return NULL;
+	}
+	Token *name = eat();
+	if (number->type!=TOKEN_NUMBER) {
+		parser_free_ast(new_node);
+		lexer_free_token(number);
+		lexer_free_token(name);
+		return NULL;
+	}
+	if (name->type!=TOKEN_STRING) {
+		parser_free_ast(new_node);
+		lexer_free_token(name);
+		lexer_free_number();
+		return NULL;
+	}
+	new_node->data.assignment.num = atol(number->value);
+	new_node->data.assignment.var_name = strdup(name->value);
+	lexer_free_token(name);
+	lexer_free_token(number);
+	if (!match(TOKEN_ASSIGN)) {
+		kprintf("Err -> Expected '=' after identifier\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	ASTNode *expr_node = parse_expression();
+	if (expr_node==NULL) {
+		parser_free_ast(expr_node);
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	new_node->data.assignment.expr = expr_node;
+	return new_node;
 }
