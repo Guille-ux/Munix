@@ -119,12 +119,9 @@ static ASTNode *parse_statement() {
 	Token *current = peek();
 
 	if (current->type==TOKEN_IDENTIFIER) {
-		Token *next = &tokens[token_index+1];
-		if (next->type==TOKEN_ASSIGN) {
-			return parse_assignment();
-		} else {
-			return parse_command_call();
-		}
+		return parse_command_call();
+	else if (current->type==TOKEN_NUMBER) {
+		return parse_assignment();
 	} else if (current->type == TOKEN_IF) {
 		return parse_if();
 	} else if (current->type == TOKEN_WHILE) {
@@ -464,4 +461,98 @@ static ASTNode *parse_assignment() {
 	}
 	new_node->data.assignment.expr = expr_node;
 	return new_node;
+}
+
+static ASTNode **parse_expression_list(size_t *argc);
+
+static ASTNode *parse_command_call() {
+	ASTNode *new_node = newASTNode(NODE_COMMAND_CALL);
+	if (new_node==NULL) return NULL;
+
+	Token *cmd = eat();
+	if (cmd->type != TOKEN_IDENTIFIER) {
+		kprintf("Err -> Expected Identifier but found Token n. %d\n", (int)cmd->type);
+		parser_free_ast(new_node);
+		lexer_free_token(cmd);
+		return NULL;
+	}
+	new_node->data.command_call.name = strdup(cmd->value);
+	if (new_node->data.command_call.name==NULL) {
+		kprintf("Err -> Out of Memory Error!\n");
+		parser_free_ast(new_node);
+		lexer_free_token(cmd);
+		return NULL;
+	}
+	lexer_free_token(cmd);
+
+
+	size_t argc=0; // args count
+	
+	ASTNode **argv = parse_expression_list(&argc);
+
+	if (argv==NULL) {
+		kprintf("Err -> Out of Memory\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	new_node->data.command_call.argc=argc;
+	new_node->data.command_call.args=argv;
+	return new_node;
+}
+
+static ASTNode **parse_expression_list(size_t *argc) {
+	ASTNode **list = NULL;
+	size_t size=0;
+	size_t cap = 4;
+
+	list = (ASTNode**)kmalloc(sizeof(ASTNode*)*cap);
+	if (list==NULL) {
+		kprintf("Err -> Out of Memory\n");
+		*argc=0;
+		return NULL;
+	}
+
+	while  (peek()->type != TOKEN_NEW_LINE &&
+		peek()->type != TOKEN_EOF &&
+		peek()->type != TOKEN_PIPE &&
+		peek()->type != TOKEN_IF &&
+		peek()->type != TOKEN_WHILE &&
+		peek()->type != TOKEN_FOR &&
+		peek()->type != TOKEN_BREAK &&
+		peek()->type != TOKEN_RETURN &&
+		peek()->type != TOKEN_EXPORT &&
+		peek()->type != TOKEN_ECHO) {
+		
+
+		ASTNode *arg = parse_expression();
+		if (arg == NULL) {
+			kprintf("Err -> Out of Memory\n");
+			for (size_t i = 0;i<size;i++) {
+				parser_free_ast(list[i]);
+			}
+			kfree(list);
+			*argc = 0;
+			return NULL;
+		}
+		if (size >= cap) {
+			cap *= 2;
+			ASTNode **new_list = (ASTNode **)kmalloc(sizeof(ASTNode*)*cap);
+			if (new_list == NULL) {
+				kprintf("Err -> Out of Memory\n");
+				parser_free_ast(arg);
+				for (size_t i = 0;i<size;i++) {
+					parser_free_ast(list[i]);
+				}
+				*argc = 0;
+				kfree(list);
+				return NULL;
+			}
+		}
+		memcpy((void*)new_list, (const void*)list, size * sizeof(ASTNode *));
+		kfree(list);
+		list = new_list;
+		list[size++]=arg;
+	}
+	*argc = size;
+	return list;
 }

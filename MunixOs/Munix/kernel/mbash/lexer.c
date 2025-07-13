@@ -117,6 +117,15 @@ Token lexer_next_token() {
 			case '!': advance(); return newToken(TOKEN_BANG, "!", 1);
 			case '<': advance(); return newToken(TOKEN_LESS, "<", 1);
 			case '>': advance(); return newToken(TOKEN_GREAT, ">", 1);
+			case '|': {
+				advance();
+				if (peek()=='|') {
+					advance();
+					return newToken(TOKEN_DPIPE, "||", 2);
+				} else {
+					return newToken(TOKEN_PIPE, "|", 1);
+				}
+				  }
 			default: break;
 		}
 		if (k_isspace(c)) {
@@ -127,11 +136,23 @@ Token lexer_next_token() {
 			while (peek() != '\n' && peek() != '\0') advance();
 			continue;
 		}
+		if (c=='\'') {
+			advance();
+			size_t start_pos=current_pos;
+			while (peek() != '\'' && peek() != '\0') {
+				advance();
+			}
+			if (peek() != '\0') return newToken(TOKEN_UNKNOWN, "Unterminated String!", 20);
+			Token string_tok=newToken(TOKEN_STRING, source + start_pos, current_pos - start_pos);
+			advance();
+			return string_tok;
+		}
 		if (c=='"') {
 			advance();
 			size_t start_pos=current_pos;
-			while (peek() != '"' && peek() != '\0') advance();
-
+			while (peek() != '"' && peek() != '\0') {
+				advance();
+			}
 			if (peek() != '\0') return newToken(TOKEN_UNKNOWN, "Unterminated String!", 20);
 
 			Token string_tok=newToken(TOKEN_STRING, source + start_pos, current_pos-start_pos);
