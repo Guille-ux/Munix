@@ -194,6 +194,7 @@ Token lexer_next_token() {
 		if (pattern("null")) return newToken(TOKEN_NULL, "null", 4);
 		if (pattern("!=")) return newToken(TOKEN_BEQ, "!=", 2);
 		if (pattern("do")) return newToken(TOKEN_DO, "do", 2);
+		if (pattern("done")) return newToken(TOKEN_DONE, "done", 4);
 
 		/*
 		 * Añadir más tokens de este tipo, algo me dice que seran importantes

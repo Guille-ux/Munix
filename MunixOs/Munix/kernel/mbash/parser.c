@@ -34,6 +34,7 @@ static ASTNode *parse_return();
 static ASTNode *parse_expression();
 static ASTNode *parse_unary_expr();
 static ASTNode *parse_primary_expr();
+static ASTNode **parse_statement_list(size_t *out_s, TokenType *stop_tokens, size_t n_stop_tokens);
 
 static Token *peek() {
 	return &tokens[token_index];
@@ -87,8 +88,8 @@ static ASTNode *parse_program() {
 
 		ASTNode *stmt = parse_statement();
 		if (stmt==NULL) {
-			kprintf("Err -> Memory Error!\n");
-			break;
+			parser_free_ast(programNode);
+			return NULL;
 		}
 
 		if (program_data->size >= cap) {
@@ -107,7 +108,7 @@ static ASTNode *parse_program() {
 
 		program_data->stmts[program_data->size++] = stmt;
 
-		if (peek()->type != TOKEN_EOF && (peek()->type == TOKEN_NEW_LINE || peek()->type)) {
+		if (peek()->type != TOKEN_EOF && (peek()->type == TOKEN_NEW_LINE)) {
 			eat();
 		}
 
@@ -124,7 +125,7 @@ static ASTNode *parse_statement() {
 		return parse_assignment();
 	} else if (current->type == TOKEN_IF) {
 		return parse_if();
-	} else if (current->type == TOKEN_WHILE) {
+	} else if (current->type == TOKEN_DO) {
 		return parse_while();
 	} else if (current->type == TOKEN_FOR) {
 		return parse_for();
@@ -362,7 +363,7 @@ static ASTNode *parse_factor() {
 
 static ASTNode *parse_term() {
 	ASTNode *left_node = parse_factor();
-	while (peek()->type == TOKEN_MUL || peek()->type == TOKEN_DIV) {
+	while ((peek()->type == TOKEN_MUL || peek()->type == TOKEN_DIV)) {
 		Token *op = eat();
 
 		ASTNode *right_node=parse_factor();
@@ -388,14 +389,14 @@ static ASTNode *parse_term() {
 
 static ASTNode *parse_expression() {
 	ASTNode *left_node = parse_term();
-	while  (peek()->type == TOKEN_PLUS ||
+	while  ((peek()->type == TOKEN_PLUS ||
 		peek()->type == TOKEN_MINUS ||
 		peek()->type == TOKEN_EQ ||
 		peek()->type == TOKEN_GT ||
 		peek()->type == TOKEN_LT ||
 		peek()->type == TOKEN_LEQ ||
 		peek()->type == TOKEN_GEQ ||
-		peek()->type == TOKEN_BEQ) {
+		peek()->type == TOKEN_BEQ)) {
 		Token *op = eat();
 
 		ASTNode *right_node=parse_term();
@@ -555,4 +556,332 @@ static ASTNode **parse_expression_list(size_t *argc) {
 	}
 	*argc = size;
 	return list;
+}
+
+static ASTNode *parse_echo() {
+	ASTNode *new_node = newASTNode(NODE_ECHO);
+
+	if (new_node == NULL) {
+		kprintf("Err -> Out of Memory\n");
+		return NULL;
+	}
+	Token *echo_k = eat();
+	lexer_free_token(echo_k);
+	ASTNode *expr = parse_expression();
+	if (expr == NULL) {
+		kfree(new_node);
+		return NULL;
+	}
+	new_node->data.echo_stmt.expr = expr;
+	return new_node;
+}
+
+static ASTNode *parse_return() {
+	ASTNode *new_node = newASTNode(NODE_RETURN);
+	if (new_node == NULL) {
+		kprintf("Err -> Out of Memory\n");
+		return NULL;
+	}
+	Token *ret_k=eat();
+	lexer_free_token(ret_k);
+	TokenType next = peek()->type;
+	if     (next != NEW_LINE &&
+		next != TOKEN_SEMICOLON &&
+		next != TOKEN_COMMA &&
+		next != TOKEN_PIPE &&
+		next != TOKEN_EOF) {
+		
+
+		ASTNode *expr = parse_expression();
+		if (expr==NULL) {
+			kfree(new_node);
+			return NULL;
+		}
+		new_node->data.ret_stmt.expr=expr;
+	} else {
+		new_node->data.ret_stmt.expr=NULL;
+	}
+	return new_node;
+}
+
+static ASTNode *parse_break() {
+	ASTNode *new_node = newASTNode(NODE_BREAK);
+	if (new_node==NULL) {
+		kprintf("Err -> Out of Memory\n");
+		return NULL;
+	}
+	Token *break_k = eat();
+
+	lexer_free_token(break_k);
+	return new_node;
+}
+
+static ASTNode *parse_statement_list(size_t *out_s, TokenType *stop_tokens, size_t n_stop_tokens) {
+	ASTNode **stmt_list = NULL;
+	size_t size = 0;
+	size_t cap = 4;
+	stmt_list = (ASTNode**)kmalloc(sizeof(ASTNode*)*cap);
+	if (stmt_list == NULL) {
+		kprintf("Err -> Out of Memory\n");
+		*out_s = 0;
+		return NULL;
+	}
+	while (peek()->type != TOKEN_EOF) {
+		bool is_stop=false;
+		for (size_t i=0; i<n_stop_tokens;i++) {
+			if (peek()->type == stop_tokens[i]) {
+				is_stop=true;
+				break;
+			}
+		}
+		if (is_stop) break;
+
+		if (peek()->type == TOKEN_NEW_LINE) {
+			eat();
+			continue;
+		}
+		ASTNode *stmt = parse_statement();
+		if (stmt==NULL) {
+			for (size_t i=0;i<size;i++) {
+				parser_free_ast(stmt_list[i]);
+			}
+			kfree(stmt_list);
+			*out_s = 0;
+			return NULL;
+		}
+		while (peek()->type == TOKEN_NEW_LINE) eat(); // token_new_line
+		
+		if (size >= cap) {
+			cap *= 2;
+			ASTNode **new_stmt_list = (ASTNode**)kmalloc(sizeof(ASTNode*)*cap);
+			if (new_stmt_list==NULL) {
+				kprintf("Err -> Out of Memory\n");
+				parser_free_ast(stmt);
+				for (size_t i=0;i<size;i++) {
+					parser_free_ast(stmt_list[i]);
+				}
+				kfree(stmt_list);
+				*out_s=0;
+				return NULL;
+			}
+			memcpy((void*)new_stmt_list, (const void*)stmt_list, size*sizeof(ASTNode*));
+			kfree(stmt_list);
+			stmt_list = new_stmt_list;
+		}
+		stmt_list[size++]=stmt;
+	}
+	*out_s = size;
+	return stmt_list;
+}
+
+static ASTNode *parse_if() {
+	ASTNode *new_node = newASTNode(NODE_IF);
+	if (new_node == NULL) {
+		kprintf("Err -> Out of Memory\n");
+		return NULL;
+	}
+
+	Token *if_k = eat();
+	lexer_free_token(if_k);
+	
+	new_node->data.if_stmt.condition = parse_expression();
+	if (!new_node->data.if_stmt.condition) {
+		kfree(new_node);
+		return NULL;
+	}
+	while (peek()->type == TOKEN_NEW_LINE) {
+		eat();
+	}
+	if (!match(TOKEN_THEN)) {
+		kprintf("Err -> Expected 'then' after condition\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	while (peek()->type == TOKEN_NEW_LINE) {
+		eat();
+	}
+	TokenType then_stop_toks[] = {TOKEN_FI, TOKEN_ELSE};
+
+	new_node->data.if_stmt.thenb = parse_statement_list(&(new_node->data.if_stmt.s_then), then_stop_toks, 2);
+	if (new_node->data.if_stmt.thenb == NULL || new_node->data.if_stmt.s_then==0) {
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	if (peek()->type == TOKEN_ELSE) {
+		/*
+		 * SOCORROOOOOOOO
+		 *
+		 */
+		eat();
+		while (peek()->type==TOKEN_NEW_LINE) {
+			eat();
+		}
+		TokenType else_stop_toks[] = {TOKEN_FI};
+		new_node->data.if_stmt.elseb = parse_statement_list(
+				&(new_node->data.if_stmt.s_else),
+				else_stop_toks,
+				1
+				);
+		if (new_node->data.if_stmt.elseb == NULL || new_node->data.if_stmt.s_else == 0) {
+			parser_free_ast(new_node);
+			return NULL;
+		}
+	} else {
+		new_node->data.if_stmt.elseb = NULL;
+		new_node->data.if_stmt.s_else = 0;
+	}
+	while (peek()->type == TOKEN_NEW_LINE) eat();
+
+	if (!match(TOKEN_FI)) {
+		kprintf("Err -> Expected 'fi'\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	return new_node;
+}
+
+static ASTNode *parse_while() {
+	ASTNode *new_node = newASTNode(NODE_WHILE_LOOP);
+	if (new_node==NULL) {
+		kprintf("Err -> Out of Memory\n");
+		kfree(new_node);
+		return NULL;
+	}
+	Token *do_k = eat();
+	lexer_free_token(do_k);
+	
+	while (peek()->type == TOKEN_NEW_LINE) eat();
+
+	if (!match(TOKEN_LBRACE)) {
+		kprintf("Err -> Expected '{' after 'do'\n");
+		kfree(new_node);
+		return NULL;
+	}
+
+	while (peek()->type==TOKEN_NEW_LINE) eat();
+
+	TokenType body_stop[] = {TOKEN_RBRACE};
+	new_node->data.while_loop.body = parse_statement_list(
+			&(new_node->data.while_loop.s_body),
+			body_stop,
+			1
+			);
+	if (new_node->data.while_loop.body==NULL || new_node->data.while_loop.s_body == 0) {
+		kprintf("Err -> Expected Statements before '}'\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	while (peek()->type==TOKEN_NEW_LINE) eat();
+
+	if (!match(TOKEN_RBRACE)) {
+		kprintf("Err -> Expected '}' after statements\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	Token *while_k = eat();
+	lexer_free_token(while_k);
+
+	new_node->data.while_loop.condition = parse_expression();
+	if (new_node->data.while_loop.condition==NULL) {
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	return new_node;
+}
+
+static ASTNode *parse_for() {
+	ASTNode *new_node=newASTNode(NODE_FOR_LOOP);
+	if (!new_node) {
+		kprintf("Err -> Out of Memory\n");
+		kfree(new_node);
+		return NULL;
+	}
+
+	Token *for_tok=eat();
+	lexer_free_token(for_tok);
+
+	if (!match(TOKEN_LPAREN)) {
+		kprintf("Err -> Expected '(' after 'for'\n");
+		kfree(new_node);
+		return NULL;
+	}
+	if (peek()->type != TOKEN_SEMICOLON) {
+		new_node->data.for_loop.init = parse_expression();
+		if (new_node->data.for_loop.init == NULL) {
+			kfree(new_node);
+			return NULL;
+		}
+	} else {
+		new_node->data.for_loop.init = NULL;
+	}
+	
+	if (!match(TOKEN_SEMICOLON)) {
+		kprintf("Err -> Expected ';' after expression\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+
+	if (peek()->type != TOKEN_SEMICOLON) {
+		new_node->data.for_loop.condition = parse_expression();
+		if (new_node->data.for_loop.condition==NULL) {
+			parser_free_ast(new_node);
+			return NULL;
+		}
+	} else {
+		new_node->data.for_loop.condition=NULL;
+	}
+
+	if (!match(TOKEN_SEMICOLON)) {
+		kprintf("Err -> Expected ';' after expression\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+
+	if (peek()->type != TOKEN_RPAREN) {
+		new_node->data.for_loop.inc = parse_expression();
+		if (new_node->data.for_loop.inc == NULL) {
+			parser_free_ast(new_node);
+			return NULL;
+		}
+	} else {
+		new_node->data.for_loop.inc = NULL;
+	}
+
+	if (!match(TOKEN_RPAREN)) {
+		kprintf("Err -> Expected ')' after expression\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+
+	while (peek()->type == TOKEN_NEW_LINE) eat();
+
+	if (!match(TOKEN_DO)) {
+		kprintf("Err -> Expected 'do' at the begining of a for loop\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+
+	while (peek()->type == TOKEN_NEW_LINE) eat();
+
+	TokenType body_stop[] = {TOKEN_DONE};
+
+	new_node->data.for_loop.body = parse_statement_list(
+			&(new_node->data.for_loop.s_body),
+			body_stop,
+			1
+			);
+	if (new_node->data.for_loop.body == NULL || new_node->data.for_loop.s_body == 0) {
+		parser_free_ast(new_node);
+		return NULL;
+	}
+
+	while (peek()->type == TOKEN_NEW_LINE) eat();
+
+	if (!match(TOKEN_DONE)) {
+		kprintf("Err -> Expected 'done' to close a for loop\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+
+	return new_node;
 }
