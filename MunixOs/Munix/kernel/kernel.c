@@ -16,6 +16,7 @@
 #include "mbash/lexer.h"
 #include "mbash/mbtype.h"
 #include "mbash/parser.h"
+#include "mbash/eval.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512

@@ -63,6 +63,7 @@ typedef struct CommandCallNode {
 } CommandCallNode;
 
 typedef struct VarRefNode {
+	long num;
 	char *name;
 } VarRefNode;
 

@@ -885,3 +885,57 @@ static ASTNode *parse_for() {
 
 	return new_node;
 }
+
+static ASTNode *parse_export() {
+	ASTNode *new_node = newASTNode(NODE_EXPORT);
+	if (new_node==NULL) {
+		kprintf("Err -> Out of Memory\n");
+		return NULL;
+	}
+	Token *export_k = eat();
+	lexer_free_token(export_k);
+
+	if (!match(TOKEN_DOLLAR)) {
+		kprintf("Err -> Expected '$' after 'export'\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	Token *number = eat();
+	if (!match(TOKEN_COLON)) {
+		kprintf("Err -> Expected ':' after var id\n");
+		parser_free_ast(new_node);
+		return NULL;
+	}
+	Token *name = eat();
+
+	if (number->type != TOKEN_NUMBER || name->type != TOKEN_IDENTIFIER) {
+		kprintf("Err -> Unexpected Tokens on a var reference\n");
+		parser_free_ast(new_node);
+		lexer_free_token(number);
+		lexer_free_token(name);
+		return NULL;
+	}
+	ASTNode *var_node = newASTNode(NODE_VAR_REF);
+	if (var_node==NULL) {
+		kprintf("Err -> Out of Memory\n");
+		parser_free_ast(new_node);
+		parser_free_ast(var_node);
+		lexer_free_token(number);
+		lexer_free_token(name);
+		return NULL;
+	}
+
+	var_node->data.var_ref.num = atol(number->value);
+	var_node->data.var_ref.name = strdup(name->value);
+	lexer_free_token(number);
+	lexer_free_token(name);
+	if (var_node->data.var_ref.name == NULL) {
+		kprintf("Err -> Out of Memory\n");
+		parser_free_ast(new_node);
+		parser_free_ast(var_node);
+		return NULL;
+	}
+
+	new_node->data.export_stmt.var=var_node;
+	return new_node;
+}
