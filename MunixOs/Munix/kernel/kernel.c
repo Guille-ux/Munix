@@ -22,17 +22,28 @@
 #define MAX_LOGS 512
 
 char *log[MAX_LOGS];
-
+/*
 #define kmalloc(size) (stdmem_interface.kmalloc((size)))
 #define kfree(ptr) (stdmem_interface.kfree((ptr)))
 
 // Sysarena Things
+/*
 #define MAX_ARENAS 1024*10
-#define MEM_SIZE 1024*1024
+#define MEM_SIZE 1024*1024*10
 
 Arena karenas[MAX_ARENAS];
 uint8_t memory_pool[MEM_SIZE];
 ArenaManager manager;
+/*
+
+*/
+#define ALL_SIZE 1024*1024*32  // 32MB heap size
+
+free_node *my_free_list[64];
+size_t size=ALL_SIZE;
+char heap_start[ALL_SIZE];
+int mini_order=5;  // 4KB minimum block size (2^12)
+int maxi_order=25;  // 32MB maximum block size (2^25)
 
 void kernel_main() {
 	__asm__ volatile("cli");
@@ -47,8 +58,8 @@ void kernel_main() {
 		vga_init(); // Reintentar inicialización VGA
 		stdout_init_vga();
 	}
-	config_stdmem_sysarena(&manager, karenas, memory_pool, MEM_SIZE, MAX_ARENAS);
-	libcs_mem_init(kmalloc, kfree);
+	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
+	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
 	config_klog_interface();
 	stdlog_interface.init(buffer_log, MAX_LOGS, MAX_LOG_LEN);
 	gdt_init();
@@ -57,6 +68,7 @@ void kernel_main() {
 	set_kb_spec_1();
 	set_kb_layout(&layout_en_US);
 	ps2_init(0x01);
+	//config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	/*__asm__ volatile("cli");
 	__asm__ volatile("sti");
 	*/
@@ -68,10 +80,10 @@ void kernel_main() {
 	keyboard_interface.data_port=0x60;
 	keyboard_interface.status_port=0x64;
 	*/
-	debug=true;
+	EvalCtx *global_ctx=newShellCtx();
+	//debug=true;
 	kprintf("~ MunixOs ~\n");
-	shell_buffer = (char*)kmalloc(SHELL_BUFFER_SIZE);
-	Token *t_buff = (Token*)kmalloc(sizeof(Token)*32);
+	Token *t_buff = (Token*)kmalloc(sizeof(Token)*64);
 	kprintf("SOCORRO: %d\n", (int)t_buff);
 	// Una vez finalizada la inicialización activamos los interrupts
 	memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
@@ -91,7 +103,11 @@ void kernel_main() {
 			// temporal...
 			//minim((const char*)shell_buffer);
 			lexer_init(shell_buffer);
-			lexen(t_buff, 32);
+			lexen(t_buff, 64);
+			parser_init(t_buff);
+			ASTNode *tree = parse();
+			eval(tree, global_ctx);
+			parser_free_ast(tree);
 			memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 			shell_index=0;
 			shell_update();

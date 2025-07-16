@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include "parser.h"
+#include "lexer.h"
 
 typedef enum {
 	VAL_NONE,
@@ -14,7 +16,16 @@ typedef enum {
 	VAL_STRING,
 } ValType;
 
-typedef struct {
+struct Obj;
+struct ShellValue;
+
+typedef struct Obj { // para cuando use un GC
+	struct ShellValue *val;
+	struct Obj *next;
+	bool live; // tiene o no tiene vida, ser o no ser
+} Obj;
+
+typedef struct ShellValue {
 	ValType type;
 	union {
 		long num;
@@ -23,10 +34,6 @@ typedef struct {
 	uint32_t refc; // contador de referencias, solo valido en strings
 } ShellValue;
 
-ShellValue newNumVal(long num);
-ShellValue newStrVal(const char *str);
-void freeVal(ShellValue val);
-
 typedef struct {
 	ShellValue val;
 	bool is_exported;
@@ -34,7 +41,10 @@ typedef struct {
 } Var;
 
 typedef struct {
+	size_t arg_used;
 	Var *var_table;
+	Var *argv;
+	size_t argc;
 	size_t var_cap;
 	
 	int last_exit_code;
@@ -46,6 +56,23 @@ typedef struct {
 	
 	int exit_code;
 } EvalCtx;
+
+ShellValue newNumVal(long num);
+ShellValue newStrVal(const char *str);
+void freeVal(ShellValue val);
+void addShellArg(EvalCtx *ctx, ShellValue val);
+ShellValue getShellArg(EvalCtx *ctx, size_t id);
+
+/*
+ * Status Codes
+ * 
+ * - 0 Ok
+ * - 1 Err
+ * - 2 Break Statement
+ * - 3 Return Statement
+ * - 4 Exit Statement (not implemented yet)
+ *
+ */
 
 EvalCtx *newShellCtx();
 void killShellCtx(EvalCtx *ctx);

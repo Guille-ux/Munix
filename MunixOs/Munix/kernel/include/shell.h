@@ -10,7 +10,7 @@ extern bool send;
 extern bool backspace;
 extern bool shell_event;
 extern char *shell_prompt;
-extern char *shell_buffer;
+extern char shell_buffer[SHELL_BUFFER_SIZE];
 extern uint32_t shell_index;
 
 void push_to_buffer(char c);

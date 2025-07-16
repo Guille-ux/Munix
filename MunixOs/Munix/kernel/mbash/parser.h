@@ -111,6 +111,7 @@ typedef struct UnaryNode {
 typedef struct ExportNode {
 	struct ASTNode *var; // no es el nombre de la variable porque
 			     // tambien puede ser una asignación
+			     // Aunque no todavia
 } ExportNode;
 
 typedef struct ASTNode {

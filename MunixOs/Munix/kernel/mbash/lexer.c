@@ -35,8 +35,9 @@ static Token newToken(TokenType type, const char *start, size_t len) {
 	
 
 	token.value=m_strndup(start, len);
-	
-	kprintf("New Token -> %s \n", (const char *)token.value);
+	if (debug==true) {
+		kprintf("New Token -> %s \n", (const char *)token.value);
+	}
 	return token;
 }
 
@@ -116,7 +117,7 @@ Token lexer_next_token() {
 			case '.': advance(); return newToken(TOKEN_DOT, ".", 1);
 			case '!': advance(); return newToken(TOKEN_BANG, "!", 1);
 			case '<': advance(); return newToken(TOKEN_LESS, "<", 1);
-			case '>': advance(); return newToken(TOKEN_GREAT, ">", 1);
+			case '>': advance(); return newToken(TOKEN_GREATER, ">", 1);
 			case '|': {
 				advance();
 				if (peek()=='|') {
@@ -142,7 +143,7 @@ Token lexer_next_token() {
 			while (peek() != '\'' && peek() != '\0') {
 				advance();
 			}
-			if (peek() != '\0') return newToken(TOKEN_UNKNOWN, "Unterminated String!", 20);
+			if (peek() == '\0') return newToken(TOKEN_UNKNOWN, "Unterminated String!", 20);
 			Token string_tok=newToken(TOKEN_STRING, source + start_pos, current_pos - start_pos);
 			advance();
 			return string_tok;
@@ -153,7 +154,7 @@ Token lexer_next_token() {
 			while (peek() != '"' && peek() != '\0') {
 				advance();
 			}
-			if (peek() != '\0') return newToken(TOKEN_UNKNOWN, "Unterminated String!", 20);
+			if (peek() == '\0') return newToken(TOKEN_UNKNOWN, "Unterminated String!", 20);
 
 			Token string_tok=newToken(TOKEN_STRING, source + start_pos, current_pos-start_pos);
 			advance();

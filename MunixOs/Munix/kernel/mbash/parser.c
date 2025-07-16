@@ -121,7 +121,7 @@ static ASTNode *parse_statement() {
 
 	if (current->type==TOKEN_IDENTIFIER) {
 		return parse_command_call();
-	else if (current->type==TOKEN_NUMBER) {
+	} else if (current->type==TOKEN_NUMBER) {
 		return parse_assignment();
 	} else if (current->type == TOKEN_IF) {
 		return parse_if();
@@ -287,7 +287,7 @@ static ASTNode *parse_primary_expr() {
 				lexer_free_token(current);
 				eat();
 				current = peek();
-				if (current->type!=TOKEN_IDENTIFIER) return NULL;
+				if (current->type!=TOKEN_STRING) return NULL;
 				new_node->data.var_ref.name = strdup((const char*)current->value);
 				new_node->data.var_ref.num=number;
 			} else {
@@ -295,6 +295,7 @@ static ASTNode *parse_primary_expr() {
 				new_node->data.arg_ref.num=number;
 			}
 			lexer_free_token(current);
+			eat();
 			break;
 				   }
 		case TOKEN_LPAREN: {
@@ -305,6 +306,7 @@ static ASTNode *parse_primary_expr() {
 				kprintf("Err -> Expected ')'!\n");
 				return NULL;
 			}
+			eat();
 			break;
 				   }
 		default: {
@@ -312,7 +314,7 @@ static ASTNode *parse_primary_expr() {
 			return NULL;
 			 }
 	}
-	eat();
+	//eat();
 	return new_node;
 }
 
@@ -368,11 +370,13 @@ static ASTNode *parse_term() {
 
 		ASTNode *right_node=parse_factor();
 		if (right_node==NULL) {
+			kprintf("Err -> error parsing factor\n");
 			parser_free_ast(left_node);
 			return NULL;
 		}
 		ASTNode *binExpr = newASTNode(NODE_BINARY_EXPR);
 		if (binExpr == NULL) {
+			kprintf("Err -> Memory Error\n");
 			parser_free_ast(left_node);
 			parser_free_ast(right_node);
 			return NULL;
@@ -387,37 +391,66 @@ static ASTNode *parse_term() {
 	return left_node;
 }
 
+// Tabla de precedencia de operadores  
+static int get_precedence(TokenType type) {
+    switch(type) {
+        case TOKEN_MUL: 
+        case TOKEN_DIV: 
+        case TOKEN_MINUS:
+            return 4;
+        case TOKEN_PLUS:
+            return 3;
+        case TOKEN_GREATER:
+        case TOKEN_LESS: 
+        case TOKEN_GEQ:
+        case TOKEN_LEQ:
+            return 2;
+        case TOKEN_EQ:
+        case TOKEN_BEQ: 
+            return 1;
+        default: 
+            return 0;
+    }
+}
+
+static ASTNode *parse_binary_expr(int min_precedence) {
+    ASTNode *left = parse_unary_expr();
+    if(!left) return NULL;
+
+    while(1) {
+        Token *op = peek();
+        int precedence = get_precedence(op->type);
+        
+        if(precedence == 0 || precedence < min_precedence) 
+            break;
+
+        eat(); // Consume el operador
+        
+        ASTNode *right = parse_binary_expr(precedence + 1);
+        if(!right) {
+            parser_free_ast(left);
+            return NULL;
+        }
+
+        ASTNode *bin_expr = newASTNode(NODE_BINARY_EXPR);
+        if(!bin_expr) {
+            parser_free_ast(left);
+            parser_free_ast(right);
+            return NULL;
+        }
+
+        bin_expr->data.binary_expr.left = left;
+        bin_expr->data.binary_expr.right = right;
+        bin_expr->data.binary_expr.op = op->type;
+        
+        left = bin_expr;
+    }
+    
+    return left;
+}
+
 static ASTNode *parse_expression() {
-	ASTNode *left_node = parse_term();
-	while  ((peek()->type == TOKEN_PLUS ||
-		peek()->type == TOKEN_MINUS ||
-		peek()->type == TOKEN_EQ ||
-		peek()->type == TOKEN_GT ||
-		peek()->type == TOKEN_LT ||
-		peek()->type == TOKEN_LEQ ||
-		peek()->type == TOKEN_GEQ ||
-		peek()->type == TOKEN_BEQ)) {
-		Token *op = eat();
-
-		ASTNode *right_node=parse_term();
-		if (right_node==NULL) {
-			parser_free_ast(left_node);
-			return NULL;
-		}
-		ASTNode *binExpr = newASTNode(NODE_BINARY_EXPR);
-		if (binExpr == NULL) {
-			parser_free_ast(left_node);
-			parser_free_ast(right_node);
-			return NULL;
-		}
-
-		binExpr->data.binary_expr.op=op->type;
-		binExpr->data.binary_expr.left=left_node;
-		binExpr->data.binary_expr.right=right_node;
-
-		left_node = binExpr;
-	}
-	return left_node;
+    return parse_binary_expr(0);
 }
 
 static ASTNode *parse_assignment() {
@@ -434,15 +467,17 @@ static ASTNode *parse_assignment() {
 	}
 	Token *name = eat();
 	if (number->type!=TOKEN_NUMBER) {
+		kprintf("Err -> Expected number\n");
 		parser_free_ast(new_node);
 		lexer_free_token(number);
 		lexer_free_token(name);
 		return NULL;
 	}
 	if (name->type!=TOKEN_STRING) {
+		kprintf("Err -> Expected string\n");
 		parser_free_ast(new_node);
 		lexer_free_token(name);
-		lexer_free_number();
+		lexer_free_token(number);
 		return NULL;
 	}
 	new_node->data.assignment.num = atol(number->value);
@@ -456,6 +491,7 @@ static ASTNode *parse_assignment() {
 	}
 	ASTNode *expr_node = parse_expression();
 	if (expr_node==NULL) {
+		kprintf("Err -> error parsing expr\n");
 		parser_free_ast(expr_node);
 		parser_free_ast(new_node);
 		return NULL;
@@ -548,11 +584,13 @@ static ASTNode **parse_expression_list(size_t *argc) {
 				kfree(list);
 				return NULL;
 			}
+			memcpy((void*)new_list, (const void*)list, size * sizeof(ASTNode *));
+		
+			kfree(list);
+			list = new_list;
+			list[size++]=arg;
+	
 		}
-		memcpy((void*)new_list, (const void*)list, size * sizeof(ASTNode *));
-		kfree(list);
-		list = new_list;
-		list[size++]=arg;
 	}
 	*argc = size;
 	return list;
@@ -585,7 +623,7 @@ static ASTNode *parse_return() {
 	Token *ret_k=eat();
 	lexer_free_token(ret_k);
 	TokenType next = peek()->type;
-	if     (next != NEW_LINE &&
+	if     (next != TOKEN_NEW_LINE &&
 		next != TOKEN_SEMICOLON &&
 		next != TOKEN_COMMA &&
 		next != TOKEN_PIPE &&
@@ -616,7 +654,7 @@ static ASTNode *parse_break() {
 	return new_node;
 }
 
-static ASTNode *parse_statement_list(size_t *out_s, TokenType *stop_tokens, size_t n_stop_tokens) {
+static ASTNode **parse_statement_list(size_t *out_s, TokenType *stop_tokens, size_t n_stop_tokens) {
 	ASTNode **stmt_list = NULL;
 	size_t size = 0;
 	size_t cap = 4;
@@ -806,7 +844,7 @@ static ASTNode *parse_for() {
 		return NULL;
 	}
 	if (peek()->type != TOKEN_SEMICOLON) {
-		new_node->data.for_loop.init = parse_expression();
+		new_node->data.for_loop.init = parse_statement();
 		if (new_node->data.for_loop.init == NULL) {
 			kfree(new_node);
 			return NULL;
@@ -838,7 +876,7 @@ static ASTNode *parse_for() {
 	}
 
 	if (peek()->type != TOKEN_RPAREN) {
-		new_node->data.for_loop.inc = parse_expression();
+		new_node->data.for_loop.inc = parse_statement();
 		if (new_node->data.for_loop.inc == NULL) {
 			parser_free_ast(new_node);
 			return NULL;

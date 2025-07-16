@@ -7,7 +7,7 @@ bool send=false;
 bool backspace=false;
 bool shell_event=false;
 char *shell_prompt="~ MunixOs ~> ";
-char *shell_buffer;
+char shell_buffer[SHELL_BUFFER_SIZE];
 uint32_t shell_index=0;
 
 void push_to_buffer(char c) {
