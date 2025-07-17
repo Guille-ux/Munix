@@ -3,6 +3,7 @@
 #include <stdbool.h>
 
 #include "include/ksysarena.h"
+#include "include/buddy_alloc.h"
 #include "include/libcs2.h"
 #include "include/color.h"
 #include "include/idt.h"
@@ -17,6 +18,7 @@
 #include "mbash/mbtype.h"
 #include "mbash/parser.h"
 #include "mbash/eval.h"
+#include "disk/ata.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
@@ -84,7 +86,13 @@ void kernel_main() {
 	//debug=true;
 	kprintf("~ MunixOs ~\n");
 	Token *t_buff = (Token*)kmalloc(sizeof(Token)*64);
-	kprintf("SOCORRO: %d\n", (int)t_buff);
+	// El test del ata-pio
+	ata_device_t ata_device;
+	ata_device.drv = 0;
+	ata_device.channel = 1;
+	ata_device.io_base = 0x1F0;
+	ata_device.control_base = 0x3F6;
+	ata_detect_device(&ata_device);
 	// Una vez finalizada la inicialización activamos los interrupts
 	memset((void*)shell_buffer, '\0', SHELL_BUFFER_SIZE);
 	shell_update();
