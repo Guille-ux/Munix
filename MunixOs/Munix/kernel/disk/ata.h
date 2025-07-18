@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
+#include "general.h"
 #include "../include/libcs2.h"
 
 /*
@@ -199,7 +200,7 @@ static inline bool ata_wait_ready(ata_device_t *device) {
 	for (int i = 0;i<15;i++) {//segun osdev hay que usar retrasos de 400ns
 		inb(device->control_base);
 	}
-	uint64_t timeout = _2SEC_ON_NANO_SEC * 15; // 2 segundos en nanosegundos
+	uint64_t timeout = _2SEC_ON_NANO_SEC * 9; // 2 segundos en nanosegundos
 	while (((inb(device->control_base) ^ ATA_STATUS_REG_RDY ) && timeout==0) != 0) {
 		timeout--;
 	}
@@ -210,6 +211,10 @@ static inline bool ata_wait_ready(ata_device_t *device) {
 bool ata_identify_device(ata_device_t *device);
 AtaDevType ata_detect_device(ata_device_t *device);
 void ataSoftReset(ata_device_t *device);
+void parseAtaIdentify(ata_device_t *device);
 
+// Cosas para escribir o leer con ATA-PIO
+void *ataReadLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n);
+void ataWriteLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n);
 
 #endif

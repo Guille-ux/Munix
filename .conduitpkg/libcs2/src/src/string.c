@@ -86,14 +86,14 @@ int strcmp(const char *s1, const char *s2) {
 }
 
 static void reverse(char *str, int length) {
-    int start = 0;
-    int end = length - 1;
-    while (start < end) {
-        char temp = str[start];
-        str[start] = str[end];
-        str[end] = temp;
-        start++;
-        end--;
+	int start = 0;
+	int end = length - 1;
+	while (start < end) {
+		char temp = str[start];
+		str[start] = str[end];
+		str[end] = temp;
+		start++;
+		end--;
     }
 }
 
@@ -246,3 +246,106 @@ char *strdup(const char *str) {
 	new_str[len]='\0';
 	return new_str;
 }
+
+char *ltoa(long value, char *buffer, int base) {
+	int i=0;
+	int nega=0;
+	
+	if (value==0) {
+		buffer[0]='0';
+		buffer[1]='\n';
+		return buffer;
+	}
+
+	if (value < 0 && base==0) {
+		nega=1;
+		value = -value;
+	}
+
+	while (value != 0) {
+		int rem = value % base;
+		buffer[i++] = (rem > 9) ? (rem - 10 + 'a') : (rem + '0');
+		value /= base;
+	}
+
+	if (nega) {
+		buffer[i++]='-';
+	}
+
+	buffer[i]='\0';
+	reverse(buffer, i);
+	return buffer;
+}
+/*
+char *lltoa(long long value, char *buffer, int base) {
+	int i=0;
+	int nega=0;
+	
+	if (value==0) {
+		buffer[0]='0';
+		buffer[1]='\n';
+		return buffer;
+	}
+
+	if (value < 0 && base==0) {
+		nega=1;
+		value = -value;
+	}
+
+	while (value != 0) {
+		int rem = value % base;
+		buffer[i++] = (rem > 9) ? (rem - 10 + 'a') : (rem + '0');
+		value /= base;
+	}
+
+	if (nega) {
+		buffer[i++]='-';
+	}
+
+	buffer[i]='\0';
+	reverse(buffer, i);
+	return buffer;
+}
+*/
+
+char *ultoa(unsigned long value, char *buffer, int base) {
+	int i=0;
+	
+	if (value==0) {
+		buffer[0]='0';
+		buffer[1]='\n';
+		return buffer;
+	}
+
+	while (value != 0) {
+		int rem = value % base;
+		buffer[i++] = (rem > 9) ? (rem - 10 + 'a') : (rem + '0');
+		value /= base;
+	}
+
+	buffer[i]='\0';
+	reverse(buffer, i);
+	return buffer;
+}
+/*
+char *ulltoa(unsigned long long value, char *buffer, int base) {
+	int i=0;
+	
+	if (value==0) {
+		buffer[0]='0';
+		buffer[1]='\n';
+		return buffer;
+	}
+
+	while (value != 0) {
+		int rem = value % base;
+		buffer[i++] = (rem > 9) ? (rem - 10 + 'a') : (rem + '0');
+		value /= base;
+	}
+
+	buffer[i]='\0';
+	reverse(buffer, i);
+	return buffer;
+}
+*/
+

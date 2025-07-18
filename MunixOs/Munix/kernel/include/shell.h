@@ -16,5 +16,6 @@ extern uint32_t shell_index;
 void push_to_buffer(char c);
 void pop_from_buffer();
 void shell_update();
+int shellEntry();
 
 #endif

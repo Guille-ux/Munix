@@ -104,6 +104,13 @@ bool ata_identify_device(ata_device_t *device) {
 	ata_wait_busy(device);
 	mdelay(device);
 
+	cl=inb(device->io_base + 4);
+	ch=inb(device->io_base + 5);
+	if (ch!=0 || cl!=0) {
+		kprintf("[DISK]: The Disk isn't an ata-pio disk!\n");
+		return false;
+	}
+
 	while ((inb(device->control_base) & 1)==0 && (inb(device->control_base) & (1 << 3))==0);
 
 	if (inb(device->control_base) & 1) return false; // oh no, un maldito error
@@ -171,3 +178,103 @@ void ataSoftReset(ata_device_t *device) {
 
 	ata_wait_busy(device);
 }
+
+void parseAtaIdentify(ata_device_t *device) {
+	kprintf("[DISK]: Parsing ATA Identify...\n");
+	if (device->identify_data[83] & (1 << 10)) {
+		kprintf("[DISK]: LBA48 is Supported\n");
+		kprintf("[DISK]: Reading Disk Capacity...\n");
+		device->lba48_supported=true;
+		// si tiene lba48 la cantidad de sectores
+		// se lee de forma diferente (en otros bytes)
+		uint64_t a=device->identify_data[100];
+		uint64_t b=device->identify_data[101];
+		uint64_t c=device->identify_data[102];
+		uint64_t d=device->identify_data[103];
+		device->total_sectors = a | (b << 16) | (c << 32) | (d << 48);
+	} else {
+		kprintf("[DISK]: LBA48 not Supported\n");
+		kprintf("[DISK]: Reading Disk Capacity...\n");
+		device->lba48_supported=false;
+		uint16_t a=device->identify_data[60];
+		uint32_t b=device->identify_data[61];
+		device->total_sectors = a | (b << 16);
+	}
+}
+
+static inline void ataCommon(ata_device_t *device, lba_t lba, uint16_t n) {
+	DriveHeadRegCfg cfg;
+	outb(device->io_base + 1, 0x00);
+	if (device->lba48_supported) {
+		cfg.lba = true;
+		cfg.drv = device->drv;
+		cfg.idk = 0;
+		uint8_t drv_cfg = driveHeadCfg2byte(cfg);
+
+		outb(device->io_base + 1, 0x00);
+		outb(device->io_base + 2, (n >> 8) & 0xFF);
+		outb(device->io_base + 2, n & 0xFF);
+
+		outb(device->io_base + 3, (lba.lo >> 24) & 0xFF);
+		outb(device->io_base + 3, (lba.lo) & 0xFF);
+		
+		outb(device->io_base + 4, (lba.hi) & 0xFF);
+		outb(device->io_base + 4, (lba.lo >> 8) & 0xFF);
+
+		outb(device->io_base + 5, (lba.hi >> 8) & 0xFF);
+		outb(device->io_base + 5, (lba.lo >> 16) & 0xFF);
+
+		outb(device->io_base + 6, drv_cfg);
+	} else {
+		cfg.lba=true;
+		cfg.drv=device->drv;
+		cfg.idk = (lba.lo >> 24) & 0xF;
+
+		uint8_t drv_cfg = driveHeadCfg2byte(cfg);
+
+		outb(device->io_base + 1, (n==256) ? 0 : n); // recuento xD
+
+		outb(device->io_base + 3, lba.lo & 0xFF);
+		outb(device->io_base + 4, (lba.lo >> 8) & 0xFF);
+		outb(device->io_base + 5, (lba.lo >> 16) & 0xFF);
+
+		outb(device->io_base + 6, drv_cfg);
+	}
+}
+
+void *ataReadLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
+	ataCommon(device, lba, n);
+	if (device->lba48_supported) {
+		outb(device->io_base + 7, 0x24);
+	} else {
+		outb(device->io_base + 7, 0x20);
+	}
+	ata_wait_drq(device);
+	
+	uint8_t *b = buffer;
+
+	for (uint32_t idx = 0; idx < n*256; idx++) {
+		uint16_t tmp = inw(device->io_base); // es el puerto de datos
+		b[idx*2] = tmp & 0xFF;
+		b[idx*2+1] = (tmp >> 8) & 0xFF;
+	}
+	return buffer;
+}
+
+void ataWriteLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
+	ataCommon(device, lba, n);
+	if (device->lba48_supported) {
+		outb(device->io_base + 7, 0x34);
+	} else {
+		outb(device->io_base + 7, 0x30);
+	}
+	ata_wait_drq(device);
+	
+	uint8_t *b = buffer;
+	
+	for (uint32_t idx = 0;idx < n*256;idx++) {
+		uint16_t tmp = b[idx*2] | (b[idx*2+1] << 8) ;
+		outw(device->io_base, tmp);
+	}
+}
+

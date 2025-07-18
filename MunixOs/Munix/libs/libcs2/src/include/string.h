@@ -23,5 +23,10 @@ size_t strspn(const char *s1, const char *s2);
 size_t strcspn(const char *s1, const char *s2);
 long atol(const char *str);
 char *strdup(const char *str);
+char *ltoa(long value, char *buffer, int base);
+// char *lltoa(long long value, char *buffer, int base);
+char *ultoa(unsigned long value, char *buffer, int base);
+
+// char *llutoa(unsigned long long value, char *buffer, int base);
 
 #endif
