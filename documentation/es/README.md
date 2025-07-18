@@ -72,7 +72,7 @@ Características únicas:
 
 - [ ] Soporte para x86_64
 - [ ] Sistema de archivos básico
-- [ ] Drivers ATA-PIO completos
+- [x] Drivers ATA-PIO completos
 - [ ] Multitarea básica
 - [ ] Instalador de Shell funcional
 
