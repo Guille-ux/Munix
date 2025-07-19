@@ -61,8 +61,8 @@ Munix is an monolithic operating system written from scratch in C and NASM, curr
 
 
 ```mbash
-0:"var" = 42  # Variable murciana (basada en números)
-echo $0:"var"  # Mostrar valor
+0:"var" = 42  # Id-based variable
+echo $0:"var"  # Show value
 ```
 
 Features:
