@@ -66,7 +66,7 @@ echo $0:"var"  # Mostrar valor
 ```
 
 Características únicas:
-- Buddy allocator (32MB, esto es provisional)
+- Manejador de comandos personalizable (desde el código fuente, por defecto devuelve ok)
 - Lenguaje interpretado personalizado
 
 ## 📜 Roadmap
