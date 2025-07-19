@@ -61,7 +61,7 @@ Munix es un sistema operativo monolítico escrito desde cero en C y NASM, actual
 
 La joya de la corona - una shell completamente personalizada:
 ```mbash
-0:"var" = 42  # Variable murciana (basada en números)
+0:"var" = 42  # Variable basada en id (basada en números)
 echo $0:"var"  # Mostrar valor
 ```
 
