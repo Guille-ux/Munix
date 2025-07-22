@@ -17,6 +17,9 @@
 #include "disk/diski.h"
 #include "partitions/partitions.h"
 #include "partitions/mbr.h"
+#include "pci/pci.h"
+#include "include/low_level.h"
+#include "disk/disk_manager.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
@@ -30,20 +33,17 @@ char heap_start[ALL_SIZE];
 int mini_order=5;  // 4KB minimum block size (2^12)
 int maxi_order=25;  // 32MB maximum block size (2^25)
 
-disk_t poor_disk; // disco pobre temporal
-ata_device_t ata_device; // dispositivo ata, tambien es temporal
-
-void kernel_ata_routine() {
-	ata_device.control_base = 0x3F6;
-	ata_device.io_base = 0x1F0;
-	ata_device.drv = 0;
-	ata_device.channel = 0;
+void kernel_ata_routine(ata_device_t *ata_device, disk_t *disk) {
+	ata_device->control_base = 0x3F6;
+	ata_device->io_base = 0x1F0;
+	ata_device->drv = 0;
+	ata_device->channel = 0;
 	
-	ata_identify_device(&ata_device);
+	ata_identify_device(ata_device);
 
-	parseAtaIdentify(&ata_device);
+	parseAtaIdentify(ata_device);
 
-	initAtaDisk(&ata_device, &poor_disk);
+	initAtaDisk(ata_device, disk);
 }
 
 static inline void kernel_init() { // Subrutina para inicializar cosas del kernel
@@ -79,8 +79,7 @@ static inline void kernel_init() { // Subrutina para inicializar cosas del kerne
 	ps2_init(0x01); // inicializar teclado PS/2 con scanset 1
 
 	// Inicializar disco pobre con ata
-	kernel_ata_routine();
-
+	sweepPCI(true);
 	// Activar Interrupciones
 	__asm__ volatile("sti");
 }

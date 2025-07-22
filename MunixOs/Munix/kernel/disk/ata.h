@@ -23,6 +23,14 @@ typedef enum {
 typedef struct {
 	AtaDevType type;
 	bool lba48_supported;
+	uint8_t pci_bus;
+	uint8_t pci_slot;
+	uint8_t function;
+	uint8_t irq_line;
+
+	bool dma_supported;
+	bool is_native; // es nativo o va por compatibilidad
+
 	uint8_t drv;
 	uint8_t channel;
 	uint16_t io_base;
