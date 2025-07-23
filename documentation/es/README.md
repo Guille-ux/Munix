@@ -18,6 +18,7 @@ Munix es un sistema operativo monolítico escrito desde cero en C y NASM, actual
   - Variables "inexistentes" (basadas en números para eficiencia de memoria)
   - Lexer, parser y evaluador personalizados
 - Soporte para MBR (Master Boot Record)
+- **Detección Automática** de dispositivos mediante el bus PCI
 - **Librería estándar personalizada** (parcialmente compatible con libc)
 - Soporte para hardware estándar:
   - Teclado PS/2
@@ -77,6 +78,10 @@ Características únicas:
 - [x] Drivers ATA-PIO completos
 - [ ] Multitarea básica
 - [ ] Instalador de Shell funcional
+
+## Más Documentación
+
+[índice](doc-index.md)
 
 ## 🤝 Contribución
 
