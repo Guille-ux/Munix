@@ -76,6 +76,6 @@ uint16_t auxPciCfgRWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset)
 uint16_t pciCfgReadWord(pci_addr_t pci_addr);
 void sweepPCI(bool debug);
 void readPCIDevCfg(uint8_t bus, uint8_t slot, uint8_t func, void *buffer);
-void pciParseHeader(void *buffer, bool debug);
+void pciParseHeader(void *buffer, uint8_t bus, uint8_t slot, uint8_t func, bool debug);
 
 #endif

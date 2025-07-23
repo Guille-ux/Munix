@@ -1,4 +1,5 @@
 #include "pci.h"
+#include "../disk/disk_manager.h"
 
 // From OsDev
 
@@ -44,12 +45,12 @@ void sweepPCI(bool debug) {
 			if (common_h->reg0.vendor_id == 0xFFFF) {
 				continue;
 			}
-			pciParseHeader(tmp_mem, debug);
+			pciParseHeader(tmp_mem, a, b, 0, debug);
 
 			if (common_h->reg3.header_type & (1 << 7)) {
 				for (int c=1;c<8;c++) {
 					readPCIDevCfg(a, b, c, tmp_mem);
-					pciParseHeader(tmp_mem, debug);
+					pciParseHeader(tmp_mem, a, b, c, debug);
 				}
 			}
 		}
@@ -73,7 +74,7 @@ uint32_t pciCfgReadD(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset) {
 	return inl(PCI_CONFIG_DATA);
 }
 
-void pciParseHeader(void *buffer, bool debug) {
+void pciParseHeader(void *buffer, uint8_t bus, uint8_t slot, uint8_t func, bool debug) {
 	pci_common_header_t *common_h=(pci_common_header_t*)buffer;
 	
 	// datos básicos necesarios
@@ -98,6 +99,10 @@ void pciParseHeader(void *buffer, bool debug) {
 			if (class_code == 0x01 && subclass_code == 0x01) {
 				if (debug) kprintf("[PCI]: IDE/ATA Found!\n");
 
+				registerAtaUnit(header, bus, slot, func, 0, 0);
+				registerAtaUnit(header, bus, slot, func, 0, 1);
+				registerAtaUnit(header, bus, slot, func, 1, 0);
+				registerAtaUnit(header, bus, slot, func, 1, 1);
 			}
 			break;
 			   }

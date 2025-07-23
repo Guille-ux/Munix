@@ -78,8 +78,9 @@ static inline void kernel_init() { // Subrutina para inicializar cosas del kerne
 	set_kb_layout(&layout_en_US); // seleccionar teclado en_US
 	ps2_init(0x01); // inicializar teclado PS/2 con scanset 1
 
-	// Inicializar disco pobre con ata
-	sweepPCI(true);
+	// barrer el pci en busca de dispositivos
+	sweepPCI(false);
+
 	// Activar Interrupciones
 	__asm__ volatile("sti");
 }
