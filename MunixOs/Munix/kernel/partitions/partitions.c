@@ -2,5 +2,5 @@
 #include "../disk/diski.h"
 #include "partitions.h"
 #include "../include/memory.h"
-
+#include "../disk/diski.h"
 

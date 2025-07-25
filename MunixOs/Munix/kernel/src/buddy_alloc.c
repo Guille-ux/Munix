@@ -20,7 +20,7 @@ typedef struct block_header {
 
 /* Funciones Auxiliares */
 static int log2_int(size_t n) {
-    if (n==0) return -1;
+    if (n==0) return -1; // error
     int count=0;
     while (n>1) {
         n >>= 1;
@@ -183,7 +183,6 @@ static size_t kmin(size_t a, size_t b) {
 
 void buddy_free(void *block) {
     if (block == NULL) {
-        kprintf("Free Err -> NULL pointer\n");
         return;
     }
         

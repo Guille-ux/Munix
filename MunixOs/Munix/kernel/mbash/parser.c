@@ -514,7 +514,7 @@ static ASTNode *parse_command_call() {
 		return NULL;
 	}
 	new_node->data.command_call.name = strdup(cmd->value);
-	if (new_node->data.command_call.name==NULL) {
+	if (new_node->data.command_call.name==NULL && cmd->value != NULL) {
 		kprintf("Err -> Out of Memory Error!\n");
 		parser_free_ast(new_node);
 		lexer_free_token(cmd);
@@ -527,7 +527,7 @@ static ASTNode *parse_command_call() {
 	
 	ASTNode **argv = parse_expression_list(&argc);
 
-	if (argv==NULL) {
+	if (argv==NULL && argc != 0) {
 		kprintf("Err -> Out of Memory\n");
 		parser_free_ast(new_node);
 		return NULL;
@@ -544,7 +544,7 @@ static ASTNode **parse_expression_list(size_t *argc) {
 
 	list = (ASTNode**)kmalloc(sizeof(ASTNode*)*cap);
 	if (list==NULL) {
-		kprintf("Err -> Out of Memory\n");
+		kprintf("Err -> Out of Memory -\n");
 		*argc=0;
 		return NULL;
 	}

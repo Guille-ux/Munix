@@ -4,6 +4,8 @@
 #include "../include/libcs2.h"
 #include "../include/memory.h"
 #include "../disk/general.h"
+#include "../disk/diski.h"
+#include "partitions.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -14,7 +16,7 @@
 #define MBR_DATA 0x1B8 // en que byte empieza lo que no interesa
 
 typedef struct {
-	uint8_t attr; // atributos
+	uint8_t attr; // atributos, por ejemplo, 0x80 si es booteable
 	chs_t partition_start; // inicio de la partición en chs
 	uint8_t type; // tipo de partición
 	chs_t last_sector; // último sector en chs
@@ -37,5 +39,9 @@ typedef struct {
 bool isMasterBootRecord(void *sector);
 void parseMasterBootRecord(void *sector);
 void printMBRPartition(mbr_partition_t *part);
+
+partition_list_t *mbr_detect_partitions(disk_t *disk);
+bool mbr_is_valid(disk_t *disk);
+void initMbrDriver(partition_table_driver_t *driver);
 
 #endif

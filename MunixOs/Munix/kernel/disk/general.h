@@ -11,8 +11,15 @@ typedef struct {
 static inline lba_t uint64_2_lba(uint64_t address) {
 	lba_t lba;
 	lba.lo = (uint32_t)(address & 0xFFFFFFFF);
-	lba.hi = (uint16_t)((address >> 32) & 0xFFFF);
+	lba.hi = (uint16_t)((address >> 31) & 0xFFFF);
 	return lba;
+}
+
+static inline uint64_t lba2uint64(lba_t address) {
+	uint64_t addr=0;
+	addr |= (uint64_t)address.lo;
+	addr |= (uint64_t)(address.hi << 31);
+	return addr;
 }
 
 typedef struct {

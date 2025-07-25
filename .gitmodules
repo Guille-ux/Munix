@@ -1,6 +1,0 @@
-[submodule "MunixOs/Munix/kernel/include/VASM"]
-	path = MunixOs/Munix/kernel/include/VASM
-	url = https://github.com/Guille-ux/VASM
-[submodule "MunixOs/Munix/kernel/include/VRAM"]
-	path = MunixOs/Munix/kernel/include/VRAM
-	url = https://github.com/Guille-ux/VRAM

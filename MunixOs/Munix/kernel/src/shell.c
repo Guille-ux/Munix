@@ -68,7 +68,7 @@ int shellEntry() {
 
 			// Liberar Memoria
 			parser_free_ast(tree);
-			//free_tokens(t_buff, MAX_TOKENS);
+			free_tokens(t_buff, MAX_TOKENS);
 			
 			// Reiniciar flags e index
 			send=false;
