@@ -13,6 +13,8 @@ void readPartition(partition_t *partition, void *buffer, lba_t where, uint32_t n
 		// ERROR, se sale del limite de la partición
 		// en el futuro tendre algo más sofisticado, pero de momento
 		// se quedara así
+		stdlog_interface.append("[RLBA]: Too Many sectors"); 
+		// RLBA = Relative LBA
 		return;
 	}
 	tmp += lba2uint64(partition->lba_start);
@@ -27,6 +29,7 @@ void writePartition(partition_t *partition, void *buffer, lba_t where, uint32_t 
 		// ERROR, se sale del limite de la partición
 		// en el futuro tendre algo más sofisticado, pero de momento
 		// se quedara así
+		stdlog_interface.append("[RLBA]: Too Many Sectors");
 		return;
 	}
 	tmp += lba2uint64(partition->lba_start);

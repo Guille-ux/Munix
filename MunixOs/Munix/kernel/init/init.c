@@ -1,6 +1,9 @@
 #include "init.h"
 
+// para stdlog
 char *log[MAX_LOGS];
+
+// para malloc y free
 free_node *my_free_list[64];
 size_t size=ALL_SIZE;
 char heap_start[ALL_SIZE];
