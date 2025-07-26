@@ -30,7 +30,7 @@ typedef enum {
 struct kernel_disk_t;
 
 typedef struct {
-	uint8_t id; // id único, para el disco
+	uint8_t id; // id único, para DENTRO del disco, realmente no se, xD
 	
 	lba_t lba_start;
 	
@@ -70,5 +70,15 @@ typedef struct {
  * typedef struct {...} format_driver_t;
  *
  */
+
+/*
+ * Función auxiliar para escribir usando la dirección relativa, no usa diski
+ * lee la partición para obtener donde empieza etc, tambien controla que no 
+ * se salga del rango, además tambien hay otra para leer
+ *
+ */
+
+void readPartition(partition_t *partition, void *buffer, lba_t where, size_t n);
+void writePartition(partition_t *partition, void *buffer, lba_t where, size_t n);
 
 #endif

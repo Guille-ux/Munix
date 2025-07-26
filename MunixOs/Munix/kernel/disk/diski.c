@@ -9,9 +9,28 @@ void initAtaDisk(ata_device_t *device, disk_t *disk_interface) {
 }
 
 void* ataDiskIRead(disk_t *disk, void *buffer, lba_t lba, uint32_t n) {
-	return ataReadLBA(disk->as.ata, lba, buffer, n & 0xFFFF);
+	uint64_t tmp=0;
+	void *b = buffer;
+	while (n > 0) {
+		ataReadLBA2(disk->as.ata, lba, buffer, n & 0xFFFF);
+		tmp = lba2uint64(lba);
+		tmp += (n & 0xFFFF);
+		b = (void*)((uintptr_t)b + (n & 0xFFFF) * 512);
+		lba = uint64_2_lba(tmp);
+		n -= (n & 0xFFFF);
+	}
+	return buffer;
 }
 
 void ataDiskIWrite(disk_t *disk, void *buffer, lba_t lba, uint32_t n) {
-	ataWriteLBA(disk->as.ata, lba, buffer, n & 0xFFFF);
+	uint64_t tmp=0;
+	void *b = buffer;
+	while (n > 0) {
+		ataWriteLBA2(disk->as.ata, lba, buffer, n & 0xFFFF);
+		tmp = lba2uint64(lba);
+		tmp += (n & 0xFFFF);
+		b = (void*)((uintptr_t)b + (n & 0xFFFF) * 512);	
+		lba = uint64_2_lba(tmp);
+		n -= (n & 0xFFFF);
+	}
 }

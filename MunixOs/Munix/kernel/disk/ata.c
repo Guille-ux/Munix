@@ -278,3 +278,37 @@ void ataWriteLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
 	}
 }
 
+void ataWriteLBA2(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
+	if (device->lba48_supported) {
+		ataWriteLBA(device, lba, buffer, n);		
+		return;
+	} else {
+		uint64_t tmp=0;
+		void *b = buffer;
+		while (n > 0) {
+			ataWriteLBA(device, lba, b, n);
+			tmp = lba2uint64(lba);
+			b = (void*)((uintptr_t)b + (n & 0xFF) * 512);
+			tmp += (n & 0xFF);
+			lba = uint64_2_lba(tmp);
+			n -= (n & 0xFF);
+		}
+	}
+}
+void ataReadLBA2(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
+	if (device->lba48_supported) {
+		ataReadLBA(device, lba, buffer, n);		
+		return;
+	} else {
+		uint64_t tmp=0;
+		void *b = buffer;
+		while (n > 0) {
+			ataReadLBA(device, lba, b, n);
+			tmp = lba2uint64(lba);
+			b = (void*)((uintptr_t)b + (n & 0xFF) * 512);
+			tmp += (n & 0xFF);
+			lba = uint64_2_lba(tmp);
+			n -= (n & 0xFF);
+		}
+	}
+}

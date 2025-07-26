@@ -224,5 +224,6 @@ void parseAtaIdentify(ata_device_t *device);
 // Cosas para escribir o leer con ATA-PIO
 void *ataReadLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n);
 void ataWriteLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n);
-
+void ataReadLBA2(ata_device_t *device, lba_t lba, void *buffer, uint16_t n);
+void ataWriteLBA2(ata_device_t *device, lba_t lba, void *buffer, uint16_t n);
 #endif

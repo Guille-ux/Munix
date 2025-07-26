@@ -42,6 +42,9 @@ cd ..
 cd init
 gcc -fno-stack-protector -m32 -c *c
 cd ..
+cd fs
+gcc -fno-stack-protector -m32 -c *c
+cd ..
 gcc -fno-stack-protector -m32 -c -o buddy.o src/buddy_alloc.c
 gcc -fno-stack-protector -m32 -c -o shell.o src/shell.c
 gcc -fno-stack-protector -m32 -c -o timer.o src/timer.c
@@ -52,6 +55,6 @@ gcc -fno-stack-protector -m32 -c -o idt.o src/idt.c
 gcc -fno-stack-protector -m32 -c -o kernel.o kernel.c
 gcc -fno-stack-protector -m32 -c -o memory.o src/memory.c
 gcc -fno-stack-protector -m32 -c -o ksysarena.o src/sysarena.c
-i386-elf-ld  -Tlinker.ld -o kernel.ELF init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lcs2 # -lzynk
+i386-elf-ld  -Tlinker.ld -o kernel.ELF fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lcs2 # -lzynk
 cd ../..
 grub-mkrescue -o munix.iso Munix
