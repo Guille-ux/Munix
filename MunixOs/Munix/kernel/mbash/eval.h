@@ -47,6 +47,8 @@ typedef struct {
 	size_t argc;
 	size_t var_cap;
 	
+	int (*command_handler)(ASTNode *command);
+
 	int last_exit_code;
 
 	bool should_break;

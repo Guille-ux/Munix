@@ -53,7 +53,7 @@ typedef struct {
 int16_t getFat12Entry(uint32_t cluster, partition_t *partition);
 fat12_bpb_t *fat12_get_bpb(partition_t *partition);
 uint32_t fat12MaxClusters(fat12_bpb_t *bpb, partition_t *partition);
-int fat12ReadClusterChain(uint32_t first_cluster, void *buffer, uint32_t max_size, uint32_t *read, partition_t *partition);
+int fat12ReadClusterChain(uint32_t first_cluster, void *buffer, uint32_t max_size, uint32_t *read, uint32_t *expected, partition_t *partition);
 int fat12SetEntry(void *buffer, uint16_t cluster, uint32_t byte_offset, uint16_t new_val);
 int16_t RemoveFat12Entry(uint32_t cluster, partition_t *partition);
 int fat12RemoveClusterChain(uint32_t first_cluster, partition_t *partition);
@@ -101,7 +101,7 @@ static inline lba_t FAT12getRootDirLba(partition_t *partition, fat12_bpb_t *bpb)
 }
 
 static inline uint32_t FAT12getRootDirSize(fat12_bpb_t *bpb) {
-	return (FAT12_ENTRY_SIZE * bpb->RootEntries + bpb->BytesPerSector - 1) / bpb->BytesPerSector;
+	return (FAT12_ENTRY_SIZE * bpb->RootEntries) / bpb->BytesPerSector;
 }
 
 static inline void to83standar(char buffer[11], const char *name) {
@@ -179,6 +179,12 @@ static inline void to83standar(char buffer[11], const char *name) {
 }
 
 void FAT12listRootDirectory(partition_t *partition, fat12_bpb_t *bpb);
+void FAT12listInDirectory(void *buffer, uint32_t n);
 fat12_entry_t *FAT12searchInDirectory(void *buffer, uint32_t n, char target[11]);
+
+void *fat12_cd(void *buffer, uint32_t n, char target[11], partition_t *partition, uint32_t *new_n);
+
+void fat12_mkdir(partition_t *partition, void *cwd, uint32_t n, uint32_t parent_cluster);
+
 
 #endif

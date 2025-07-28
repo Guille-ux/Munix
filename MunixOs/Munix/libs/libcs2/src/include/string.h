@@ -5,7 +5,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-void *memset(void* block, unsigned char c, size_t n);
+void *memset(void *block, unsigned char c, size_t n);
+int memcmp(void *ab, void *ba, size_t n);
 void *memcpy(void *dest, const void *src, size_t n);
 size_t strlen(const char *str);
 void byte_to_hex_string(uint8_t byte, char* buffer);

@@ -72,6 +72,7 @@ EvalCtx *newShellCtx() {
 	ctx->argc=16;
 	ctx->var_table = (Var*)kmalloc(sizeof(Var)*ctx->var_cap);
 	ctx->argv = (Var*)kmalloc(sizeof(Var)*ctx->argc);
+	ctx->command_handler = NULL;
 	/*
 	 * Continuar
 	 */
@@ -496,10 +497,9 @@ static ShellValue evalBinExpr(ASTNode *expr, EvalCtx *ctx) {
 }
 
 static int evalCommandCall(ASTNode *stmt, EvalCtx *ctx) {
-	/*
-	 *
-	 * Todavia no hay comandos que ejecutar
-	 *
-	 */
-	return EVAL_OK;
+	if (ctx->command_handler == NULL) {
+		return EVAL_OK; // si no hay nada, devolvemos ok y a llorar
+	} else {
+		return ctx->command_handler(stmt);
+	}
 }

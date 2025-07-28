@@ -73,24 +73,28 @@ static inline uint64_t cluster2addr(uint32_t cluster, fat12_bpb_t *bpb, partitio
 	return partition->total_sectors - cluster_sec + cluster * bpb->SectorsPerCluster;
 }
 
-int fat12ReadClusterChain(uint32_t first_cluster, void *buffer, uint32_t max_size, uint32_t *read, partition_t *partition) {
+int fat12ReadClusterChain(uint32_t first_cluster, void *buffer, uint32_t max_size, uint32_t *read, uint32_t *expected, partition_t *partition) {
 	uint32_t current_cluster = first_cluster;
 	fat12_bpb_t *bpb = fat12_get_bpb(partition);
 	lba_t lba;
 	*read = 0;
+	*expected = 0;
 	void *b = buffer;
 	while (!FAT12_IS_END(current_cluster)) {
-		lba = uint64_2_lba(cluster2addr(current_cluster, bpb, partition));
-		uint32_t size = bpb->SectorsPerCluster;
-		readPartition(partition, b, lba, size);
-		*read += size*bpb->BytesPerSector;
-		b += size*bpb->BytesPerSector;
+		if (*read < max_size) {
+			lba = uint64_2_lba(cluster2addr(current_cluster, bpb, partition));
+			uint32_t size = bpb->SectorsPerCluster;
+			readPartition(partition, b, lba, size);
+			*read += size*bpb->BytesPerSector;
+			b += size*bpb->BytesPerSector;
+		}
 		int tmp = getFat12Entry(current_cluster, partition);
 		if (tmp < 1 || tmp == FAT12_BAD_CLUSTER) {
 			kfree(bpb);
 			return -1;
 		}
 		uint32_t current_cluster = tmp;
+		*expected += size*bpb->BytesPerSector;
 	}
 	kfree(bpb);
 	return 0;
@@ -330,7 +334,8 @@ void FAT12listRootDirectory(partition_t *partition, fat12_bpb_t *bpb) {
 	}
 }
 
-fat12_entry_t *FAT12listInDirectory(void *buffer, uint32_t n) {
+void FAT12listInDirectory(void *buffer, uint32_t n) {
+	fat12_entry_t *entries = buffer;
 	uint32_t c=0;
 	while (1 && c < n) {
 		if (entries[c].name[0]==0xE5) {
@@ -357,4 +362,126 @@ fat12_entry_t *FAT12listInDirectory(void *buffer, uint32_t n) {
 		}
 		c++;
 	}
+}
+
+fat12_entry_t *FAT12searchInDirectory(void *buffer, uint32_t n, uint8_t target[11]) {
+	fat12_entry_t *entries = buffer;
+	uint32_t c=0;
+	while (c < n) {
+		if (entries[c].name[0]==0xE5) {
+			// xD, no hacer nada
+		} else if (entries[c].name[0]==0x00) {
+			break;
+		} else if (entries[c].attr & FAT12_ATTR_VOLUME_ID) {
+			// nada
+		} else if (entries[c].attr & FAT12_ATTR_LONG_NAME) {
+			// va separado del anterior porque es provisional
+		} else if (entries[c].attr & FAT12_ATTR_ARCHIVE){
+			if (memcmp(entries[c], target, 11)==0) {
+				stdlog_interface.append("[FAT12]: Found");
+				return &entries[c];
+			}
+		} else if (entries[c].attr & FAT12_ATTR_DIR) {
+			if (memcmp(entries[c], target, 11)==0) {
+				stdlog_interface.append("[FAT12]: Found");
+				return &entries[c];
+			}
+		}
+		c++;
+	}
+	stdlog_interface.append("[FAT12]: File not found");
+	return NULL;
+}
+
+void *fat12_cd(void *buffer, uint32_t n, char target[11], partition_t *partition, uint32_t *new_n) {
+	fat12_bpb_t *bpb=fat12_get_bpb(partition);
+	fat12_entry_t *entry = FAT12searchInDirectory(buffer, n, target);
+	uint32_t size = 0;
+	bool is_root=false;
+	uint32_t read;
+	if (entry==NULL) {
+		return NULL;
+	}
+	if (entry->attr & FAT12_ATTR_DIR) {
+		stdlog_interface.append("[FAT12]: Cannot cd to a file");
+		return NULL;
+	}
+	if (entry->firstClusLO == 0x0000) {
+		is_root = true;
+		size=FAT12getRootDirSize(bpb);
+	} else {
+		fat12ReadClusterChain(entry->firstClusLO, NULL, 0, &read, &size, partition);
+		size /= bpb->BytesPerSector;
+	}
+
+	void *new_buffer = kmalloc(size*512);
+	if (is_root) {
+		readPartition(partition, new_buffer, FAT12getRootDirLba(partition, bpb), size);
+	} else {
+		fat12ReadClusterChain(entry->firstClusLO, new_buffer, size*512, &read, &size, partition);
+	}
+	*new_n = (size*512)/32; // número de entries
+	kfree(bpb);
+	kfree(buffer);
+	return new_buffer;
+}
+
+static inline uint32_t getSizeInBytes(partition_t *partition, uint32_t cluster) {
+
+	uint32_t size; // in bytes
+	uint32_t read;
+	fat12ReadClusterChain(cluster & 0xFFFF, NULL, 0, &read, &size, partition);
+	return size;
+}
+
+static inline uint32_t getDirSize(partition_t *partition, uint32_t cluster) {
+	uint32_t size;
+	if (cluster==0) {
+		fat12_bpb_t *bpb = fat12_get_bpb(partition);
+		size = FAT12getRootDirSize(bpb)*bpb->BytesPerSector;
+		kfree(bpb);
+	} else {
+		size = getSizeInBytes(partition, cluster);
+	}
+	return size;
+}
+
+void fat12_mkdir(partition_t *partition, void *cwd, uint32_t n , uint32_t parent_cluster, const char *name) {
+	char standar83[11];
+	to83standar(standar83, name);
+	uint32_t cluster;
+	fat12AllocClusters(partition, 1, &cluster);
+	fat12_entry_t micro_table[2];
+	memset(micro_table, 0, FAT12_ENTRY_SIZE*2);
+	micro_table[0].name = ".       ";
+	micro_table[0].extension = "   ";
+	micro_table[1].name = "..      ";
+	micro_table[1].extension = "   ";
+	micro_table[0].firstClusLO=cluster & 0xFFFF;
+	micro_table[1].firstClusLO=parent_cluster & 0xFFFF;
+	for (int i=0;i<2;i++) {
+		micro_table[i].attr = FAT12_ATTR_DIR | FAT12_ATTR_HIDDEN;
+	}
+	fat12WriteClusterChain(partition, cluster, micro_table, FAT12_ENTRY_SIZE*2);
+	uint32_t entry=0;
+	fat12_entry_t *entries=cwd;
+	for (int i=0;i<n;i++) {
+		if (entry[i].name[0]==0x00) {
+			entry=i;
+		} else if (entry[i].name[0]=0xE5) {
+			entry=i;
+		}
+	}
+	if (entry==0) {
+		stdlog_interface.append("[FAT12]: Entries Overload!");
+		return;
+	}
+	fat12_bpb_t *bpb = fat12_get_bpb(partition);
+	uint32_t cwd_clus = FAT12searchInDirectory(cwd, n, (uint8_t)".          ")->firstClusLO;
+	if ((cwd_clus&0xFFFF)==0x0000 || cwd_clus == NULL) {
+		writePartition(partition, cwd, FAT12getRootDirLba(partition, bpb), FAT12getRootDirSize(bpb));
+	} else {
+		fat12WriteClusterChain(partition, cwd_clus, cwd, getDirSize(partition, cwd_clus));
+	}
+	kfree(bpb);
 }
