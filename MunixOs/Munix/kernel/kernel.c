@@ -10,7 +10,7 @@ void kernel_main() {
 	kernel_init();
 
 	kprintf("~ MunixOs ~\n");
-	
+
 	shellEntry();
 
 	while (true) {	

@@ -85,6 +85,20 @@ int strcmp(const char *s1, const char *s2) {
     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
+int memcmp(void *ab, void *ba, size_t n) {
+	uint8_t *a = ab;
+	uint8_t *b = ba;
+	while (n > 0) {
+		if (*a > *b) {
+			return 1;
+		} else if (*b > *a) {
+			return -1;
+		}
+		n--;
+	} 
+	return 0;
+}
+
 static void reverse(char *str, int length) {
 	int start = 0;
 	int end = length - 1;

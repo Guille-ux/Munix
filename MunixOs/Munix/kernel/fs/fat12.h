@@ -3,7 +3,7 @@
 
 #include "../include/libcs2.h"
 #include "../include/memory.h"
-#include "../diski/diski.h"
+#include "../disk/diski.h"
 #include "../partitions/partitions.h"
 #include "../include/low_level.h"
 #include <stdint.h>
@@ -48,21 +48,137 @@ typedef struct {
 			     // wtf, en serio?? para que esta esa cosa
 	uint8_t BootCode[448];
 	uint16_t BootSignature;
-} __attribute__((packed)) fat12_ext_bpb_t
+} __attribute__((packed)) fat12_ext_bpb_t;
 
 int16_t getFat12Entry(uint32_t cluster, partition_t *partition);
 fat12_bpb_t *fat12_get_bpb(partition_t *partition);
 uint32_t fat12MaxClusters(fat12_bpb_t *bpb, partition_t *partition);
 int fat12ReadClusterChain(uint32_t first_cluster, void *buffer, uint32_t max_size, uint32_t *read, partition_t *partition);
 int fat12SetEntry(void *buffer, uint16_t cluster, uint32_t byte_offset, uint16_t new_val);
-int16 RemoveFat12Entry(uint32_t cluster, partition_t *partition);
-int fat12RemoveClusterChain(uint32 first_cluster, partition_t *partition);
-
+int16_t RemoveFat12Entry(uint32_t cluster, partition_t *partition);
+int fat12RemoveClusterChain(uint32_t first_cluster, partition_t *partition);
+int fat12AllocClusters(partition_t *partition, uint32_t n, uint32_t *first_cluster);
+int fat12SetCluster(partition_t *partition, fat12_bpb_t *bpb, uint32_t cluster, uint32_t new_val);
+int fat12WriteClusterChain(partition_t *partition, uint32_t first_cluster, void *buffer, uint32_t n); // n es el número de bytes que vamos a escribir
 
 /*
  * Ahora la parte que se preocupa de los directorios
  */
 
+// Atributos
+#define FAT12_ATTR_READ_ONLY 0x01
+#define FAT12_ATTR_HIDDEN 0x02
+#define FAT12_ATTR_SYSTEM 0x04
+#define FAT12_ATTR_VOLUME_ID 0x08
+#define FAT12_ATTR_DIR 0x10
+#define FAT12_ATTR_ARCHIVE 0x20
+#define FAT12_ATTR_LONG_NAME 0x0F
 
+#define FAT12_ENTRY_FREE 0xE5
+#define FAT12_LAST_ENTRY 0x00
+
+typedef struct {
+	uint8_t name[8];
+	uint8_t extension[3];
+	uint8_t attr;
+	uint8_t flag; // banderas opcionales, no me importan
+	uint8_t DirCrtTenth; // es opcional tambien, pero lo siguiente
+			     // aunque tambien lo sea, me lo tomare más
+			     // en serio
+	uint16_t DirCrtTime;
+	uint16_t DirCrtDate;
+	uint16_t DirLastAccess;
+	uint16_t firstClusHI;
+	uint16_t DirWrtTime;
+	uint16_t DirWrtDate;
+	uint16_t firstClusLO;
+	uint32_t size; // si es un directorio esto no se incluye
+} __attribute__((packed)) fat12_entry_t;
+
+static inline lba_t FAT12getRootDirLba(partition_t *partition, fat12_bpb_t *bpb) {
+	uint32_t offset = bpb->ReservedSectors +  bpb->NumTables * bpb->SectorsPerFat;
+	return lba2uint64(offset + uint64_2_lba(partition->lba_start));
+}
+
+static inline uint32_t FAT12getRootDirSize(fat12_bpb_t *bpb) {
+	return (FAT12_ENTRY_SIZE * bpb->RootEntries + bpb->BytesPerSector - 1) / bpb->BytesPerSector;
+}
+
+static inline void to83standar(char buffer[11], const char *name) {
+	char delimiters[] = '.';
+	char *n = strdup(name);
+	char *nombre = strtok(n, delimiters);
+	char *extension = strtok(NULL, delimiters);
+	int n_len=0;
+	int ext_len=0;
+	if (nombre!=NULL) {
+		n_len = strlen(nombre);
+	} if (extension != NULL) {
+		ext_len = strlen(extension);
+	}
+	int i=0;
+	memset(buffer, ' ', 11);
+	while (i < n_len) {
+		if (nombre[i]<='z' && nombre[i]>='a') {
+			buffer[i]=nombre[i] + ('A' - 'a');
+		} else if (nombre[i]<='Z' && nombre[i]>='A') {
+			buffer[i]=nombre[i];
+		} else if (nombre[i]<='9' && nombre[i]>='0') {
+			buffer[i]=nombre[i];
+		} else if (nombre[i]=='!' ||
+			   nombre[i]=='#' ||
+			   nombre[i]=='$' ||
+			   nombre[i]=='%' ||
+			   nombre[i]=='&' ||
+			   nombre[i]=='\'' ||
+			   nombre[i]=='-' ||
+			   nombre[i]=='@' ||
+			   nombre[i]=='^' ||
+			   nombre[i]=='\' ||
+			   nombre[i]=='_' ||
+			   nombre[i]=='~' ||
+			   nombre[i]=='`' ||
+			   nombre[i]=='(' ||
+			   nombre[i]==')' ||
+			   nombre[i]=='{' ||
+			   nombre[i]=='}') {
+			buffer[i]=nombre[i];
+		}
+		i++;
+	}
+	if (extension != NULL) {
+		for (int a=0;a<ext_len;a++) {
+			if (extension[a]<='z' && extension[a]>='a') {
+				buffer[a+8]=extension[a] + ('A' - 'a');
+			} else if (extension[a]<='Z' && extension[a]>='A') {
+				buffer[a+8]=extension[a];
+			} else if (extension[a]<='9' && extension[a]>='0') {
+				buffer[a+8]=extension[a];
+			} else if (extension[a]=='!' ||
+				   extension[a]=='#' ||
+				   extension[a]=='$' ||
+				   extension[a]=='%' ||
+				   extension[a]=='&' ||
+				   extension[a]=='\'' ||
+				   extension[a]=='-' ||
+				   extension[a]=='@' ||
+				   extension[a]=='^' ||
+				   extension[a]=='\' ||
+				   extension[a]=='_' ||
+				   extension[a]=='~' ||
+				   extension[a]=='`' ||
+				   extension[a]=='(' ||
+				   extension[a]==')' ||
+				   extension[a]=='{' ||
+				   extension[a]=='}') {
+				buffer[a+8]=extension[a];
+			}
+		}
+	}
+	free(n);
+}
+
+void FAT12listRootDirectory(partition_t *partition, fat12_bpb_t *bpb);
+fat12_entry_t *FAT12searchInDirectory(void *buffer, uint32_t n, char target[11]);
 
 #endif
