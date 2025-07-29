@@ -184,7 +184,12 @@ fat12_entry_t *FAT12searchInDirectory(void *buffer, uint32_t n, char target[11])
 
 void *fat12_cd(void *buffer, uint32_t n, char target[11], partition_t *partition, uint32_t *new_n);
 
-void fat12_mkdir(partition_t *partition, void *cwd, uint32_t n, uint32_t parent_cluster);
+void fat12_mkdir(partition_t *partition, void *cwd, uint32_t n, uint32_t parent_cluster, const char *name);
 
+void fat12_touch(partition_t *partition, void *cwd, uint32_t size, uint32_t n, uint32_t parent_cluster, const char *name, void *buffer);
+
+void fat12_remove(partition_t *partition, void *cwd, uint32_t n, uint32_t parent_cluster, const char *name);
+
+void fat12_read(partition_t *partition, void *cwd, const char *name, void *buffer, uint32_t n);
 
 #endif
