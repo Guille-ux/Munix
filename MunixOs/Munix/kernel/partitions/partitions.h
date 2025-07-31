@@ -14,6 +14,12 @@
 #define MAX_PARTITIONS 128
 #define MAX_DISKS 16
 
+/*
+ * Estos son para MBR, y el kernel tambien los usara internamente
+ * al menos mientras no tengo GPT, luego podria cambiar alguna estructura o
+ * seguir usando esto y añadir un campo opcional que solo se use en GPT
+ *
+ */
 typedef enum {
 	FS_TYPE_UNKNOWN=0x00,
 	FS_TYPE_FAT12=0x01,
@@ -24,14 +30,14 @@ typedef enum {
 	FS_TYPE_NTFS=0x07,
 	FS_TYPE_LINUX=0x83, // All Linux FS uses the same code xD
 	FS_TYPE_LINUX_SWAP=0x82,
-//	FS_TYPE_SSB=0xF0,
+	FS_TYPE_MFS=0x0D,
 } fs_type_t;
 
 struct kernel_disk_t;
 
 typedef struct {
 	uint8_t id; // id único, para DENTRO del disco, realmente no se, xD
-	
+
 	lba_t lba_start;
 	
 	uint64_t total_sectors;

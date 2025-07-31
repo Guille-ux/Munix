@@ -26,4 +26,5 @@ extern partition_manager_t kpartition_manager;
 void partition_manager_register_drv(partition_manager_t *part_manager, partition_table_driver_t *driver);
 void partitionManagerScanDisk(partition_manager_t *p_manager, disk_t *disk);
 void partitionManagerRegisterMemory(partition_manager_t *p_mng, size_t amount);
+void remountPartitions(partition_manager_t *p_manager, disk_t *disk);
 #endif

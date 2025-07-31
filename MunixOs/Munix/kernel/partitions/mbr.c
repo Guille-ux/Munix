@@ -1,5 +1,6 @@
 #include "mbr.h"
 #include "partitions.h"
+#include "partition_mng.h"
 #include "../disk/general.h"
 #include "../include/libcs2.h"
 #include "../include/memory.h"
@@ -85,4 +86,10 @@ void initMbrDriver(partition_table_driver_t *driver) {
 	driver->name = "MBR Driver";
 	driver->detect_partitions = mbr_detect_partitions;
 	driver->is_valid = mbr_is_valid;
+}
+
+void formatMBRreload(disk_t *disk, void *mbr, partition_manager_t *p_mng) {
+	lba_t tmp = {.lo=0, .hi=0};
+	disk->write(disk, mbr, tmp, 1);
+	remountPartitions(p_mng, disk);
 }

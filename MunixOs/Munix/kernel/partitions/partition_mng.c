@@ -46,3 +46,30 @@ void partitionManagerRegisterMemory(partition_manager_t *p_mng, size_t amount) {
 	p_mng->partitions=(partition_t *)kmalloc(sizeof(partition_t)*amount);
 
 }
+
+void remountPartitions(partition_manager_t *p_manager, disk_t *disk) {
+	for (int i=0;i<p_manager->partitions_count;i++) {
+		if (p_manager->partitions[i].parent_disk==disk) {
+			int a = i;
+			while (p_manager->partitions[i++].parent_disk==disk);
+			partition_table_driver_t *drv = NULL;
+			for (int b=0;b<p_manager->n_drvs;b++) {
+				if (p_manager->drivers[b]->is_valid(disk)) {
+					drv = p_manager->drivers[b];
+					break;
+				}
+			}
+			if (drv==NULL) {
+				kprintf("Unknown Partition Table\n");
+				return;
+			}
+			partition_list_t *tmp = drv->detect_partitions(disk);
+			for (int b=a;b<i;b++) {
+				if (b>=tmp->count) break;
+				memcpy(p_manager->partitions[b], tmp[b], sizeof(partition_t));
+			}
+			kfree(tmp);
+			break;
+		}
+	}
+}

@@ -6,6 +6,7 @@
 #include "../disk/general.h"
 #include "../disk/diski.h"
 #include "partitions.h"
+#include "partition_mng.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -43,5 +44,6 @@ void printMBRPartition(mbr_partition_t *part);
 partition_list_t *mbr_detect_partitions(disk_t *disk);
 bool mbr_is_valid(disk_t *disk);
 void initMbrDriver(partition_table_driver_t *driver);
+void formatMBRreload(disk_t *disk, void *mbr, partition_manager_t *p_mng);
 
 #endif
