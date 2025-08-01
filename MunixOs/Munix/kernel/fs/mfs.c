@@ -65,6 +65,10 @@ void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t b
 	kfree(buffer);	
 }
 
-void readMFSuperBlock(partition_t *partition, void *buffer) {
+void loadMFSuperBlock(partition_t *partition, void *buffer) {
 	readPartition(partition, buffer, uint64_2_lba(0), 1);
+}
+
+void saveMFSuperBlock(partition_t *partition, void *buffer) {
+	writePartition(partition, buffer, uint64_2_lba(0), 1);
 }

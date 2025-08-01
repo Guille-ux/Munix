@@ -80,6 +80,7 @@ typedef struct {
 
 void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t blockSize, lba_t start, uint32_t size);
 
-void readMFSuperBlock(partition_t *partition, void *buffer);
+void loadMFSuperBlock(partition_t *partition, void *buffer);
+void saveMFSuperBlock(partition_t *partition, void *buffer);
 
 #endif

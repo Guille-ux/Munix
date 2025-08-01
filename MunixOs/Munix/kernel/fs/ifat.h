@@ -15,6 +15,7 @@
 #define IFAT_END_OF_CHAIN 0xFFFFFFFF // el final de la cadena
 
 void IFATload(mfs_superblock_t *sblock, void *buffer, partition_t *partition);
-void IFATSave(mfs_superblock_t *sblock, void *buffer, partition_t *partition);
+void IFATSave(mfs_superblock_t *sblock, void *buffer, partition_t *partition);uint32_t IFATreadEntry(mfs_superblock_t *sblock, void *table, uint32_t index);
+void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint32_t val);
 
 #endif
