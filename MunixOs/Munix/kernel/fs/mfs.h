@@ -69,13 +69,16 @@ typedef struct {
   uint32_t first_block; // primer bloque
 } __attribute__((packed)) mfs_entry_t;
 
+#define MAX_OWNER_NAME 13
+
 typedef struct {
   uint32_t num_entries;
   uint32_t dirBlocks;
   uint16_t permissions;
   uint16_t owner_id;
   uint16_t group_id;
-  char owner_name[17 + 1]; // máximo para el user, es una herramienta para la legibilidad sobre todo
+  uint32_t block;
+  char owner_name[MAX_OWNER_NAME + 1]; // máximo para el user, es una herramienta para la legibilidad sobre todo
 } __attribute__((packed)) mfs_dir_header_t;
 
 void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t blockSize, lba_t start, uint32_t size);
@@ -83,5 +86,12 @@ void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t b
 void loadMFSuperBlock(partition_t *partition, void *buffer);
 void saveMFSuperBlock(partition_t *partition, void *buffer);
 void makeMFSroot(partition_t *partition, mfs_superblock_t *block, void *ifat_table, uint32_t size);
+
+
+void MFSloaDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer);
+void MFSsaveDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer);
+
+mfs_entry_t *MFSearchEntry(void *dir, const char *name);
+void MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *name, uint8_t attr, uint32_t blockSize, partition_t *partition);
 
 #endif

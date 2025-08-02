@@ -120,7 +120,7 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 	uint32_t new_idx;
 	bool should_break=false;
 	uint32_t write=0;
-	while (write< (max/512)/sblock->SectorsPerBlock) {
+	while (write < (max/512)/sblock->SectorsPerBlock) {
 		do {
 			new_idx = IFATreadEntry(sblock, table, current_idx);
 			if (new_idx == IFAT_BAD_BLOCK ||
@@ -172,6 +172,7 @@ void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t 
 	IFATwriteEntry(sblock, table, last, IFAT_END_OF_CHAIN);
 	if (count < n) {
 		IFATremoveChain(sblock, table, *start, true);
+		*start = 0;
 		return;
 	}
 	sblock->FreeBlocks -= n;

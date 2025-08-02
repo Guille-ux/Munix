@@ -75,7 +75,7 @@ void saveMFSuperBlock(partition_t *partition, void *buffer) {
 	writePartition(partition, buffer, uint64_2_lba(0), 1);
 }
 
-static inline void mfsDirHeaders(void *dir, uint32_t n_entries, uint32_t blocks, uint16_t permissions, uint16_t owner_id, uint16_t group_id, const char *name) {
+static inline void mfsDirHeaders(void *dir, uint32_t n_entries, uint32_t blocks, uint16_t permissions, uint16_t owner_id, uint16_t group_id, const char *name, uint32_t block) {
 	mfs_dir_header_t *header=dir;
 
 	header->num_entries=n_entries;
@@ -83,8 +83,9 @@ static inline void mfsDirHeaders(void *dir, uint32_t n_entries, uint32_t blocks,
 	header->permissions=permissions;
 	header->owner_id=owner_id;
 	header->group_id=group_id;
-	memcpy(header->owner_name, name, 17);
-	header->owner_name[17]='\0';
+	memcpy(header->owner_name, name, MAX_OWNER_NAME);
+	header->owner_name[MAX_OWNER_NAME]='\0';
+	header->block=block;
 }
 static void mfsNewDirEntry(const char *name, uint8_t attr, uint32_t modified, uint32_t blockSize, uint32_t first_block, void *dir) {
 	mfs_entry_t *entries = (void*)(dir+32);
@@ -99,8 +100,8 @@ static void mfsNewDirEntry(const char *name, uint8_t attr, uint32_t modified, ui
 		}
 	}
 	if (entry==NULL) return;
-	memcpy(entry->name, name, 19);
-	entry->name[19]='\0';
+	memcpy(entry->name, name, MAX_NAME_LEN);
+	entry->name[MAX_NAME_LEN]='\0';
 	entry->attr=attr;
 	entry->modified=modified;
 	entry->blockSize=blockSize;
@@ -117,6 +118,43 @@ void makeMFSroot(partition_t *partition, mfs_superblock_t *block, void *ifat_tab
 	memset(dir, 0, max);
 	uint8_t attr = MFS_ATTR_IMMUTABLE | MFS_ATTR_TYPE_DIR;
 	uint32_t modified=0; // de momento no tengo forma de hacer timestamps
+	mfsDirHeaders(dir, size*512*block->SectorsPerBlock/32, size, 0, 0, 0, "MunixOs", root_start);
 	mfsNewDirEntry(".", attr, modified, size, root_start, dir);
 	IFATwriteChain(block, ifat_table, root_start, dir, partition, max);
+}
+
+void MFSloaDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer, uint32_t n, uint32_t index) {
+	IFATreadChain(block, table, index, buffer, partition, n);
+}
+
+void MFSsaveDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer, uint32_t n, uint32_t index) {
+	IFATwriteChain(block, table, index, buffer, partition, n);
+}
+
+mfs_entry_t *MFSearchEntry(void *dir, const char *name) {
+	mfs_dir_header_t *header = dir;
+	mfs_entry_t *entries = (void*)(dir+32);
+	mfs_entry_t *entry=NULL;
+	for (int i=0;i<header->num_entries;i++) {
+		if (strcmp(name, entries[i].name)==0) {
+			entry=&entries[i];
+			break;
+		}
+	}
+	return entry;
+}
+void MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *name, uint8_t attr, uint32_t blockSize, partition_t *partition) {
+	mfs_dir_header_t *header = dir;
+	mfs_entry_t *nothing = MFSearchEntry(dir, name);
+	if (nothing != NULL) return;
+
+	uint32_t start=0;
+	IFATallocChain(block, table, blockSize, &start);
+	if (start==0) return; // bro, no se asigno nada, hubo un error
+	
+
+	uint32_t modified=0; // en el futuro sera algun timestamp
+	mfsNewDirEntry(name, attr, modified, blockSize, start, dir);
+
+	IFATwriteChain(block, table, header->block, dir, partition, header->dirBlocks*512*block->SectorsPerBlock);
 }
