@@ -1,4 +1,6 @@
 #include "mfs.h"
+#include "../partitions/mbr.h"
+#include "../partitions/partitions.h"
 #include "../include/memory.h"
 #include "../include/libcs2.h"
 #include "ifat.h"
@@ -19,7 +21,7 @@ void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t b
 	formatMBRreload(disk, mbr, p_mng);
 	kfree(mbr);
 	partition_t *partition = NULL;
-	for (int i=0;i<p_mng->partition_count;i++) {
+	for (int i=0;i<p_mng->partitions_count;i++) {
 		if (p_mng->partitions[i].parent_disk!=disk) continue;
 		if (p_mng->partitions[i].lba_start.lo==start.lo) {
 			partition = &p_mng->partitions[i];
@@ -71,4 +73,50 @@ void loadMFSuperBlock(partition_t *partition, void *buffer) {
 
 void saveMFSuperBlock(partition_t *partition, void *buffer) {
 	writePartition(partition, buffer, uint64_2_lba(0), 1);
+}
+
+static inline void mfsDirHeaders(void *dir, uint32_t n_entries, uint32_t blocks, uint16_t permissions, uint16_t owner_id, uint16_t group_id, const char *name) {
+	mfs_dir_header_t *header=dir;
+
+	header->num_entries=n_entries;
+	header->dirBlocks=blocks;
+	header->permissions=permissions;
+	header->owner_id=owner_id;
+	header->group_id=group_id;
+	memcpy(header->owner_name, name, 17);
+	header->owner_name[17]='\0';
+}
+static void mfsNewDirEntry(const char *name, uint8_t attr, uint32_t modified, uint32_t blockSize, uint32_t first_block, void *dir) {
+	mfs_entry_t *entries = (void*)(dir+32);
+	mfs_entry_t *entry=NULL;
+	for (int i=0;i<((mfs_dir_header_t*)dir)->num_entries;i++) {
+		if (entries[i].first_block==IFAT_TOMBSTONE) {
+			entry=&entries[i];
+			break;
+		} else if (entries[i].first_block==IFAT_FREE_BLOCK) {
+			entry=&entries[i];
+			break;
+		}
+	}
+	if (entry==NULL) return;
+	memcpy(entry->name, name, 19);
+	entry->name[19]='\0';
+	entry->attr=attr;
+	entry->modified=modified;
+	entry->blockSize=blockSize;
+	entry->first_block=first_block;
+}
+
+void makeMFSroot(partition_t *partition, mfs_superblock_t *block, void *ifat_table, uint32_t size) {
+	uint32_t root_start=0;
+	IFATallocChain(block, ifat_table, size, &root_start);
+	block->RootBlock = root_start;
+	uint32_t max = size*block->SectorsPerBlock*512;
+	void *dir = kmalloc(max);
+	IFATreadChain(block, ifat_table, root_start, dir, partition, max);
+	memset(dir, 0, max);
+	uint8_t attr = MFS_ATTR_IMMUTABLE | MFS_ATTR_TYPE_DIR;
+	uint32_t modified=0; // de momento no tengo forma de hacer timestamps
+	mfsNewDirEntry(".", attr, modified, size, root_start, dir);
+	IFATwriteChain(block, ifat_table, root_start, dir, partition, max);
 }

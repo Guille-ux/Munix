@@ -105,7 +105,7 @@ static inline uint32_t FAT12getRootDirSize(fat12_bpb_t *bpb) {
 }
 
 static inline void to83standar(char buffer[11], const char *name) {
-	char delimiters[] = '.';
+	char delimiters[] = {'.'};
 	char *n = strdup(name);
 	char *nombre = strtok(n, delimiters);
 	char *extension = strtok(NULL, delimiters);
@@ -134,7 +134,7 @@ static inline void to83standar(char buffer[11], const char *name) {
 			   nombre[i]=='-' ||
 			   nombre[i]=='@' ||
 			   nombre[i]=='^' ||
-			   nombre[i]=='\' ||
+			   nombre[i]=='\\' ||
 			   nombre[i]=='_' ||
 			   nombre[i]=='~' ||
 			   nombre[i]=='`' ||
@@ -163,7 +163,7 @@ static inline void to83standar(char buffer[11], const char *name) {
 				   extension[a]=='-' ||
 				   extension[a]=='@' ||
 				   extension[a]=='^' ||
-				   extension[a]=='\' ||
+				   extension[a]=='\\' ||
 				   extension[a]=='_' ||
 				   extension[a]=='~' ||
 				   extension[a]=='`' ||
@@ -190,6 +190,6 @@ void fat12_touch(partition_t *partition, void *cwd, uint32_t size, uint32_t n, u
 
 void fat12_remove(partition_t *partition, void *cwd, uint32_t n, uint32_t parent_cluster, const char *name);
 
-void fat12_read(partition_t *partition, void *cwd, const char *name, void *buffer, uint32_t n);
+void fat12_read(partition_t *partition, void *cwd, const char *name, void *buffer, uint32_t n, uint32_t dir_n);
 
 #endif

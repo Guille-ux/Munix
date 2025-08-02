@@ -66,7 +66,7 @@ void remountPartitions(partition_manager_t *p_manager, disk_t *disk) {
 			partition_list_t *tmp = drv->detect_partitions(disk);
 			for (int b=a;b<i;b++) {
 				if (b>=tmp->count) break;
-				memcpy(p_manager->partitions[b], tmp[b], sizeof(partition_t));
+				memcpy(&p_manager->partitions[b], &tmp[b], sizeof(partition_t));
 			}
 			kfree(tmp);
 			break;

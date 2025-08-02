@@ -82,5 +82,6 @@ void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t b
 
 void loadMFSuperBlock(partition_t *partition, void *buffer);
 void saveMFSuperBlock(partition_t *partition, void *buffer);
+void makeMFSroot(partition_t *partition, mfs_superblock_t *block, void *ifat_table, uint32_t size);
 
 #endif
