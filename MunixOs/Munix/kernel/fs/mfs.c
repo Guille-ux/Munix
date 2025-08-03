@@ -143,18 +143,58 @@ mfs_entry_t *MFSearchEntry(void *dir, const char *name) {
 	}
 	return entry;
 }
-void MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *name, uint8_t attr, uint32_t blockSize, partition_t *partition) {
+int MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *name, uint8_t attr, uint32_t blockSize, partition_t *partition) {
 	mfs_dir_header_t *header = dir;
 	mfs_entry_t *nothing = MFSearchEntry(dir, name);
-	if (nothing != NULL) return;
+	if (nothing != NULL) return -1;
 
 	uint32_t start=0;
 	IFATallocChain(block, table, blockSize, &start);
-	if (start==0) return; // bro, no se asigno nada, hubo un error
+	if (start==0) return -1; // bro, no se asigno nada, hubo un error
 	
 
 	uint32_t modified=0; // en el futuro sera algun timestamp
 	mfsNewDirEntry(name, attr, modified, blockSize, start, dir);
 
 	IFATwriteChain(block, table, header->block, dir, partition, header->dirBlocks*512*block->SectorsPerBlock);
+	return 0;
+}
+
+int mfsMkDir(mfs_superblock_t *block, void *dir, const char *name, partition_t *partition, void *table, uint32_t size) {
+	uint8_t attr = MFS_ATTR_TYPE_DIR;
+	int err = MFScreateEntry(block, dir, table, name, attr, size, partition);
+	if (err != 0) return -1;
+	void *new_dir = kmalloc(size*512*block->SectorsPerBlock);
+	mfs_entry_t *entry = MFSearchEntry(dir, name);
+	if (entry==NULL) return -1;
+	MFSloaDir(block, partition, table, new_dir, entry->first_block, size*512*block->SectorsPerBlock);
+
+	mfsDirHeaders(new_dir, size*512*block->SectorsPerBlock/32, size, 0, 0, 0, "MunixOs", entry->first_block);
+	mfsNewDirEntry(".", attr | MFS_ATTR_IMMUTABLE, 0, size, entry->blockSize, entry->first_block, new_dir);
+	mfs_dir_header_t *prev_h=dir;
+	mfsNewDirEntry("..", attr | MFS_ATTR_IMMUTABLE, 0, prev_h->dirBlocks, prev_h->block, new_dir);
+
+	MFSsaveDir(block, partition, table, new_dir, size*512*block->SectorsPerBlock, entry->first_block);
+	kfree(new_dir);
+}
+
+int MFSchdir(void **dir, const char *name, mfs_superblock_t *block, partition_t *partition, void *table) {
+	mfs_entry_t *entry = MFSearchEntry(*dir, name);
+	
+	if (dir==NULL || *dir==NULL) return -1;
+	if (entry==NULL) return -1;
+	if ((entry->attr & MFS_ATTR_TYPE_MASK)!=MFS_ATTR_TYPE_DIR) return -1;
+
+	void *new_dir = kmalloc(block->SectorsPerBlock*512*entry->blockSize);
+	if (new_dir==NULL) return -1;
+
+	MFSloaDir(block, partition, table, new_dir, entry->blockSize, entry->first_block);
+	kfree(*dir);
+	*dir = new_dir;
+	return 0;
+}
+
+void MFStatChDir(void *dir, uint16_t permissions, uint16_t owner_id, uint16_t group_id, const char *owner_name) {
+	mfs_dir_header_t *header = MFStatDir(dir);
+	mfsDirHeaders(dir, header->num_entries, header->dirBlocks, permissions, owner_id, group_id, owner_name, header->block);
 }

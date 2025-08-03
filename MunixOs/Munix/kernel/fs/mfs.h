@@ -88,10 +88,19 @@ void saveMFSuperBlock(partition_t *partition, void *buffer);
 void makeMFSroot(partition_t *partition, mfs_superblock_t *block, void *ifat_table, uint32_t size);
 
 
-void MFSloaDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer);
-void MFSsaveDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer);
+void MFSloaDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer, uint32_t n, uint32_t index);
+void MFSsaveDir(mfs_superblock_t *block, partition_t *partition, void *table, void *buffer, uint32_t n, uint32_t index);
 
 mfs_entry_t *MFSearchEntry(void *dir, const char *name);
-void MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *name, uint8_t attr, uint32_t blockSize, partition_t *partition);
+int MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *name, uint8_t attr, uint32_t blockSize, partition_t *partition);
+
+int mfsMkDir(mfs_superblock_t *block, void *dir, const char *name, partition_t *partition, void *table, uint32_t size);
+
+int MFSchdir(void **dir, const char *name, mfs_superblock_t *block, partition_t *partition, void *table);
+
+static inline mfs_dir_header_t *MFStatDir(void *dir) {
+	return (mfs_dir_header_t*)dir;
+}
+void MFStatChDir(void *dir, uint16_t permissions, uint16_t owner_id, uint16_t group_id, const char *owner_name);
 
 #endif
