@@ -15,6 +15,7 @@
 13. [Información sobre la rutina de interrupción del teclado](keyboard_isr.md)
 14. [Información sobre el PIC](pic.md)
 15. [Información sobre el PCI](pci.md)
+16. [Sobre la abstracción del sistema de archivos](fs.md)
 
 # IMPORTANTE 
 a fecha de edición de este archivo, solo hay documentación para el **Readme** y para el **script de debug**, si te interesa, puedes contribuir a la documentación, (hay bastantes comentarios en los archivos)
