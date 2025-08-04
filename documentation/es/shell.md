@@ -35,14 +35,15 @@ Texto de entrada → [Lexer] → Tokens → [Parser] → AST → [Evaluador] →
 
 **Tokens soportados**:
 - Operadores matemáticos: `+`, `-`, `*`, `/`
-- Operadores de comparación: `==`, `!`, `<`, `>`
+- Operadores de comparación: `==`, `!`, `<`, `>`, `<=`, `>=`
 - Símbolos especiales: `(`, `)`, `{`, `}`, `;`, `:`, `$`
-- Palabras clave: `if`, `then`, `else`, `fi`, `while`, `do`, `for`, `done`, `break`, `return`, `export`, `echo`
+- Palabras clave: `if`, `then`, `else`, `fi`, `while`, `do`, `for`, `done`, `break`, `return`, `export`, `echo`, `or`, `and`
 - Literales: números, strings entre comillas
 
 **Ejemplo de tokenización**:
 ```bash
-if $1:"var" == 42 then
+if $1:"var" == 42
+then
   echo "hola"
 fi
 ```
