@@ -40,14 +40,16 @@ typedef struct {
 	bool is_set;
 } Var;
 
-typedef struct {
+struct EvalCtx;
+
+typedef struct EvalCtx {
 	size_t arg_used;
 	Var *var_table;
 	Var *argv;
 	size_t argc;
 	size_t var_cap;
 	
-	int (*command_handler)(ASTNode *command);
+	int (*command_handler)(ASTNode *command, struct EvalCtx *ctx);
 
 	int last_exit_code;
 

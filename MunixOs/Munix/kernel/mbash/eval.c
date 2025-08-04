@@ -130,6 +130,7 @@ void setShellVarEntry(EvalCtx *ctx, size_t id, ShellValue val) {
 		ctx->var_cap=new_cap;
 		ctx->var_table = new_table;
 	}
+	ref_del(ctx->var_table[id].val);
 	ctx->var_table[id] = (Var){.val=ref_add(val), .is_exported=false, .is_set=true};
 }
 
@@ -458,7 +459,7 @@ static ShellValue evalBinExpr(ASTNode *expr, EvalCtx *ctx) {
 				char *concat = (char*)kmalloc(strlen(left_str)+strlen(right_str)+1);
 				if (concat==NULL) {
 					kprintf("[FATAL ERROR]\n");
-					return;
+					return result;
 				}
 				strcpy(concat, left_str);
 				strcat(concat, right_str);
@@ -529,6 +530,6 @@ static int evalCommandCall(ASTNode *stmt, EvalCtx *ctx) {
 	if (ctx->command_handler == NULL) {
 		return EVAL_OK; // si no hay nada, devolvemos ok y a llorar
 	} else {
-		return ctx->command_handler(stmt);
+		return ctx->command_handler(stmt, ctx);
 	}
 }

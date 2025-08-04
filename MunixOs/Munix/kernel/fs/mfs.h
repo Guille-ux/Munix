@@ -44,15 +44,15 @@ typedef struct {
  * ahora, algo importante, los atributos
  */
 
-#define MFS_ATTR_TYPE_MASK 00000111b
-#define MFS_ATTR_TYPE_EMPTY 00000000b
-#define MFS_ATTR_TYPE_FILE 00000001b
-#define MFS_ATTR_TYPE_DIR 00000010b
-#define MFS_ATTR_TYPE_SYMLINK 00000011b
-#define MFS_ATTR_TYPE_DEVICE 00000100b
-#define MFS_ATTR_TYPE_FIFO 00000101b
-#define MFS_ATTR_TYPE_SOCKET 00000110b
-#define MFS_ATTR_TYPE_HARDLINK 00000111b
+#define MFS_ATTR_TYPE_MASK 0x07
+#define MFS_ATTR_TYPE_EMPTY 0x00
+#define MFS_ATTR_TYPE_FILE 0x01
+#define MFS_ATTR_TYPE_DIR 0x02
+#define MFS_ATTR_TYPE_SYMLINK 0x03
+#define MFS_ATTR_TYPE_DEVICE 0x04
+#define MFS_ATTR_TYPE_FIFO 0x05
+#define MFS_ATTR_TYPE_SOCKET 0x06
+#define MFS_ATTR_TYPE_HARDLINK 0x07
 
 #define MFS_ATTR_HIDDEN (1 << 3) // oculto
 #define MFS_ATTR_IMMUTABLE (1 << 4) // inmutable, menos por el sistema

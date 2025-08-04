@@ -97,7 +97,7 @@ typedef struct {
 
 static inline lba_t FAT12getRootDirLba(partition_t *partition, fat12_bpb_t *bpb) {
 	uint32_t offset = bpb->ReservedSectors +  bpb->NumTables * bpb->SectorsPerFat;
-	return lba2uint64(offset + uint64_2_lba(partition->lba_start));
+	return uint64_2_lba(offset + lba2uint64(partition->lba_start));
 }
 
 static inline uint32_t FAT12getRootDirSize(fat12_bpb_t *bpb) {

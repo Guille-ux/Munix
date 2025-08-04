@@ -170,7 +170,7 @@ int mfsMkDir(mfs_superblock_t *block, void *dir, const char *name, partition_t *
 	MFSloaDir(block, partition, table, new_dir, entry->first_block, size*512*block->SectorsPerBlock);
 
 	mfsDirHeaders(new_dir, size*512*block->SectorsPerBlock/32, size, 0, 0, 0, "MunixOs", entry->first_block);
-	mfsNewDirEntry(".", attr | MFS_ATTR_IMMUTABLE, 0, size, entry->blockSize, entry->first_block, new_dir);
+	mfsNewDirEntry(".", attr | MFS_ATTR_IMMUTABLE, 0, entry->blockSize, entry->first_block, new_dir);
 	mfs_dir_header_t *prev_h=dir;
 	mfsNewDirEntry("..", attr | MFS_ATTR_IMMUTABLE, 0, prev_h->dirBlocks, prev_h->block, new_dir);
 

@@ -71,7 +71,7 @@ void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 
 		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx-1);
 
-		uint64_t tmp = lba2uint64(lba)
+		uint64_t tmp = lba2uint64(lba);
 		tmp += sblock->SectorsPerBlock*(current_idx-start_idx-1);
 		lba = uint64_2_lba(tmp);
 
@@ -86,7 +86,7 @@ void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool
 	uint32_t next_idx;
 	uint32_t fill_val = (clean) ? IFAT_FREE_BLOCK : IFAT_TOMBSTONE;
 	do  {
-		next_idx = IFATreadEntry(current_idx);
+		next_idx = IFATreadEntry(sblock, table, current_idx);
 		IFATwriteEntry(sblock, table, current_idx, fill_val);
 		current_idx = next_idx;
 	}
@@ -142,7 +142,7 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 
 		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx-1);
 
-		uint64_t tmp = lba2uint64(lba)
+		uint64_t tmp = lba2uint64(lba);
 		tmp += sblock->SectorsPerBlock*(current_idx-start_idx-1);
 		lba = uint64_2_lba(tmp);
 
