@@ -396,18 +396,20 @@ static int get_precedence(TokenType type) {
     switch(type) {
         case TOKEN_MUL: 
         case TOKEN_DIV: 
-        case TOKEN_MINUS:
             return 4;
+	case TOKEN_MINUS:
         case TOKEN_PLUS:
             return 3;
         case TOKEN_GREATER:
         case TOKEN_LESS: 
         case TOKEN_GEQ:
         case TOKEN_LEQ:
-            return 2;
         case TOKEN_EQ:
         case TOKEN_BEQ: 
-            return 1;
+            return 2;
+	case TOKEN_AND:
+	case TOKEN_OR:
+	    return 1;
         default: 
             return 0;
     }

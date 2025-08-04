@@ -98,6 +98,9 @@ Token lexer_next_token() {
 	char c;
 	while (peek() != '\0') {
 		c = peek();
+		if (pattern("<=")) return newToken(TOKEN_LEQ, "<=", 2);
+		if (pattern(">=")) return newToken(TOKEN_GEQ, ">=", 2);
+		if (pattern("!=")) return newToken(TOKEN_BEQ, "!=", 2);
 		switch (c) {
 			case '\n': advance(); return newToken(TOKEN_NEW_LINE, "\n", 1);
 			case '*': advance(); return newToken(TOKEN_MUL, "*", 1);
@@ -189,13 +192,15 @@ Token lexer_next_token() {
 		if (pattern("then")) return newToken(TOKEN_THEN, "then", 4);
 		if (pattern("echo")) return newToken(TOKEN_ECHO, "echo", 4);
 		if (pattern("export")) return newToken(TOKEN_EXPORT, "export", 6);
-		if (pattern("<=")) return newToken(TOKEN_LEQ, "<=", 2);
-		if (pattern(">=")) return newToken(TOKEN_GEQ, ">=", 2);
+
 		if (pattern("return")) return newToken(TOKEN_RETURN, "return", 6);
 		if (pattern("null")) return newToken(TOKEN_NULL, "null", 4);
-		if (pattern("!=")) return newToken(TOKEN_BEQ, "!=", 2);
+
 		if (pattern("do")) return newToken(TOKEN_DO, "do", 2);
 		if (pattern("done")) return newToken(TOKEN_DONE, "done", 4);
+
+		if (pattern("or")) return newToken(TOKEN_OR, "or", 2);
+		if (pattern("and")) return newToken(TOKEN_AND, "and", 3);
 
 		/*
 		 * Añadir más tokens de este tipo, algo me dice que seran importantes

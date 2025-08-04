@@ -495,6 +495,8 @@ static ShellValue evalBinExpr(ASTNode *expr, EvalCtx *ctx) {
 
 		if (can_num) {
 			switch (expr->data.binary_expr.op) {
+				case TOKEN_OR: result=newNumVal(num_left || num_right); break;
+				case TOKEN_AND: result=newNumVal(num_left && num_right); break;
 				case TOKEN_EQ: result=newNumVal(num_left==num_right); break;
 				case TOKEN_GREATER: result=newNumVal(num_left>num_right); break;
 				case TOKEN_LESS: result=newNumVal(num_left < num_right); break;
