@@ -438,6 +438,33 @@ static ShellValue evalBinExpr(ASTNode *expr, EvalCtx *ctx) {
 						}
 				case TOKEN_PLUS: result = newNumVal(left.as.num + right.as.num); break;
 			}
+		} else if (left.type == VAL_STRING || right.type == VAL_STRING) {
+			if (expr->data.binary_expr.op==TOKEN_PLUS) {
+				char *right_str;
+				char *left_str;
+				char num_buff[66];
+				if (left.type == VAL_STRING) {
+					left_str = left.as.str;
+				} else {
+					ltoa(left.as.num, num_buff, 10);
+					left_str = num_buff;
+	
+				} if (right.type == VAL_STRING) {
+					right_str = right.as.str;
+				} else {
+					ltoa(right.as.num, num_buff, 10);
+					right_str = num_buff;
+				}
+				char *concat = (char*)kmalloc(strlen(left_str)+strlen(right_str)+1);
+				if (concat==NULL) {
+					kprintf("[FATAL ERROR]\n");
+					return;
+				}
+				strcpy(concat, left_str);
+				strcat(concat, right_str);
+	
+				result = (ShellValue){.type=VAL_STRING, .as.str=concat, .refc=0};
+			}
 		}
 	} else if (is_cmp) {
 		long num_left=0, num_right=0;
@@ -483,7 +510,7 @@ static ShellValue evalBinExpr(ASTNode *expr, EvalCtx *ctx) {
 				case TOKEN_LEQ: result=newNumVal(cmp<=0); break;
 				case TOKEN_GEQ: result=newNumVal(cmp>=0); break;
 				case TOKEN_LESS: result=newNumVal(cmp<0); break;
-				case TOKEN_GREATER: result=newNumVal(cmp>0); break;
+				case TOKEN_GREATER: result=newNumVal(cmp>0); break; 
 			}
 		} else {
 			kprintf("Err -> Unknown Operation\n");
