@@ -18,6 +18,6 @@
 16. [Sobre la abstracción del sistema de archivos](fs.md)
 
 # IMPORTANTE 
-a fecha de edición de este archivo, solo hay documentación para el **Readme** y para el **script de debug**, si te interesa, puedes contribuir a la documentación, (hay bastantes comentarios en los archivos)
+a fecha de edición de este archivo, solo hay documentación para el **Readme**, para el **script de debug** y la **shell**, si te interesa, puedes contribuir a la documentación, (hay bastantes comentarios en los archivos)
 
 tambien agradeceria contribuciones para la traducción al inglés.
