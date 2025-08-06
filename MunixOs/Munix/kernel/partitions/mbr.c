@@ -49,6 +49,7 @@ bool mbr_is_valid(disk_t *disk) {
 	disk->read(disk, info, lba, 1);
 	if (isMasterBootRecord(info)) {
 		kfree(info);
+		kprintf("[MBR]: Valid Table\n");
 		return true;
 	}
 	kfree(info);
@@ -60,12 +61,16 @@ partition_list_t *mbr_detect_partitions(disk_t *disk) {
 	partition_list_t* part_list = (partition_list_t*)kmalloc(sizeof(partition_list_t));
 	part_list->count=0;
 	// asignar espacio y leer el MBR
-	mbr_t *mbr = (mbr_t*)kmalloc(sizeof(mbr_t));
-	disk->read(disk, mbr, uint64_2_lba(1), 1);
+	uint8_t *buffer = (uint8_t*)kmalloc(512);
+	__asm__ volatile("cli");
+	mbr_t *mbr = (mbr_t*)buffer;
+	disk->read(disk, buffer, uint64_2_lba(0), 1);
 	
 	for (int i=0;i<4;i++) {
-		if (mbr->data.partitions[i].lba_start != 0 && mbr->data.partitions[i].size != 0) { // comprobando si la partición es válida, creo que
-												   // así es la convención, o eso creo
+		mbr_partition_t *c_partition=&mbr->data.partitions[i];
+		if (c_partition->lba_start > 0 && c_partition->type != 0) { // comprobando si la partición es válida, creo que
+													   // así es la convención, o eso creo
+			kprintf("[MBR]: Valid Partition\n");
 			partition_t *tmp = &part_list->partitions[part_list->count];			
 			tmp->id = part_list->count;
 			tmp->lba_start = (lba_t){.lo = mbr->data.partitions[i].lba_start};
@@ -76,8 +81,11 @@ partition_list_t *mbr_detect_partitions(disk_t *disk) {
 
 			part_list->count++;
 
+		} else {
+			kprintf("[MBR]: Invalid Partition!\n");
 		}
 	}
+	__asm__ volatile("sti");
 	kfree(mbr);
 	return part_list;
 }

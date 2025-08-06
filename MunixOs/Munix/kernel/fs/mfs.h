@@ -16,6 +16,7 @@ typedef struct {
   uint32_t reserved; // nº de sectores de 512 bytes que estan reservados
   uint32_t SectorsPerBlock; // nº de sectores por bloque
   uint32_t RootBlock; // el indice del bloque del directorio raíz
+  uint32_t RootSize; // tamaño de la raíz en sectores
   lba_t IFATStart; // donde empieza la tabla en lba
   uint32_t IFATSize; // tamaño de la tabla de asignación
   uint32_t IFATFlags; // flags del ifat, definidas más adelante
@@ -81,7 +82,7 @@ typedef struct {
   char owner_name[MAX_OWNER_NAME + 1]; // máximo para el user, es una herramienta para la legibilidad sobre todo
 } __attribute__((packed)) mfs_dir_header_t;
 
-void MBRformatMFS(disk_t *disk, partition_manager_t *p_mng, uint8_t n, uint8_t blockSize, lba_t start, uint32_t size);
+void MBRformatMFS(disk_t *disk, uint8_t n, uint32_t blockSize, lba_t start, uint32_t size);
 
 void loadMFSuperBlock(partition_t *partition, void *buffer);
 void saveMFSuperBlock(partition_t *partition, void *buffer);

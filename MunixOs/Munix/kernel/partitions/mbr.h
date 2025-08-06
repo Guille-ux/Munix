@@ -11,7 +11,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define MBR_SIGN 0x55AA // EL NÚMERO MÁGICO
+#define MBR_SIGN 0xAA55 // EL NÚMERO MÁGICO
 #define MBR_LOCATION 0 // en LBA
 #define MBR_LENGTH 1 // en sectores
 #define MBR_DATA 0x1B8 // en que byte empieza lo que no interesa

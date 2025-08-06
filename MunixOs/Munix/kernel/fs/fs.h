@@ -28,7 +28,7 @@ typedef struct explorer_t {
 	
 	int (*cd)(struct explorer_t *exp, const char *dir_name);
 	int (*mkdir)(struct explorer_t *exp, const char *name);
-	int (*mod)(struct exporer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
+	int (*mod)(struct explorer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
 	int (*chmod)(struct explorer_t *exp, uint16_t permissions, uint16_t group, uint16_t owner);
 	int (*stat)(struct explorer_t *exp, const char *name, uint8_t *attr);
 	int (*chstat)(struct explorer_t *exp, const char *name, uint8_t attr);
@@ -36,7 +36,9 @@ typedef struct explorer_t {
 	int (*touch)(struct explorer_t *exp, const char *name);
 	int (*cat)(struct explorer_t *exp, const char *name);
 	int (*write)(struct explorer_t *exp, const char *name, void *content, uint32_t n);
-	int (*remove)(struct exporer_t *exp, const char *name);
-} exporer_t;
+	int (*remove)(struct explorer_t *exp, const char *name);
+} explorer_t;
+
+explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
 
 #endif

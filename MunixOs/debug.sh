@@ -28,13 +28,13 @@ fi
 if [ "$1" == "run" ]
 then
 	echo "[ Ejecutando Máquina Virtual... ]"
-	qemu-system-i386  -cdrom munix.iso \
-			-drive format=raw,file=disk.img,if=ide,index=0  \
+	qemu-system-i386 -cdrom munix.iso \
+			-drive file=disk.img,format=raw,if=ide \
 			-boot d \
 			-m 64M \
 			-serial stdio \
 			-no-reboot \
-			-s 
+			-s
 	echo "[ Máquina Virtual Finalizada!   ]"
 	exit
 fi

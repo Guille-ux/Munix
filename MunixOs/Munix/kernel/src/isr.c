@@ -47,6 +47,7 @@ void isr_handler(registers_t *regs) {
         kprintf("\n-> FATAL ERROR: %s \n\t -> Int Number : %d \n", (const char*)exception_messages[regs->int_no], regs->int_no);
 		//__asm__ volatile("cli");
         //__asm__ volatile("halt");
+        while (1);
 		stdlog_interface.append(exception_messages[regs->int_no]);
 		// 2 opciones, halt o añadirlo al log e ignorarlo, yo lo ignoro
 	}  else if (regs->int_no > 31 && regs->int_no < 48) { // lo hare con otros handlers especiales

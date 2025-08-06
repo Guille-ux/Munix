@@ -22,7 +22,7 @@ uint32_t IFATreadEntry(mfs_superblock_t *sblock, void *table, uint32_t index) {
 		return IFAT_BAD_BLOCK;
 	} // para que de error, básicamente
 	uint32_t *t = (uint32_t*)table;
-	return t[index];
+	return t[index-1]; // porque el 0 no puede ser, entonces restamos 1, para no desperdiciarlo
 }
 
 void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint32_t val) {
@@ -37,7 +37,7 @@ void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint3
 		return;
 	} // para que de error, básicamente
 	uint32_t *t = (uint32_t*)table;
-	t[index]=val;
+	t[index-1]=val;
 }
 
 void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {

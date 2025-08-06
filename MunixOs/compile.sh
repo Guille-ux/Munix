@@ -43,6 +43,7 @@ cd init
 gcc -fno-stack-protector -m32 -c *c
 cd ..
 cd fs
+rm -rf *.o
 gcc -fno-stack-protector -m32 -c *c
 cd ..
 gcc -fno-stack-protector -m32 -c -o buddy.o src/buddy_alloc.c
