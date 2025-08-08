@@ -53,6 +53,72 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
 	explorer->cwd = kmalloc(n);
 	MFSloaDir(block, partition, table, explorer->cwd, n, block->RootBlock);
-/*
- */
+	explorer->cd = mfs_cd;
+	explorer->mkdir = mfs_mkdir;
+	explorer->mod = mfs_mod;
+	explorer->chmod = mfs_chmod;
+}
+
+int mfs_cd(explorer_t *explorer, const char *dir_name) {
+	mfs_superblock_t *block=((mfs_meta_t*)explorer->meta)->superblock;
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table; 
+	if (strcmp(dir_name, ".")==0) {
+		return 0;
+	}
+
+	int ret = MFSchdir(explorer->cwd, dir_name, block, explorer->partition, table);
+
+	if (ret != 0) return ret;
+
+	if (strcmp(dir_name, "..")==0) {
+		if (strcmp(explorer->path, "/")==0) {
+			return 0; // ya estamos en la raíz
+		}
+
+		char *ch = strrchr(explorer->path, '/');
+		if (ch != NULL) {
+			*ch = '\0';
+		}
+		if (explorer->path[0]=='\0') {
+			explorer->path[0]='/';
+			explorer->path[1]='\0';
+		}
+	} else if (strcmp(explorer->path, "/")==0) {
+		strcat(explorer->path, dir_name);
+	} else if ((1 + strlen(explorer->path) + strlen(dir_name)) < 256) {
+		strcat(explorer->path, "/");
+		strcat(explorer->path, dir_name);
+	}
+
+	return ret;
+}
+
+int mfs_mkdir(explorer_t *explorer, const char *name) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	int ret = mfsMkDir(block, *explorer->cwd, name, explorer->partition, table, MFS_DIR_BLOCKS);
+	if (ret == 0) {
+		saveMFSuperBlock(explorer->partition, block);
+		IFATSave(block, table, explorer->partition);
+	}
+	return ret;
+}
+
+int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner) {
+	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
+	*permissions = tmp->permissions;
+	*group = tmp->group_id;
+	*owner = tmp->owner_id;
+	return 0;
+}
+
+int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
+	MFStatChDir(*explorer->cwd, permissions, owner, group, "idk");
+	
+	MFSsaveDir(block, explorer->partition, table, *explorer->cwd, tmp->DirBlocks*512*block->SectorsPerBlock, tmp->block);
+
+	return 0;
 }

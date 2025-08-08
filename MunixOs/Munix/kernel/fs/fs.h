@@ -22,23 +22,38 @@ typedef struct explorer_t {
 
 	char path[256];
 
-	void *cwd;
+	void **cwd; // Ahora es un handle para mayor flexibilidad
 
 	partition_t *partition;
-	
+
 	int (*cd)(struct explorer_t *exp, const char *dir_name);
 	int (*mkdir)(struct explorer_t *exp, const char *name);
 	int (*mod)(struct explorer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
 	int (*chmod)(struct explorer_t *exp, uint16_t permissions, uint16_t group, uint16_t owner);
 	int (*stat)(struct explorer_t *exp, const char *name, uint8_t *attr);
 	int (*chstat)(struct explorer_t *exp, const char *name, uint8_t attr);
+	int (*size)(struct explorer_t *exp, const char *name, uint32_t *size);
 
 	int (*touch)(struct explorer_t *exp, const char *name);
 	int (*cat)(struct explorer_t *exp, const char *name);
 	int (*write)(struct explorer_t *exp, const char *name, void *content, uint32_t n);
 	int (*remove)(struct explorer_t *exp, const char *name);
+	
+	/* 
+	 * Futuro: crear manejadores de archivos
+	 */
 } explorer_t;
 
 explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
+
+/*
+ * Funciones para MunixFS
+ *
+ */
+
+int mfs_cd(explorer_t *explorer, const char *dir_name);
+int mfs_mkdir(explorer_t *explorer, const char *name);
+int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner);
+int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner);
 
 #endif

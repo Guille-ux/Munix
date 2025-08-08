@@ -15,15 +15,9 @@ void kernel_main() {
 	kprintf("~ MunixOs ~\n");
 
 	__asm__ volatile("cli");
-	lba_t start = {.lo = 0, .hi = 0};
-	int i=0;
-	
-	kprintf("Writing to disk %d\n", i);
-	disk_t *disk = &system_disks[i];
-	//MBRformatMFS(disk, 0, 4, uint64_2_lba(1), 2047);
 		
 	explorer_t explorer;
-	i=0;
+	int i=0;
 	void *ret=NULL;
 	do {
 		ret = mfs_init_explorer(&(kpartition_manager.partitions[i++]), &explorer, 0, 0);

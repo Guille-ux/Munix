@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-void *memset(void *block, unsigned char c, size_t n);
+void *memset(void *block, int c, size_t n);
 int memcmp(void *ab, void *ba, size_t n);
 void *memcpy(void *dest, const void *src, size_t n);
 size_t strlen(const char *str);
@@ -20,6 +20,7 @@ char *strncpy(char *dest, const char *src, size_t n);
 char *strncat(char *dest, const char *src, size_t n);
 char *strtok(char *str, const char *delim);
 char *strchr(const char *str, int c);
+char *strrchr(const char *str, int c);
 size_t strspn(const char *s1, const char *s2);
 size_t strcspn(const char *s1, const char *s2);
 long atol(const char *str);

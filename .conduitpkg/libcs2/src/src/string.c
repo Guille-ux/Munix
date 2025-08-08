@@ -28,10 +28,10 @@ void byte_to_hex_string(uint8_t byte, char* buffer) {
 }
 
 
-void *memset(void *block, unsigned char c, size_t n) {
+void *memset(void *block, int c, size_t n) {
 	uint8_t *b=(uint8_t*)block;
 	for (size_t i=0;i<n;i++) {
-		b[i]=c;
+		b[i]=c&0xFF;
 	}
 	return block;
 }
@@ -227,6 +227,17 @@ char *strchr(const char *str, int c) {
         return (char *)str;
     }
     return NULL;
+}
+
+char *strrchr(const char *str, int c) {
+	int i = strlen(str);
+	while (i >= 0) {
+		if (str[i]==c) {
+			return &str[i];
+		}
+		i--;
+	}
+	return NULL;
 }
 
 long atol(const char *str) {
