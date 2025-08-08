@@ -178,14 +178,15 @@ uint8_t driveHeadCfg2byte(DriveHeadRegCfg cfg);
  * o si, no se si me voy a cargar el disco, quien sabe?
  *
  */
-#define _2SEC_ON_NANO_SEC 2*1000*1000*1000
+#define _2SEC_ON_NANO_SEC 2*1000*1000
 
 static inline bool ata_wait_busy(ata_device_t *device) {
-	for (int i = 0;i<15;i++) {//segun osdev hay que usar retrasos de 400ns
+	for (int i = 0;i<4;i++) {//segun osdev hay que usar retrasos de 400ns
 		inb(device->control_base);
 	}
 	uint32_t timeout = _2SEC_ON_NANO_SEC; // 2 segundos en nanosegundos
-	while (((inb(device->control_base) & ATA_STATUS_REG_BSY ) && timeout==0) != 0) {
+	while (((inb(device->control_base) & ATA_STATUS_REG_BSY))) {
+		if (timeout == 0) break;
 		timeout--;
 	}
 	if (timeout == 0) return false;
@@ -193,11 +194,12 @@ static inline bool ata_wait_busy(ata_device_t *device) {
 }
 
 static inline bool ata_wait_drq(ata_device_t *device) {
-	for (int i = 0;i<15;i++) {//segun osdev hay que usar retrasos de 400ns
+	for (int i = 0;i<4;i++) {//segun osdev hay que usar retrasos de 400ns
 		inb(device->control_base);
 	}
-	uint32_t timeout = _2SEC_ON_NANO_SEC / 2; // 2 segundos en nanosegundos
-	while (((inb(device->control_base) ^ ATA_STATUS_REG_DRQ ) && timeout==0) != 0) {
+	uint32_t timeout = _2SEC_ON_NANO_SEC; // 2 segundos en nanosegundos
+	while (((inb(device->control_base) & ATA_STATUS_REG_DRQ)==0)) {
+		if (timeout == 0) break;
 		timeout--;
 	}
 	if (timeout == 0) return false;
@@ -205,11 +207,12 @@ static inline bool ata_wait_drq(ata_device_t *device) {
 }
 
 static inline bool ata_wait_ready(ata_device_t *device) {
-	for (int i = 0;i<15;i++) {//segun osdev hay que usar retrasos de 400ns
+	for (int i = 0;i<4;i++) {//segun osdev hay que usar retrasos de 400ns
 		inb(device->control_base);
 	}
-	uint64_t timeout = _2SEC_ON_NANO_SEC * 9; // 2 segundos en nanosegundos
-	while (((inb(device->control_base) ^ ATA_STATUS_REG_RDY ) && timeout==0) != 0) {
+	uint64_t timeout = (uint32_t)_2SEC_ON_NANO_SEC;
+	while (((inb(device->control_base) & ATA_STATUS_REG_RDY)==0)) {
+		if (timeout == 0) break;
 		timeout--;
 	}
 	if (timeout == 0) return false;

@@ -14,12 +14,11 @@ void partitionManagerScanDisk(partition_manager_t *p_manager, disk_t *disk) {
 	for (int i=0;i<p_manager->n_drvs;i++) {
 		if (p_manager->drivers[i]!=NULL) {
 			driver=p_manager->drivers[i];
-			if (!driver->is_valid(disk)) {
-				driver=NULL;
-				continue;
+			if (driver->is_valid(disk)) {
+				kprintf("[PARTITION MANAGER]: Detected by %s\n", driver->name);
+				break;
 			}
-			kprintf("[PARTITION MANAGER]: Detected by %s\n", driver->name);
-			break;
+			driver=NULL;
 		}
 	}
 	if (driver==NULL) {
@@ -27,7 +26,7 @@ void partitionManagerScanDisk(partition_manager_t *p_manager, disk_t *disk) {
 		return;
 	}
 	partition_list_t *tmp = driver->detect_partitions(disk);
-	if (p_manager->partitions_count + tmp->count > p_manager->capacity) {
+	if ((p_manager->partitions_count + tmp->count) > p_manager->capacity) {
 		kprintf("[PARTITION MANAGER]: Out of PRE-Allocated Memory\n");
 		return;
 	}

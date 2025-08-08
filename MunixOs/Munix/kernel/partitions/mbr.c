@@ -62,7 +62,6 @@ partition_list_t *mbr_detect_partitions(disk_t *disk) {
 	part_list->count=0;
 	// asignar espacio y leer el MBR
 	uint8_t *buffer = (uint8_t*)kmalloc(512);
-	__asm__ volatile("cli");
 	mbr_t *mbr = (mbr_t*)buffer;
 	disk->read(disk, buffer, uint64_2_lba(0), 1);
 	
@@ -85,7 +84,6 @@ partition_list_t *mbr_detect_partitions(disk_t *disk) {
 			kprintf("[MBR]: Invalid Partition!\n");
 		}
 	}
-	__asm__ volatile("sti");
 	kfree(mbr);
 	return part_list;
 }
