@@ -55,5 +55,8 @@ int mfs_cd(explorer_t *explorer, const char *dir_name);
 int mfs_mkdir(explorer_t *explorer, const char *name);
 int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner);
 int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner);
+int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr);
+int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr);
+
 
 #endif

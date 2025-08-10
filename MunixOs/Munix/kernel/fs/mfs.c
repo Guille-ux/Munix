@@ -14,8 +14,6 @@ void MBRformatMFS(disk_t *disk, uint8_t n, uint32_t blockSize, lba_t start, uint
 	lba_t lba = {.lo=0, .hi=0};
 	disk->read(disk, mbr, uint64_2_lba(0), 1);
 	memset(mbr, 0, 512);
-	mbr->code[0]=0x55;
-	mbr->code[1]=0xAA;
 	mbr->data.mbr_sign=MBR_SIGN;
 	mbr_partition_t *p = &(mbr->data.partitions[n]);
 	p->lba_start=start.lo;

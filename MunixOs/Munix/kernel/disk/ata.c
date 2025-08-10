@@ -203,6 +203,7 @@ void parseAtaIdentify(ata_device_t *device) {
 }
 
 static inline void ataCommon(ata_device_t *device, lba_t lba, uint16_t n) {
+	ataSoftReset(device);
 	DriveHeadRegCfg cfg;
 	outb(device->io_base + 1, 0x00);
 	if (device->lba48_supported) {
@@ -243,7 +244,6 @@ static inline void ataCommon(ata_device_t *device, lba_t lba, uint16_t n) {
 }
 
 void *ataReadLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
-	ataSoftReset(device);
 	ataCommon(device, lba, n);
 	if (device->lba48_supported) {
 		outb(device->io_base + 7, 0x24);
@@ -263,7 +263,6 @@ void *ataReadLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
 }
 
 void ataWriteLBA(ata_device_t *device, lba_t lba, void *buffer, uint16_t n) {
-	ataSoftReset(device);
 	ataCommon(device, lba, n);
 	if (device->lba48_supported) {
 		outb(device->io_base + 7, 0x34);

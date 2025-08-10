@@ -57,6 +57,8 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->mkdir = mfs_mkdir;
 	explorer->mod = mfs_mod;
 	explorer->chmod = mfs_chmod;
+	explorer->stat = mfs_stat;
+	explorer->chstat = mfs_chstat;
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {
@@ -112,13 +114,38 @@ int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16
 	return 0;
 }
 
+static inline void mfs_sadir(explorer_t *explorer, mfs_superblock_t *block, void *table) {	
+	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
+	MFSsaveDir(block, explorer->partition, table, *explorer->cwd, tmp->dirBlocks*512*block->SectorsPerBlock, tmp->block);
+}
+
 int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner) {
 	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
 	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
 	MFStatChDir(*explorer->cwd, permissions, owner, group, "idk");
 	
-	MFSsaveDir(block, explorer->partition, table, *explorer->cwd, tmp->DirBlocks*512*block->SectorsPerBlock, tmp->block);
+	mfs_sadir(explorer, block, table);
+
+	return 0;
+}
+
+int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return - return -1;
+
+	*attr = entry->attr;
+	return 0;
+}
+
+int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return - return -1;
+
+	entry->attr = attr;
+	
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_sadir(explorer, block, table);	
 
 	return 0;
 }
