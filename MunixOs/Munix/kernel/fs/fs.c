@@ -62,6 +62,9 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->size = mfs_size;
 	explorer->time = mfs_time;
 	explorer->chtime = mfs_chtime;
+	explorer->touch = mfs_touch;
+	explorer->cat = mfs_cat;
+	explorer->remove = mfs_remove;
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {
@@ -178,10 +181,35 @@ int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod) {
 	entry->modified = mod;
 
 	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
 
 	mfs_sadir(explorer, block, table);
 
-	return 0;
+	return 0;	
+}
+
+int mfs_touch(explorer_t *explorer, const char *name, uint32_t size;) {
+	uint8_t attr = MFS_ATTR_TYPE_FILE;
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+
+	int ret = MFScreateEntry(block, *explorer->cwd, table, name, attr, size, explorer->partition);
 	
+	if (ret != 0) return ret;
+
+	mfs_sadir(explorer, block, table);
+	IFATSave(block, table, partition);
+
+	return ret;
+}
+
+int mfs_cat(explorer_t *explorer, const char *name, void *buffer, uint32_t amount) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	IFATreadChain(block, table, entry->first_block, buffer, explorer->partition, amount);
+
+	return 0;
 }

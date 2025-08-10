@@ -36,8 +36,8 @@ typedef struct explorer_t {
 	int (*time)(struct explorer_t *exp, const char *name, uint32_t *mod);
 	int (*chtime)(struct explorer_t *exp, const char *name, uint32_t mod);
 
-	int (*touch)(struct explorer_t *exp, const char *name);
-	int (*cat)(struct explorer_t *exp, const char *name);
+	int (*touch)(struct explorer_t *exp, const char *name, uint32_t size);
+	int (*cat)(struct explorer_t *exp, const char *name, void *buffer, uint32_t amount);
 	int (*write)(struct explorer_t *exp, const char *name, void *content, uint32_t n);
 	int (*remove)(struct explorer_t *exp, const char *name);
 	
@@ -62,6 +62,7 @@ int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr);
 int mfs_size(explorer_t *explorer, const char *name, uint32_t *size);
 int mfs_time(explorer_t *explorer, const char *name, uint32_t *mod);
 int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod);
-
+int mfs_touch(explorer_t *explorer, const char *name, uint32_t size);
+int mfs_cat(explorer_t *explorer, const char *name, void *buffer, uint32_t amount);
 
 #endif
