@@ -59,6 +59,9 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->chmod = mfs_chmod;
 	explorer->stat = mfs_stat;
 	explorer->chstat = mfs_chstat;
+	explorer->size = mfs_size;
+	explorer->time = mfs_time;
+	explorer->chtime = mfs_chtime;
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {
@@ -148,4 +151,37 @@ int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr) {
 	mfs_sadir(explorer, block, table);	
 
 	return 0;
+}
+
+int mfs_size(explorer_t *explorer, const char *name, uint32_t *size) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1; // si no existe devolver error
+	
+	*size = entry->blockSize;
+
+	return 0;
+}
+
+int mfs_time(explorer_t *explorer, const char *name, uint32_t *mod) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	*mod = entry->modified;
+
+	return 0;
+}
+
+int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	entry->modified = mod;
+
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock
+
+	mfs_sadir(explorer, block, table);
+
+	return 0;
+	
 }
