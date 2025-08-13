@@ -7,8 +7,8 @@ char *log[MAX_LOGS];
 free_node *my_free_list[64];
 size_t size=ALL_SIZE;
 char heap_start[ALL_SIZE];
-int mini_order = 4;
-int maxi_order = 25;
+int mini_order = 1;
+int maxi_order = 26;
 
 void kernel_init() { // Subrutina para inicializar cosas del kernel
 	// Desactivar interrupciones

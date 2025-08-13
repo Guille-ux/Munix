@@ -42,7 +42,7 @@ typedef struct explorer_t {
 	int (*remove)(struct explorer_t *exp, const char *name);
 	
 
-	int (*clean)(struct exploer_t *exp); // específica para mfs, limpiar tomsbtones, se podra usar para limpiar el sistema de archivos
+	int (*clean)(struct explorer_t *exp); // específica para mfs, limpiar tomsbtones, se podra usar para limpiar el sistema de archivos
 	/* 
 	 * Futuro: crear manejadores de archivos
 	 */

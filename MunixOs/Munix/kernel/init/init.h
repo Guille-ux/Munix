@@ -29,7 +29,7 @@
 #define MAX_LOGS 512
 
 extern char *log[MAX_LOGS];
-#define ALL_SIZE 1024*1024*32  // 32MB heap size
+#define ALL_SIZE 1024*1024*64  // 32MB heap size
 
 extern free_node *my_free_list[64];
 extern size_t size;

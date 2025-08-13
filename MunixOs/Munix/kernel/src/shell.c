@@ -2,10 +2,13 @@
 #include "../include/shell.h"
 #include "../include/memory.h"
 #include "../disk/diski.h"
+#include "../disk/disk_manager.h"
+#include "../partitions/partition_mng.h"
 #include "../mbash/lexer.h"
 #include "../mbash/parser.h"
 #include "../mbash/eval.h"
 #include "../minim/minim.h"
+#include "../mbash/modules.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -15,6 +18,89 @@ bool shell_event=false;
 char *shell_prompt="~ MunixOs ~> ";
 char shell_buffer[SHELL_BUFFER_SIZE];
 uint32_t shell_index=0;
+
+/*
+ * Módulos de la Shell
+ */
+
+/*
+ * algunas funciones seran específicas para el usuario, al final
+ * es un sistema de módulos, cambiarlos no deberia ser tan difícil
+ */
+
+ShellValue clear_handler(ASTNode *stmt) {
+	stdout_interface.clear(stdout_interface.default_color);
+
+	return newNumVal(0);
+}
+
+ShellValue lsblk_handler(ASTNode *stmt) {
+	kprintf("-----------------------\n");
+	kprintf("N. Disks : %d\n", system_disk_count);
+	kprintf("N. Partitions : %d\n", kpartition_manager.partitions_count);
+	for (int i=0;i<system_disk_count;i++) {
+		kprintf("\t Disk N. %d\n", i);
+		for (int b = 0;b<kpartition_manager.partitions_count;b++) {
+			if (kpartition_manager.partitions[b].parent_disk==&system_disks[i]) {
+				partition_t *partition = &kpartition_manager.partitions[b];
+				kprintf("\t\t -> Partition N. %d\n", b);
+				kprintf("\t\t   -> type: ");
+				switch (partition->fs_type) {
+					case FS_TYPE_FAT12:
+						kprintf("FAT12\n");
+						break;
+					case FS_TYPE_FAT16_LESS_32MB:
+					case FS_TYPE_FAT16_GREATER_32MB:
+						kprintf("FAT16\n");
+						break;
+					case FS_TYPE_FAT32_LBA:
+					case FS_TYPE_FAT32_CHS:
+						kprintf("FAT32\n");
+						break;
+					case FS_TYPE_NTFS:
+						kprintf("NTFS\n");
+						break;
+					case FS_TYPE_LINUX:
+						kprintf("Linux\n");
+						break;
+					case FS_TYPE_LINUX_SWAP:
+						kprintf("Linux Swap\n");
+						break;
+					case FS_TYPE_MFS:
+						kprintf("MunixFileSystem\n");
+						break;
+					default:
+						kprintf("Unknown Type\n");
+				}
+			}
+		}
+	}
+	kprintf("-----------------------\n");
+
+	return newNumVal(0);
+}
+
+ShellValue remount_handler(ASTNode *stmt) {
+	if (stmt->data.command_call.argc < 1) {
+		kprintf("To Few Args\n");
+		return newNumVal(-1);
+	}
+	if (stmt->data.command_call.args[0]->type != NODE_NUM_LIT) {
+		kprintf("Error\n");
+		return newNumVal(-1);
+	}
+	kprintf("Remounting...\n");
+	partitionManagerRegisterMemory(&kpartition_manager, stmt->data.command_call.args[0]->data.number_lit);
+	for (int i=0;i<system_disk_count;i++) {
+		partitionManagerScanDisk(&kpartition_manager, &system_disks[i]);
+	}	
+
+	return newNumVal(0);
+}
+
+/*
+ * Fin de los módulos de la Shell
+ */
 
 void push_to_buffer(char c) {
     if (!(shell_index<SHELL_BUFFER_SIZE)) return;
@@ -40,6 +126,13 @@ void shell_update() {
 int shellEntry() {
 	__asm__ volatile("cli");
 	EvalCtx *global_ctx = newShellCtx();
+	
+	/* registrar módulos */
+	register_module("clear", clear_handler);
+	register_module("lsblk", lsblk_handler);
+	register_module("remount", remount_handler);
+
+	global_ctx->command_handler=multimodule_handler;
 	Token *t_buff = (Token*)kmalloc(MAX_TOKENS*sizeof(Token));
 	__asm__ volatile("sti");
 	shell_update();

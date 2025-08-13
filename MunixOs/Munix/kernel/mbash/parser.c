@@ -417,14 +417,15 @@ static int get_precedence(TokenType type) {
 
 static ASTNode *parse_binary_expr(int min_precedence) {
     ASTNode *left = parse_unary_expr();
-    if(!left) return NULL;
+    if(!left) {
+	    return NULL;
+    }
 
     while(1) {
         Token *op = peek();
         int precedence = get_precedence(op->type);
         
-        if(precedence == 0 || precedence < min_precedence) 
-            break;
+        if(precedence == 0 || precedence < min_precedence) break;
 
         eat(); // Consume el operador
         
@@ -506,7 +507,10 @@ static ASTNode **parse_expression_list(size_t *argc);
 
 static ASTNode *parse_command_call() {
 	ASTNode *new_node = newASTNode(NODE_COMMAND_CALL);
-	if (new_node==NULL) return NULL;
+	if (new_node==NULL) {
+		kprintf("Err\n");
+		return NULL;
+	}
 
 	Token *cmd = eat();
 	if (cmd->type != TOKEN_IDENTIFIER) {
@@ -589,10 +593,11 @@ static ASTNode **parse_expression_list(size_t *argc) {
 			memcpy((void*)new_list, (const void*)list, size * sizeof(ASTNode *));
 		
 			kfree(list);
-			list = new_list;
-			list[size++]=arg;
-	
+			list = new_list;	
 		}
+
+	list[size++]=arg;
+	
 	}
 	*argc = size;
 	return list;

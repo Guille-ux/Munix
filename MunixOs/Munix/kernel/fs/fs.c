@@ -139,7 +139,7 @@ int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16
 
 int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr) {
 	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return - return -1;
+	if (entry==NULL) return -1;
 
 	*attr = entry->attr;
 	return 0;
@@ -147,7 +147,7 @@ int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr) {
 
 int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr) {
 	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return - return -1;
+	if (entry==NULL) return -1;
 
 	entry->attr = attr;
 	
@@ -190,7 +190,7 @@ int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod) {
 	return 0;	
 }
 
-int mfs_touch(explorer_t *explorer, const char *name, uint32_t size;) {
+int mfs_touch(explorer_t *explorer, const char *name, uint32_t size) {
 	uint8_t attr = MFS_ATTR_TYPE_FILE;
 	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
 	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
