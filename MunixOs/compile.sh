@@ -17,6 +17,11 @@ CFLAGS="-g -mno-sse -fno-stack-protector -m32"
 
 cd Munix/kernel
 rm -rf *.o
+:q
+:q
+:q
+
+
 nasm -f elf32  -o idt_load.o asm/idt32.asm
 # para idt 64 nasm -f elf64 -o idt_load.o asm/idt64.asm
 nasm -f elf32 -o isr_stubs.o asm/isr_stubs.asm
@@ -32,22 +37,26 @@ gcc ${CFLAGS} -c *.c
 cd ..
 cd disk
 rm -rf *.o
-gcc ${CFLAGS} -c *c
+gcc ${CFLAGS} -c *.c
 cd ..
 cd partitions
 rm -rf *.o
-gcc ${CFLAGS} -c *c
+gcc ${CFLAGS} -c *.c
 cd ..
 cd pci
 rm -rf *.o
-gcc ${CFLAGS} -c *c
+gcc ${CFLAGS} -c *.c
 cd ..
 cd init
-gcc ${CFLAGS} -c *c
+gcc ${CFLAGS} -c *.c
 cd ..
 cd fs
 rm -rf *.o
-gcc ${CFLAGS} -c *c
+gcc ${CFLAGS} -c *.c
+cd ..
+cd firmware
+rm -rf *.o
+gcc ${CFLAGS} -c *.c
 cd ..
 gcc ${CFLAGS} -c -o buddy.o src/buddy_alloc.c
 gcc ${CFLAGS} -c -o shell.o src/shell.c

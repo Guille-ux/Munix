@@ -98,6 +98,14 @@ ShellValue remount_handler(ASTNode *stmt) {
 	return newNumVal(0);
 }
 
+ShellValue poweroff_handler(ASTNode *stmt) {
+	return newNumVal(0);
+}
+
+ShellValue reboot_handler(ASTNode *stmt) {
+	return newNumVal(0);
+}
+
 /*
  * Fin de los módulos de la Shell
  */
@@ -134,7 +142,6 @@ int shellEntry() {
 
 	global_ctx->command_handler=multimodule_handler;
 	Token *t_buff = (Token*)kmalloc(MAX_TOKENS*sizeof(Token));
-	__asm__ volatile("sti");
 	shell_update();
 	while (1) {
 		if (shell_event) {
