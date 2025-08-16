@@ -3,8 +3,8 @@
 
 #define EBDA_PTR 0x40E
 
-static inline uint16_t *get_ebda() {
-	return (uint16_t*)(EBDA_PTR*16);
+static inline uint16_t *get_ebda_segment() {
+	return (uint16_t*)(EBDA_PTR);
 }
 
 #endif

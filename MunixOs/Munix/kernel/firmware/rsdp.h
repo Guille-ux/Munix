@@ -2,6 +2,8 @@
 #define RSDP_H
 
 #include <stdint.h>
+#include "bios.h"
+#include "efi.h"
 
 #define RSDP_SIGNATURE "RSD PTR "
 
@@ -25,6 +27,6 @@ typedef struct {
 	uint8_t reserved[3];
 } __attribute__((packed)) xsdt_t;
 
-
+xsdt_t *find_xsdt_bios();
 
 #endif

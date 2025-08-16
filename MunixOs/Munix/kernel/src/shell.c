@@ -81,7 +81,7 @@ ShellValue lsblk_handler(ASTNode *stmt) {
 }
 
 ShellValue remount_handler(ASTNode *stmt) {
-	if (stmt->data.command_call.argc < 1) {
+	if (stmt->data.command_call.-1argc < 1) {
 		kprintf("To Few Args\n");
 		return newNumVal(-1);
 	}
@@ -95,14 +95,6 @@ ShellValue remount_handler(ASTNode *stmt) {
 		partitionManagerScanDisk(&kpartition_manager, &system_disks[i]);
 	}	
 
-	return newNumVal(0);
-}
-
-ShellValue poweroff_handler(ASTNode *stmt) {
-	return newNumVal(0);
-}
-
-ShellValue reboot_handler(ASTNode *stmt) {
 	return newNumVal(0);
 }
 
@@ -142,6 +134,7 @@ int shellEntry() {
 
 	global_ctx->command_handler=multimodule_handler;
 	Token *t_buff = (Token*)kmalloc(MAX_TOKENS*sizeof(Token));
+	__asm__ volatile("sti");
 	shell_update();
 	while (1) {
 		if (shell_event) {
