@@ -28,40 +28,8 @@ static int log2_int(size_t n) {
     }
     return count;
 }
-/*
-static int size2order(size_t size) {
-    if (size == 0) return -1;
-    
-    // Tamaño total incluyendo header
-    size_t total_size = size + sizeof(block_header);
-    
-    // Si es más pequeño que el mínimo, usar mínimo
-    if (total_size < (1 << min_order)) {
-        return min_order;
-    }
-    
-    // Alinear al siguiente power of two
-    if ((total_size & (total_size-1)) != 0) {
-        total_size = 1;
-        while (total_size < size + sizeof(block_header)) {
-            total_size <<= 1;
-        }
-    }
-    
-    int order = log2_int(total_size);
-    if (order > max_order) return -1;
-    
-    // Optimización: si el espacio sobrante es >25% del bloque, usar un orden menor si es posible
-    size_t remaining = (1 << order) - (size + sizeof(block_header));
-    if (remaining > (1 << (order-2)) && order > min_order) {
-        int lower_order = order - 1;
-        if ((1 << lower_order) >= (size + sizeof(block_header))) {
-            order = lower_order;
-        }
-    }
-    
-    return order;
-}*/
+
+
 
 static int size2order(size_t size) {
     if (size == 0) return -1;

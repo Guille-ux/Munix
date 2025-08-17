@@ -156,7 +156,10 @@ int mfsMkDir(mfs_superblock_t *block, void *dir, const char *name, partition_t *
 	if (err != 0) return -1;
 	void *new_dir = kmalloc(size*512*block->SectorsPerBlock);
 	mfs_entry_t *entry = MFSearchEntry(dir, name);
-	if (entry==NULL) return -1;
+	if (entry==NULL) {
+		kfree(new_dir);
+		return -1;
+	}
 	MFSloaDir(block, partition, table, new_dir, entry->first_block, size*512*block->SectorsPerBlock);
 
 	mfsDirHeaders(new_dir, size*512*block->SectorsPerBlock/32, size, 0, 0, 0, "MunixOs", entry->first_block);

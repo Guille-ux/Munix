@@ -20,39 +20,6 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 		return NULL;
 	}
 
-	mfs_superblock_t *block = (mfs_superblock_t*)kmalloc(sizeof(mfs_superblock_t));
-	loadMFSuperBlock(partition, block);
-	if (block->signature!=MFS_SIGNATURE) {
-
-		kprintf("[EXPLORER]: Invalid MFS Partition!\n");
-		kfree(block);
-		return NULL;
-	} else {
-		kprintf("[EXPLORER]: Valid MFS Partition\n");
-	}
-
-	
-	void *table = kmalloc(block->IFATSize);
-	
-	IFATload(block, table, partition);
-	
-	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(mfs_meta_t));
-	metadata->superblock = block;
-	metadata->ifat_table = table;
-	explorer->meta = metadata;
-	memcpy(explorer->path, "/", 1);
-	explorer->path[1]='\0';
-	explorer->group_id = group_id;
-	explorer->owner_id = owner_id;
-	if (block->RootBlock == 0) {
-		makeMFSroot(partition, block, table, MFS_DIR_BLOCKS); // usaremos por defecto 1
-		block->RootSize=MFS_DIR_BLOCKS;
-		IFATSave(block, table, partition);
-		saveMFSuperBlock(partition, block);
-	}
-	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
-	explorer->cwd = kmalloc(n);
-	MFSloaDir(block, partition, table, explorer->cwd, n, block->RootBlock);
 	explorer->cd = mfs_cd;
 	explorer->mkdir = mfs_mkdir;
 	explorer->mod = mfs_mod;
@@ -67,6 +34,43 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->write = mfs_write;
 	explorer->remove = mfs_remove;
 	explorer->clean = mfs_clean;
+	explorer->destroy = mfs_destroy;
+
+
+	mfs_superblock_t *block = (mfs_superblock_t*)kmalloc(sizeof(mfs_superblock_t));
+	loadMFSuperBlock(partition, block);
+	if (block->signature!=MFS_SIGNATURE) {
+
+		kprintf("[EXPLORER]: Invalid MFS Partition!\n");
+		kfree(block);
+		return NULL;
+	}
+
+	kprintf("[EXPLORER]: Valid MFS Partition\n");
+	
+	void *table = kmalloc(block->IFATSize*512);
+	
+	IFATload(block, table, partition);
+	
+	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(void*)*2);
+	metadata->superblock = block;
+	metadata->ifat_table = table;
+	explorer->meta = metadata;
+	memcpy(explorer->path, "/", 1);
+	explorer->path[1]='\0';
+	explorer->group_id = group_id;
+	explorer->owner_id = owner_id;
+	if (block->RootBlock == 0) {
+		makeMFSroot(partition, block, table, MFS_DIR_BLOCKS); // usaremos por defecto 1
+		block->RootSize=MFS_DIR_BLOCKS;
+		IFATSave(block, table, partition);
+		saveMFSuperBlock(partition, block);
+	}
+	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
+	explorer->cwd = kmalloc(sizeof(void*));
+	*explorer->cwd = kmalloc(n);
+	MFSloaDir(block, partition, table, explorer->cwd, n, block->RootBlock);
+
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {
@@ -249,6 +253,15 @@ int mfs_clean(explorer_t *explorer) {
 	IFATSave(block, table, explorer->partition);
 	saveMFSuperBlock(explorer->partition, block);
 
+	return 0;
+}
+
+int mfs_destroy(explorer_t *explorer) {
+	kfree(*explorer->cwd);
+	mfs_meta_t *metadata = (mfs_meta_t*)explorer->meta;
+	kfree(metadata->superblock);
+	kfree(metadata->ifat_table);
+	kfree(metadata);
 	return 0;
 }
 

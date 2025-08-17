@@ -6,7 +6,7 @@
 
 #define MAX_MODULES 16
 
-typedef ShellValue (*handler_t)(ASTNode *stmt);
+typedef ShellValue (*handler_t)(ASTNode *stmt, EvalCtx *ctx);
 
 typedef struct {
   const char *name;
@@ -21,7 +21,7 @@ static int multimodule_handler(ASTNode *stmt, EvalCtx *ctx) {
   int exit_code = -1;
   for (size_t i = 0; i < modules_count; i++) {
     if (strcmp(stmt->data.command_call.name, modules[i].name)==0) {
-      ret = modules[i].module_handler(stmt);
+      ret = modules[i].module_handler(stmt, ctx);
       exit_code = 0;
       break;
     }
