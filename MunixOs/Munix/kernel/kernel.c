@@ -14,7 +14,7 @@ void kernel_main() {
 
 	kprintf("~ MunixOs ~\n");
 
-	__asm__ volatile("cli");
+	//__asm__ volatile("cli");
 		
 	shellEntry();
 

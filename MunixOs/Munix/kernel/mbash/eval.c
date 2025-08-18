@@ -23,10 +23,6 @@ static int evalWhile(ASTNode *stmt, EvalCtx *ctx);
 static int evalFor(ASTNode *stmt, EvalCtx *ctx);
 static int evalEcho(ASTNode *stmt, EvalCtx *ctx);
 
-
-static ShellValue ref_add(ShellValue val);
-static void ref_del(ShellValue val);
-
 #define EVAL_OK 0
 #define EVAL_ERR 1
 #define EVAL_BREAK 2
@@ -133,12 +129,12 @@ void setShellVarEntry(EvalCtx *ctx, size_t id, ShellValue val) {
 	ctx->var_table[id] = (Var){.val=ref_add(val), .is_exported=false, .is_set=true};
 }
 
-static ShellValue ref_add(ShellValue val) {
+ShellValue ref_add(ShellValue val) {
 	val.refc += 1;
 	return val;
 }
 
-static void ref_del(ShellValue val) {
+void ref_del(ShellValue val) {
 	val.refc--;
 	if (val.refc<=0) {
 		freeVal(val);
@@ -363,11 +359,11 @@ static ShellValue evalVarRef(ASTNode *ref, EvalCtx *ctx) {
 	if (var_entry==NULL) {
 		return (ShellValue){.type=VAL_NONE};
 	}
-	return var_entry->val;
+	return ref_add(var_entry->val);
 }
 
 static ShellValue evalArgRef(ASTNode *ref, EvalCtx *ctx) {
-	return getShellArg(ctx, ref->data.arg_ref.num);
+	return ref_add(getShellArg(ctx, ref->data.arg_ref.num));
 }
 
 static ShellValue evalUnaryExpr(ASTNode *expr, EvalCtx *ctx) {
@@ -520,7 +516,7 @@ static ShellValue evalBinExpr(ASTNode *expr, EvalCtx *ctx) {
 		}
 	}
 
-	ref_add(left);
+	ref_del(left);
 	ref_del(right);
 	return result;
 }

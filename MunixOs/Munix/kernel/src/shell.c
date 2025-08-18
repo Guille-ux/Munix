@@ -9,6 +9,7 @@
 #include "../mbash/eval.h"
 #include "../minim/minim.h"
 #include "../mbash/modules.h"
+#include "../fs/fs.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -28,13 +29,13 @@ uint32_t shell_index=0;
  * es un sistema de módulos, cambiarlos no deberia ser tan difícil
  */
 
-ShellValue clear_handler(ASTNode *stmt) {
+ShellValue clear_handler(ASTNode *stmt, EvalCtx *ctx) {
 	stdout_interface.clear(stdout_interface.default_color);
 
 	return newNumVal(0);
 }
 
-ShellValue lsblk_handler(ASTNode *stmt) {
+ShellValue lsblk_handler(ASTNode *stmt, EvalCtx *ctx) {
 	kprintf("-----------------------\n");
 	kprintf("N. Disks : %d\n", system_disk_count);
 	kprintf("N. Partitions : %d\n", kpartition_manager.partitions_count);
@@ -80,8 +81,8 @@ ShellValue lsblk_handler(ASTNode *stmt) {
 	return newNumVal(0);
 }
 
-ShellValue remount_handler(ASTNode *stmt) {
-	if (stmt->data.command_call.-1argc < 1) {
+ShellValue remount_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 1) {
 		kprintf("To Few Args\n");
 		return newNumVal(-1);
 	}
@@ -96,6 +97,33 @@ ShellValue remount_handler(ASTNode *stmt) {
 	}	
 
 	return newNumVal(0);
+}
+
+ShellValue setfs_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 3) return newNumVal(-1);
+	ASTNode **args = stmt->data.command_call.args;
+	ShellValue a = evalExpr(args[0], ctx);
+	ShellValue b = evalExpr(args[1], ctx);
+	ShellValue c = evalExpr(args[2], ctx);
+	
+	if (a.type != VAL_NUMBER ||
+	    b.type != VAL_NUMBER ||
+	    c.type != VAL_NUMBER) {
+		ref_del(a);
+		ref_del(b);
+		ref_del(c);
+		return newNumVal(-1);
+	}
+
+	explorer_t *explorer = (explorer_t *)kmalloc(sizeof(explorer_t));
+
+	// de momento solo soportara MunixFileSystem
+	mfs_init_explorer(&kpartition_manager.partitions[a.as.num], explorer, b.as.num, c.as.num);
+
+	ref_del(a);
+	ref_del(b);
+	ref_del(c);
+	return newNumVal((long)explorer);
 }
 
 /*
@@ -122,20 +150,22 @@ void shell_update() {
 }
 
 #define MAX_TOKENS 64
+Token shell_tokens[64];
 
 int shellEntry() {
-	__asm__ volatile("cli");
+	//__asm__ volatile("cli");
 	EvalCtx *global_ctx = newShellCtx();
 	
 	/* registrar módulos */
 	register_module("clear", clear_handler);
 	register_module("lsblk", lsblk_handler);
 	register_module("remount", remount_handler);
+	register_module("setfs", setfs_handler);
 
 	global_ctx->command_handler=multimodule_handler;
-	Token *t_buff = (Token*)kmalloc(MAX_TOKENS*sizeof(Token));
-	__asm__ volatile("sti");
+	Token *t_buff = shell_tokens;
 	shell_update();
+	//__asm__ volatile("sti"); // por si habian sido interrumpidas
 	while (1) {
 		if (shell_event) {
 			push_to_buffer(final_character);

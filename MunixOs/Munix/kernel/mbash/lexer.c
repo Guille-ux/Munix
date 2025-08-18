@@ -50,6 +50,7 @@ void lexer_free_token(Token *token) {
     if (token && token->value) {
         kfree(token->value);
         token->value = NULL;
+	token->type = TOKEN_UNKNOWN;
     }
 }
 
@@ -223,34 +224,32 @@ Token lexer_next_token() {
 Token *lexe(Token *buffer) {
 	Token *b=buffer;
 
-	while ((b-1)->type!=TOKEN_EOF) {
+	do {
 		*b=lexer_next_token();
 		if (debug) {
 			kprintf("Token: %s\n", b->value);
 			kprintf("Token Type: %d\n", (int)b->type);
 		}
 		b++;
-	}
+	} while ((b-1)->type!=TOKEN_EOF);
 
 	return buffer;
 }
 
 Token *lexen(Token *buffer, size_t n) {
 	Token *b=buffer;
-	while ((b-1)->type!=TOKEN_EOF && n-- > 0) {
+	do {
 		*b=lexer_next_token();
 		if (debug) {
 			kprintf("Token: %s\n", b->value);
 			kprintf("Token Type: %d\n", (int)b->type);
 		}
 		b++;
-	}
+	} while ((b-1)->type!=TOKEN_EOF && n-- > 0);
 	return buffer;
 }
 void free_tokens(Token *buffer, size_t n) {
-	while (n-- > 0) {
-		kfree(buffer[n].value);
-		buffer[n].value=NULL;
-		buffer[n].type = TOKEN_UNKNOWN;
+	for (size_t i=0;i<n;i++) {
+		lexer_free_token(&buffer[i]);
 	}
 }

@@ -17,11 +17,6 @@ CFLAGS="-g -mno-sse -fno-stack-protector -m32"
 
 cd Munix/kernel
 rm -rf *.o
-:q
-:q
-:q
-
-
 nasm -f elf32  -o idt_load.o asm/idt32.asm
 # para idt 64 nasm -f elf64 -o idt_load.o asm/idt64.asm
 nasm -f elf32 -o isr_stubs.o asm/isr_stubs.asm
@@ -68,6 +63,7 @@ gcc ${CFLAGS} -c -o idt.o src/idt.c
 gcc ${CFLAGS} -c -o kernel.o kernel.c
 gcc ${CFLAGS} -c -o memory.o src/memory.c
 gcc ${CFLAGS} -c -o ksysarena.o src/sysarena.c
-i386-elf-ld  -Tlinker.ld -g -o kernel.ELF fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lcs2 # -lzynk
+gcc ${CFLAGS} -c -o handler.o src/handler.c
+i386-elf-ld  -Tlinker.ld -g -o kernel.ELF handler.o fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o multiboot.o -L../../libs -lcs2 # -lzynk
 cd ../..
 grub-mkrescue -o munix.iso Munix

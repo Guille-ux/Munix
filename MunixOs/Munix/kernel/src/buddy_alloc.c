@@ -146,7 +146,7 @@ static block_header *get_block_header(void *block_addr) {
 }
 
 static size_t kmin(size_t a, size_t b) {
-    return (a < b) ? a : b;
+    return (a <= b) ? a : b;
 }
 
 void buddy_free(void *block) {

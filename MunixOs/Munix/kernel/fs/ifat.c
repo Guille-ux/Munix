@@ -90,9 +90,9 @@ void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool
 		IFATwriteEntry(sblock, table, current_idx, fill_val);
 		current_idx = next_idx;
 	}
-	while  (next_idx!= IFAT_BAD_BLOCK ||
-		next_idx!= IFAT_END_OF_CHAIN ||
-		next_idx!= IFAT_FREE_BLOCK ||
+	while  (next_idx!= IFAT_BAD_BLOCK &&
+		next_idx!= IFAT_END_OF_CHAIN &&
+		next_idx!= IFAT_FREE_BLOCK &&
 		next_idx!= IFAT_TOMBSTONE);
 }
 

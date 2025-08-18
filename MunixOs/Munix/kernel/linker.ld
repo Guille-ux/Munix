@@ -17,9 +17,4 @@ SECTIONS
 		*(.bss)
 		*(COMMON)
 	}
-	.kernel_stack BLOCK(10M) : ALIGN(4K) {
-		stack_top = .;
-		. = . + 10M;
-		stack_bottom = .;
-	}
 }

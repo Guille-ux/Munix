@@ -1,5 +1,8 @@
 #include "init.h"
 
+// para los handles
+handle_t kernel_handles[N_HANDLES];
+
 // para stdlog
 char *log[MAX_LOGS];
 
@@ -29,7 +32,10 @@ void kernel_init() { // Subrutina para inicializar cosas del kernel
 	// Inicializar la Gestión de memoria dinámica
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
-	
+
+	// inicializar gestión de handles
+	register_handle_chain(kernel_handles, N_HANDLES);
+
 	// Inicializar GDT y IDT
 
 	gdt_init(); // Cargar tabla de descriptores globales (GDT init)

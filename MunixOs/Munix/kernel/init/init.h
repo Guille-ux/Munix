@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "../include/handler.h"
 #include "../include/libcs2.h"
 #include "../include/memory.h"
 #include "../disk/disk_manager.h"
@@ -27,6 +28,9 @@
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
+
+#define N_HANDLES 10
+extern handle_t kernel_handles[N_HANDLES];
 
 extern char *log[MAX_LOGS];
 #define ALL_SIZE 1024*1024*64  // 32MB heap size

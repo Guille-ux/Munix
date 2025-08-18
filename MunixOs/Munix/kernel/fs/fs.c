@@ -1,6 +1,7 @@
 #include "fs.h"
 #include "../include/libcs2.h"
 #include "../include/memory.h"
+#include "../include/handler.h"
 #include "mfs.h"
 #include "ifat.h"
 
@@ -52,14 +53,15 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	
 	IFATload(block, table, partition);
 	
-	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(void*)*2);
+	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(mfs_meta_t));
 	metadata->superblock = block;
 	metadata->ifat_table = table;
 	explorer->meta = metadata;
-	memcpy(explorer->path, "/", 1);
+	explorer->path[0]='/';
 	explorer->path[1]='\0';
 	explorer->group_id = group_id;
 	explorer->owner_id = owner_id;
+	
 	if (block->RootBlock == 0) {
 		makeMFSroot(partition, block, table, MFS_DIR_BLOCKS); // usaremos por defecto 1
 		block->RootSize=MFS_DIR_BLOCKS;
@@ -67,10 +69,9 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 		saveMFSuperBlock(partition, block);
 	}
 	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
-	explorer->cwd = kmalloc(sizeof(void*));
+	explorer->cwd = alloc_handle();
 	*explorer->cwd = kmalloc(n);
-	MFSloaDir(block, partition, table, explorer->cwd, n, block->RootBlock);
-
+	MFSloaDir(block, partition, table, *explorer->cwd, n, block->RootBlock);
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {
@@ -257,6 +258,7 @@ int mfs_clean(explorer_t *explorer) {
 }
 
 int mfs_destroy(explorer_t *explorer) {
+	free_handle(explorer->cwd);
 	kfree(*explorer->cwd);
 	mfs_meta_t *metadata = (mfs_meta_t*)explorer->meta;
 	kfree(metadata->superblock);
