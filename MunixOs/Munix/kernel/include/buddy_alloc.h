@@ -24,7 +24,7 @@ typedef struct free_node {
 } free_node;
 
 void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_node ***new_free_list);
-void *buddy_malloc(size_t size);
-void buddy_free(void *ptr);
+void *buddy_malloc(size_t size) __attribute__((malloc));
+void buddy_free(void *ptr) __attribute__((no_instrument_function));
 
 #endif

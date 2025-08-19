@@ -264,27 +264,22 @@ static ASTNode *parse_primary_expr() {
 			eat();
 			new_node = newASTNode(NODE_NUM_LIT);
 			new_node->data.number_lit = atol((const char*)current->value);
-			lexer_free_token(current);
 			break;
 				   }
 		case TOKEN_STRING: {
 			eat();
 			new_node = newASTNode(NODE_STRING_LIT);
 			new_node->data.string_lit = strdup((const char*)current->value);
-			lexer_free_token(current);
 			break;
 				   }
 		case TOKEN_DOLLAR: {
-			lexer_free_token(current);
 			eat();
 			current = peek();
 			if (!match(TOKEN_NUMBER)) return NULL;
 			size_t number = atol(current->value);
-			lexer_free_token(current);
 			current = peek();
 			if (current->type==TOKEN_COLON) {
 				new_node=newASTNode(NODE_VAR_REF);
-				lexer_free_token(current);
 				eat();
 				current = peek();
 				if (current->type!=TOKEN_STRING) return NULL;
@@ -294,12 +289,10 @@ static ASTNode *parse_primary_expr() {
 				new_node=newASTNode(NODE_ARG_REF);
 				new_node->data.arg_ref.num=number;
 			}
-			lexer_free_token(current);
 			eat();
 			break;
 				   }
 		case TOKEN_LPAREN: {
-			lexer_free_token(current);
 			current = eat();
 			new_node = parse_expression();
 			if (!match(TOKEN_RPAREN)) {
@@ -323,7 +316,6 @@ static ASTNode *parse_unary_expr() {
 	ASTNode *new_node;
 	switch (current->type) {
 		case TOKEN_MINUS: {
-			lexer_free_token(current);
 			eat();
 			current = peek();
 			new_node = newASTNode(NODE_UNARY);
@@ -333,7 +325,6 @@ static ASTNode *parse_unary_expr() {
 			break;
 				  }
 		case TOKEN_BANG: {
-			lexer_free_token(current);
 			eat();
 			current = peek();
 			new_node = newASTNode(NODE_UNARY);
@@ -465,28 +456,21 @@ static ASTNode *parse_assignment() {
 	if (!match(TOKEN_COLON)) {
 		kprintf("Err -> Expected ':' after number and before identifier\n");
 		parser_free_ast(new_node);
-		lexer_free_token(number);
 		return NULL;
 	}
 	Token *name = eat();
 	if (number->type!=TOKEN_NUMBER) {
 		kprintf("Err -> Expected number\n");
 		parser_free_ast(new_node);
-		lexer_free_token(number);
-		lexer_free_token(name);
 		return NULL;
 	}
 	if (name->type!=TOKEN_STRING) {
 		kprintf("Err -> Expected string\n");
 		parser_free_ast(new_node);
-		lexer_free_token(name);
-		lexer_free_token(number);
 		return NULL;
 	}
 	new_node->data.assignment.num = atol(number->value);
 	new_node->data.assignment.var_name = strdup(name->value);
-	lexer_free_token(name);
-	lexer_free_token(number);
 	if (!match(TOKEN_ASSIGN)) {
 		kprintf("Err -> Expected '=' after identifier\n");
 		parser_free_ast(new_node);
@@ -516,17 +500,14 @@ static ASTNode *parse_command_call() {
 	if (cmd->type != TOKEN_IDENTIFIER) {
 		kprintf("Err -> Expected Identifier but found Token n. %d\n", (int)cmd->type);
 		parser_free_ast(new_node);
-		lexer_free_token(cmd);
 		return NULL;
 	}
 	new_node->data.command_call.name = strdup(cmd->value);
 	if (new_node->data.command_call.name==NULL && cmd->value != NULL) {
 		kprintf("Err -> Out of Memory Error!\n");
 		parser_free_ast(new_node);
-		lexer_free_token(cmd);
 		return NULL;
 	}
-	lexer_free_token(cmd);
 
 
 	size_t argc=0; // args count
@@ -611,7 +592,6 @@ static ASTNode *parse_echo() {
 		return NULL;
 	}
 	Token *echo_k = eat();
-	lexer_free_token(echo_k);
 	ASTNode *expr = parse_expression();
 	if (expr == NULL) {
 		kfree(new_node);
@@ -628,7 +608,6 @@ static ASTNode *parse_return() {
 		return NULL;
 	}
 	Token *ret_k=eat();
-	lexer_free_token(ret_k);
 	TokenType next = peek()->type;
 	if     (next != TOKEN_NEW_LINE &&
 		next != TOKEN_SEMICOLON &&
@@ -657,7 +636,6 @@ static ASTNode *parse_break() {
 	}
 	Token *break_k = eat();
 
-	lexer_free_token(break_k);
 	return new_node;
 }
 
@@ -727,7 +705,6 @@ static ASTNode *parse_if() {
 	}
 
 	Token *if_k = eat();
-	lexer_free_token(if_k);
 	
 	new_node->data.if_stmt.condition = parse_expression();
 	if (!new_node->data.if_stmt.condition) {
@@ -793,7 +770,6 @@ static ASTNode *parse_while() {
 		return NULL;
 	}
 	Token *do_k = eat();
-	lexer_free_token(do_k);
 	
 	while (peek()->type == TOKEN_NEW_LINE) eat();
 
@@ -824,7 +800,6 @@ static ASTNode *parse_while() {
 		return NULL;
 	}
 	Token *while_k = eat();
-	lexer_free_token(while_k);
 
 	new_node->data.while_loop.condition = parse_expression();
 	if (new_node->data.while_loop.condition==NULL) {
@@ -843,7 +818,6 @@ static ASTNode *parse_for() {
 	}
 
 	Token *for_tok=eat();
-	lexer_free_token(for_tok);
 
 	if (!match(TOKEN_LPAREN)) {
 		kprintf("Err -> Expected '(' after 'for'\n");
@@ -938,7 +912,6 @@ static ASTNode *parse_export() {
 		return NULL;
 	}
 	Token *export_k = eat();
-	lexer_free_token(export_k);
 
 	if (!match(TOKEN_DOLLAR)) {
 		kprintf("Err -> Expected '$' after 'export'\n");
@@ -956,8 +929,6 @@ static ASTNode *parse_export() {
 	if (number->type != TOKEN_NUMBER || name->type != TOKEN_IDENTIFIER) {
 		kprintf("Err -> Unexpected Tokens on a var reference\n");
 		parser_free_ast(new_node);
-		lexer_free_token(number);
-		lexer_free_token(name);
 		return NULL;
 	}
 	ASTNode *var_node = newASTNode(NODE_VAR_REF);
@@ -965,15 +936,11 @@ static ASTNode *parse_export() {
 		kprintf("Err -> Out of Memory\n");
 		parser_free_ast(new_node);
 		parser_free_ast(var_node);
-		lexer_free_token(number);
-		lexer_free_token(name);
 		return NULL;
 	}
 
 	var_node->data.var_ref.num = atol(number->value);
 	var_node->data.var_ref.name = strdup(name->value);
-	lexer_free_token(number);
-	lexer_free_token(name);
 	if (var_node->data.var_ref.name == NULL) {
 		kprintf("Err -> Out of Memory\n");
 		parser_free_ast(new_node);

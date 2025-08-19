@@ -153,7 +153,6 @@ void shell_update() {
 Token shell_tokens[64];
 
 int shellEntry() {
-	//__asm__ volatile("cli");
 	EvalCtx *global_ctx = newShellCtx();
 	
 	/* registrar módulos */
@@ -165,7 +164,7 @@ int shellEntry() {
 	global_ctx->command_handler=multimodule_handler;
 	Token *t_buff = shell_tokens;
 	shell_update();
-	//__asm__ volatile("sti"); // por si habian sido interrumpidas
+	__asm__ volatile("sti"); // por si habian sido interrumpidas
 	while (1) {
 		if (shell_event) {
 			push_to_buffer(final_character);
@@ -186,10 +185,13 @@ int shellEntry() {
 			parser_init(t_buff);
 			ASTNode *tree = parse();
 
+			//liberar tokens
+			//free_tokens(t_buff, MAX_TOKENS);
+
 			// Evaluación
 			eval(tree, global_ctx);
 
-			// Liberar Memoria
+			// Liberar Memoria del AST
 			parser_free_ast(tree);
 			free_tokens(t_buff, MAX_TOKENS);
 			
@@ -201,7 +203,6 @@ int shellEntry() {
 			memset(shell_buffer, 0, sizeof(char)*SHELL_BUFFER_SIZE);
 			shell_update(); // Actualizar Prompt
 		}
-
 		__asm__ volatile("hlt"); // estado de bajo consumo 
 	}
 	return 0;

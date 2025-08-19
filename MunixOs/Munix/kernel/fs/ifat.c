@@ -40,6 +40,7 @@ void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint3
 	t[index-1]=val;
 }
 
+
 void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
 	if (buffer==NULL || table==NULL || sblock==NULL) return;
 	lba_t lba=sblock->DataBegin;
@@ -66,23 +67,24 @@ void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 		
 			current_idx++;
 		} while (new_idx == current_idx);
-		
-		readPartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx-1));
+		readPartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
 
-		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx-1);
+		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx);
 
 		uint64_t tmp = lba2uint64(lba);
-		tmp += sblock->SectorsPerBlock*(current_idx-start_idx-1);
+		tmp += sblock->SectorsPerBlock*(current_idx-start_idx);
 		lba = uint64_2_lba(tmp);
 
+		read += (current_idx-start_idx);
 		start_idx = new_idx;
-		read += sblock->SectorsPerBlock*(current_idx-start_idx-1);
 		if (should_break==true) break;
+		current_idx = new_idx;
 	}
 }
 
+
 void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool clean) {
-	uint32_t current_idx=0;
+	uint32_t current_idx=index;
 	uint32_t next_idx;
 	uint32_t fill_val = (clean) ? IFAT_FREE_BLOCK : IFAT_TOMBSTONE;
 	do  {
@@ -111,6 +113,7 @@ void IFATcleanTombstones(mfs_superblock_t *sblock, void *table) {
 	sblock->FreeBlocks += freed;
 }
 
+
 void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
 	if (buffer==NULL || table==NULL || sblock==NULL) return;
 	lba_t lba=sblock->DataBegin;
@@ -137,20 +140,21 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 		
 			current_idx++;
 		} while (new_idx == current_idx);
-		
-		writePartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx-1));
+		writePartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
 
-		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx-1);
+		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx);
 
 		uint64_t tmp = lba2uint64(lba);
-		tmp += sblock->SectorsPerBlock*(current_idx-start_idx-1);
+		tmp += sblock->SectorsPerBlock*(current_idx-start_idx);
 		lba = uint64_2_lba(tmp);
 
-		start_idx = new_idx;
-		write += sblock->SectorsPerBlock*(current_idx-start_idx-1);
+		write += (current_idx-start_idx);
 		if (should_break==true) break;
+		current_idx = new_idx;
+		start_idx = new_idx;
 	}
 }
+
 
 void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
 	*start = 0;
@@ -177,3 +181,4 @@ void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t 
 	}
 	sblock->FreeBlocks -= n;
 }
+
