@@ -26,6 +26,7 @@ static int multimodule_handler(ASTNode *stmt, EvalCtx *ctx) {
       break;
     }
   }
+  ref_del(ret);
   setShellVarEntry(ctx, 0, ret);
   return exit_code; // no se encontro nada, F
 }

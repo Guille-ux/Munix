@@ -39,7 +39,7 @@ typedef struct {
 } __attribute__((packed)) mfs_superblock_t;
 
 
-#define MAX_NAME_LEN 19
+#define MAX_NAME_LEN 18
 
 /*
  * ahora, algo importante, los atributos

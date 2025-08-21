@@ -63,6 +63,7 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->owner_id = owner_id;
 	
 	if (block->RootBlock == 0) {
+		kprintf("Creating Root...\n");
 		makeMFSroot(partition, block, table, MFS_DIR_BLOCKS); // usaremos por defecto 1
 		block->RootSize=MFS_DIR_BLOCKS;
 		IFATSave(block, table, partition);
@@ -72,6 +73,7 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->cwd = alloc_handle();
 	*explorer->cwd = kmalloc(n);
 	MFSloaDir(block, partition, table, *explorer->cwd, n, block->RootBlock);
+	return explorer;
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {

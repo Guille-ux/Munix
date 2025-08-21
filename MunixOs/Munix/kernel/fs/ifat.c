@@ -43,7 +43,6 @@ void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint3
 
 void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
 	if (buffer==NULL || table==NULL || sblock==NULL) return;
-	lba_t lba=sblock->DataBegin;
 
 	uint32_t start_idx=index;
 	uint32_t current_idx=index;
@@ -52,7 +51,7 @@ void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 	uint32_t read=0;
 	while (read < (max/512)/sblock->SectorsPerBlock) {
 		do {
-			new_idx = IFATreadEntry(sblock, table, current_idx);
+			new_idx = IFATreadEntry(sblock, table, current_idx++);
 			if (new_idx == IFAT_BAD_BLOCK ||
 			    new_idx == IFAT_FREE_BLOCK ||
 			    new_idx == IFAT_TOMBSTONE) {
@@ -64,20 +63,15 @@ void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 				should_break = true;
 				break;
 			}
-		
-			current_idx++;
 		} while (new_idx == current_idx);
+		lba_t lba = uint64_2_lba(lba2uint64(sblock->DataBegin) + sblock->SectorsPerBlock*(start_idx-1));	
 		readPartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
-
-		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx);
-
-		uint64_t tmp = lba2uint64(lba);
-		tmp += sblock->SectorsPerBlock*(current_idx-start_idx);
-		lba = uint64_2_lba(tmp);
+		
+		if (should_break==true) break;
+		buffer = (void*)((size_t)buffer + sblock->SectorsPerBlock*512*(current_idx-start_idx));
 
 		read += (current_idx-start_idx);
 		start_idx = new_idx;
-		if (should_break==true) break;
 		current_idx = new_idx;
 	}
 }
@@ -116,8 +110,7 @@ void IFATcleanTombstones(mfs_superblock_t *sblock, void *table) {
 
 void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
 	if (buffer==NULL || table==NULL || sblock==NULL) return;
-	lba_t lba=sblock->DataBegin;
-
+	
 	uint32_t start_idx=index;
 	uint32_t current_idx=index;
 	uint32_t new_idx;
@@ -125,7 +118,7 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 	uint32_t write=0;
 	while (write < (max/512)/sblock->SectorsPerBlock) {
 		do {
-			new_idx = IFATreadEntry(sblock, table, current_idx);
+			new_idx = IFATreadEntry(sblock, table, current_idx++);
 			if (new_idx == IFAT_BAD_BLOCK ||
 			    new_idx == IFAT_FREE_BLOCK ||
 			    new_idx == IFAT_TOMBSTONE) {
@@ -138,20 +131,18 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 				break;
 			}
 		
-			current_idx++;
 		} while (new_idx == current_idx);
+		uint32_t n_blocks = current_idx - start_idx;
+		uint32_t n_sec = sblock->SectorsPerBlock * n_blocks;
+		lba_t lba = uint64_2_lba(lba2uint64(sblock->DataBegin) + sblock->SectorsPerBlock*(start_idx-1));
 		writePartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
 
-		buffer+=sblock->SectorsPerBlock*512*(current_idx-start_idx);
-
-		uint64_t tmp = lba2uint64(lba);
-		tmp += sblock->SectorsPerBlock*(current_idx-start_idx);
-		lba = uint64_2_lba(tmp);
+		if (should_break==true) break;
+		buffer =(void*)((size_t)buffer + sblock->SectorsPerBlock*512*(current_idx-start_idx));
 
 		write += (current_idx-start_idx);
-		if (should_break==true) break;
+		start_idx = new_idx;	
 		current_idx = new_idx;
-		start_idx = new_idx;
 	}
 }
 

@@ -16,22 +16,18 @@ typedef enum {
 	VAL_STRING,
 } ValType;
 
-struct Obj;
 struct ShellValue;
 
-typedef struct Obj { // para cuando use un GC
-	struct ShellValue *val;
-	struct Obj *next;
-	bool live; // tiene o no tiene vida, ser o no ser
-} Obj;
+typedef struct {
+	uint32_t refc;
+} Obj; // ho ho
 
 typedef struct ShellValue {
 	ValType type;
 	union {
 		long num;
-		char *str;
+		char *str; // con truquitos camaradas, AHAHAHAH
 	} as;
-	uint32_t refc; // contador de referencias, solo valido en strings
 } ShellValue;
 
 typedef struct {

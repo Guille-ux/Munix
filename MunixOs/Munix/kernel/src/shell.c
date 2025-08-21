@@ -10,6 +10,7 @@
 #include "../minim/minim.h"
 #include "../mbash/modules.h"
 #include "../fs/fs.h"
+#include "../fs/ifat.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -126,6 +127,80 @@ ShellValue setfs_handler(ASTNode *stmt, EvalCtx *ctx) {
 	return newNumVal((long)explorer);
 }
 
+ShellValue pwd_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 1) return newNumVal(-1);
+	ASTNode **args = stmt->data.command_call.args;
+	ShellValue a = evalExpr(args[0], ctx);
+	if (a.type!=VAL_NUMBER) {
+		ref_del(a);
+		return newNumVal(-1);
+	}
+
+	explorer_t *explorer = (explorer_t*)a.as.num;
+
+	kprintf("%s\n", explorer->path);
+
+	ref_del(a);
+	return newStrVal(explorer->path);
+}
+
+ShellValue ref_info_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 1) return newNumVal(-1);
+	ShellValue a = evalExpr(stmt->data.command_call.args[0], ctx);
+	if (a.type != VAL_NUMBER) {
+		ref_del(a);
+		return newNumVal(-1);
+	}
+
+	Var *var = getShellVarEntry(ctx, a.as.num);
+	ShellValue val = var->val;
+	uint32_t n_refs=0;
+	if (val.type == VAL_STRING) {
+		Obj *obj = (Obj*)((size_t)val.as.str - sizeof(Obj));
+		n_refs = obj->refc;
+		kprintf("ref count: %d \n", n_refs);
+	} else {
+		kprintf("Unknown!\n");
+	}
+
+
+	ref_del(a);
+	return newNumVal(n_refs);
+}
+
+static uint8_t buff[512];
+
+ShellValue ls_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 1) return newNumVal(-1);
+	ASTNode **args = stmt->data.command_call.args;
+
+	ShellValue a = evalExpr(args[0], ctx);
+	if (a.type != VAL_NUMBER) {
+		ref_del(a);
+		return newNumVal(-1);
+	}
+
+	explorer_t *explorer = (explorer_t*)a.as.num;
+
+	mfs_dir_header_t* header = (mfs_dir_header_t*)(*explorer->cwd);
+	mfs_entry_t *entries = (mfs_entry_t*)((size_t)(*explorer->cwd)+sizeof(mfs_dir_header_t));
+
+	memset(buff, 0, 512);
+	buff[0]='\0';
+
+	kprintf("num entries -> %d\n", header->num_entries);
+	for (uint32_t i=0;i<header->num_entries-1;i++) {
+		if (entries[i].first_block == IFAT_TOMBSTONE) continue;
+		if (entries[i].first_block == IFAT_FREE_BLOCK) break;
+		
+		kprintf("%s\n", entries[i].name);
+		strncat(buff, entries[i].name, 511);
+	}
+
+	ShellValue ret = newStrVal(buff);
+	return ret;
+}
+
 /*
  * Fin de los módulos de la Shell
  */
@@ -160,6 +235,10 @@ int shellEntry() {
 	register_module("lsblk", lsblk_handler);
 	register_module("remount", remount_handler);
 	register_module("setfs", setfs_handler);
+	register_module("pwd", pwd_handler);
+	register_module("ref_count", ref_info_handler);
+	register_module("ls", ls_handler);
+
 
 	global_ctx->command_handler=multimodule_handler;
 	Token *t_buff = shell_tokens;
