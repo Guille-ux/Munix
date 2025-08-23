@@ -7,9 +7,10 @@
 #include "init/init.h"
 #include "fs/fs.h"
 #include "disk/general.h"
+#include "multiboot/multiboot.h"
 
 
-void kernel_main() {
+void kernel_main(uint32_t magic, multiboot_info_t *mbi) {
 	kernel_init();
 
 	kprintf("~ MunixOs ~\n");

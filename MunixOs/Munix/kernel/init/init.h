@@ -25,6 +25,8 @@
 #include "../include/low_level.h"
 #include "../include/buddy_alloc.h"
 #include "../include/isr.h"
+#include "../multiboot/multiboot.h"
+#include "../paging/paging32.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512

@@ -1,6 +1,23 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+/*
+ * Esta implementación va a parte de memory/*
+ * puesto que esta proporciona la interfaz principal del sistema
+ * para la memoria
+ * mientras que memory/* proporciona el control de bloques de 4kb
+ * es decir, es más técnico y va a parte de esto
+ * en otras palabras, esto se queda para compatibilidad y porque seguire
+ * usando un buddy_allocator pero esto trabajara sobre memoria virtual
+ * en cambio el memory/* trabajara sobre páginas físicas y otros modelos
+ * de gestión de memoria, aunque tendre cierta compatibilidad con esto
+ * es decir, tambien tendra las nuevas implementaciones de malloc y free
+ * que vaya haciendo en el futuro.
+ *
+ * Guillermo Leira Temes - 2025
+ *
+ */
+
 #include "libcs2.h"
 #include "zynk.h"
 #include "ksysarena.h"
