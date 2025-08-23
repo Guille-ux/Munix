@@ -113,4 +113,5 @@ void protect_bitmap(bitmap_t *bitmap) {
 	size_t start=bitmap->bitmap_start/bitmap->page_size;
 	size_t len=bitmap->bitmap_size*8;
 	bitmap_set_range(bitmap, start, len);
+	bitmap_set_bit(bitmap, bitmap/bitmap->page_size);
 }
