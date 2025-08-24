@@ -18,6 +18,8 @@ void kernel_init() { // Subrutina para inicializar cosas del kernel
 	// Desactivar interrupciones
 	__asm__ volatile("cli");
 	
+	
+
 	// Inicializar sistema de logs
 	void **buffer_log = (void*)log;
 	config_klog_interface();

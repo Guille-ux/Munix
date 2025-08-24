@@ -7,7 +7,7 @@ typedef enum {
 	MULTIBOOT_MEM_ACPI_RECLAIMABLE=3,
 	MULTIBOOT_MEM_NVS=4,
 	MULTIBOOT_MEM_BADRAM=5,
-} multiboot_mem_type; 
+} multiboot_mem_type_t; 
 
 struct multiboot_aout_symbol_table {
 	uint32_t tabsize;

@@ -27,6 +27,7 @@
 #include "../include/isr.h"
 #include "../multiboot/multiboot.h"
 #include "../paging/paging32.h"
+#include "../memory/bitmap.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
@@ -35,13 +36,13 @@
 extern handle_t kernel_handles[N_HANDLES];
 
 extern char *log[MAX_LOGS];
-#define ALL_SIZE 1024*1024*64  // 32MB heap size
+#define ALL_SIZE 1024*1024*64  // 64MB heap size
 
 extern free_node *my_free_list[64];
 extern size_t size;
 extern char heap_start[ALL_SIZE];
-extern int mini_order;  // 4KB minimum block size (2^12)
-extern int maxi_order;  // 32MB maximum block size (2^25)
+extern int mini_order; 
+extern int maxi_order;
 
 void kernel_init();
 void init_disk_subsystem();
