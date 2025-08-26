@@ -1,7 +1,7 @@
-.set MAGIC 0x1BADB002
-.set MEM_INFO 1
-.set FLAGS MEM_INFO
-.set CHECKSUM - (MAGIC + FLAGS)
+%define MAGIC 0x1BADB002
+%define MEM_INFO 1
+%define FLAGS MEM_INFO
+%define CHECKSUM - (MAGIC + FLAGS)
 
 section .multiboot
 	dd MAGIC ; Firma de Grub

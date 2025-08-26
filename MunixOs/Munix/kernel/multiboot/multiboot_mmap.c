@@ -1,7 +1,7 @@
 #include "multiboot_mmap.h"
 
 bool multiboot_mmap_scanner(bitmap_t *bitmap, void *multiboot_info) {
-	mb_map_info_t *mb = (mb_map_info*)multiboot_info;
+	mb_mmap_info_t *mb = (mb_mmap_info_t*)multiboot_info;
 	size_t mmap_len = mb->mmap_len;
 	multiboot_mem_map_t *mmap_addr = (multiboot_mem_map_t*)mb->mmap_addr;
 
