@@ -50,7 +50,11 @@ typedef struct {
 	uint8_t pwt;
 } __attribute__((packed)) p32_flags_t;
 
-extern void enable_paging32(uint32_t page_dir) __attribute__((cdecl));
+extern void enable_paging32(void) __attribute__((cdecl));
+extern void load_paging32(uint32_t page_dir) __attribute__((cdecl));
+
+
+
 
 void fill_pte32(pt32_entry_t *pte, uint8_t present, uint8_t rw, uint8_t us, uint8_t pwt, uint8_t pcd, uint8_t a, uint8_t d, uint8_t pat, uint8_t g, uint8_t avl, uint32_t frame);
 

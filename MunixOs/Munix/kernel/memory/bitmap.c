@@ -98,20 +98,21 @@ void bitmap_free(bitmap_t *bitmap, void *page) {
 }
 
 void bitmap_set_range(bitmap_t *bitmap, size_t start, size_t len) {
-	for (size_t i=start;i<len;i++) {
+	for (size_t i=start;i<(len+start);i++) {
 		bitmap_set_bit(bitmap, i);
 	}
 }
 
 void bitmap_clear_range(bitmap_t *bitmap, size_t start, size_t len) {
-	for (size_t i=start;i<len;i++) {
+	for (size_t i=start;i<(len+start);i++) {
 		bitmap_clear_bit(bitmap, i);
 	}
 }
 
 void protect_bitmap(bitmap_t *bitmap) {
 	size_t start=((size_t)bitmap->bitmap_start)/bitmap->page_size;
-	size_t len=bitmap->bitmap_size*8;
+	size_t len=bitmap->bitmap_size/bitmap->page_size+1;
 	bitmap_set_range(bitmap, start, len);
 	bitmap_set_bit(bitmap, ((size_t)bitmap)/bitmap->page_size);
+	bitmap_set_range(bitmap, 0, 256);
 }

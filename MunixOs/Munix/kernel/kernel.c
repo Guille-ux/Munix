@@ -28,15 +28,26 @@ void munix_paging(multiboot_info_t *mbi) {
 	multiboot1_build_mmap_info(&mmap_info, mbi);
 	bitmap_init(bitmap, (void*)BITMAP_START, mbi->mem_upper, 4096);
 	register_mmap_scanner(bitmap, multiboot_mmap_scanner);
-	bitmap_scan_mmap(bitmap, (void*)mmap_info);
+	bitmap_scan_mmap(bitmap, &mmap_info);
 	page_dir = create_page_directory32(bitmap);
 	p32_flags_t flags = {.rw=1, .us=0, .pcd=0, .pwt=0};
 	identity_mapping32(bitmap, page_dir, flags);
-	enable_paging32((uint32_t)page_dir);
+	load_paging32((uint32_t)page_dir);
+	enable_paging32();
 }
+
+void kernel_main(uint32_t magic, multiboot_info_t *mbi) __attribute__((cdecl));
 
 void kernel_main(uint32_t magic, multiboot_info_t *mbi) {
 	kernel_init();
+	munix_paging(mbi);
+	kernel_init();
+	kprintf("Magic Number: %p \n", magic);
+	kprintf("Upper Memory: %lu\n", mbi->mem_upper);
+
+	if (magic==MULTIBOOT_BOOT_MAGIC) {
+			kprintf("Loaded by multiboot 1 compliant bootloader.\n");
+	}
 
 	kprintf("~ MunixOs ~\n");
 
