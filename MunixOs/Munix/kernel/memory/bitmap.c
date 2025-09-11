@@ -11,7 +11,7 @@ bool bitmap_scan_mmap(bitmap_t *bitmap, void *mmap) {
 	if (bitmap==NULL || mmap == NULL) return false;
 	bool ret=false;
 	for (int i=0;i<bitmap->n_scanners;i++) {
-		if (bitmap->scanners[i]==NULL) return false;
+		if (bitmap->scanners[i]==NULL) continue;
 		ret = bitmap->scanners[i](bitmap, mmap);
 		if (ret) break;
 	}
@@ -23,13 +23,15 @@ bool bitmap_init(bitmap_t *bitmap, void *bitmap_start, size_t memory_amount, siz
 	if (bitmap_start==NULL ||
 	    bitmap==NULL ||
 	    memory_amount == 0 ||
-	    page_size & 1) {
+	    (page_size == 0 ||
+	    (page_size & (page_size - 1)) != 0)) {
 		return false;
 	}
 	memset(bitmap, 0, sizeof(bitmap_t));
 	bitmap->bitmap_start = bitmap_start;
 	bitmap->memory_amount = memory_amount;
-	bitmap->bitmap_size = (memory_amount / page_size) / 8;
+	size_t total_pages = (memory_amount + page_size - 1) / page_size;
+	bitmap->bitmap_size = (total_pages + 7) / 8;
 	bitmap->page_size = page_size;
 	bitmap->n_scanners = 0;
 	memset(bitmap_start, 0, bitmap->bitmap_size);
@@ -45,7 +47,7 @@ static size_t get_index(bitmap_t *bitmap, void *page) {
 }
 
 static int get_bit(bitmap_t *bitmap, size_t index) {
-	if (bitmap->bitmap_size < (index/8)) return -1;
+	if (index/8 >= bitmap->bitmap_size) return -1;
 	uint8_t *map = bitmap->bitmap_start;
 	uint8_t offset = get_offset(index);
 	size_t high_index = index / 8;
@@ -54,7 +56,7 @@ static int get_bit(bitmap_t *bitmap, size_t index) {
 }
 
 bool bitmap_clear_bit(bitmap_t *bitmap, size_t index) {
-	if (bitmap->bitmap_size < (index/8)) return false;
+	if (index/8 >= bitmap->bitmap_size) return false;
 	uint8_t *map = bitmap->bitmap_start;
 	uint8_t offset = get_offset(index);
 	size_t high_index = index / 8;
@@ -65,7 +67,7 @@ bool bitmap_clear_bit(bitmap_t *bitmap, size_t index) {
 }
 
 bool bitmap_set_bit(bitmap_t *bitmap, size_t index) {
-	if (bitmap->bitmap_size < (index/8)) return false;
+	if (index/8 >= bitmap->bitmap_size) return false;
 	uint8_t *map = bitmap->bitmap_start;
 	uint8_t offset = get_offset(index);
 	size_t high_index = index / 8;
@@ -87,7 +89,7 @@ void *bitmap_alloc(bitmap_t *bitmap) {
 			break;
 		}
 	}
-	if (!found) return ((void*)(uint32_t)-1);
+	if (!found) return NULL;
 	
 	return (void*)(index*bitmap->page_size);
 }

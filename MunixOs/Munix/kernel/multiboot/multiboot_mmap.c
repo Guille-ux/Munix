@@ -9,17 +9,19 @@ bool multiboot_mmap_scanner(bitmap_t *bitmap, void *multiboot_info) {
 	if (mb->signature!=MB_MMAP_SCANNER_SIGNATURE) return false;
 	
 	bitmap_set_range(bitmap, 0, bitmap->bitmap_size*8);
+	size_t mmap_end = (size_t)(mb->mmap_addr + mb->mmap_len);
 
-	for (size_t i=0;i<mmap_len;i++) {
-		size_t size_of_section = mmap_addr->length;
-		if (mmap_addr->type != MULTIBOOT_MEM_AVAILABLE) continue;
-		size_t addr_of_section = mmap_addr->base_addr;
+	while (mmap_addr < mmap_end) {
+		
+		if (mmap_addr->type != MULTIBOOT_MEM_AVAILABLE) {
+			size_t size_of_section = mmap_addr->length;
+			size_t addr_of_section = mmap_addr->base_addr;
 
-		size_t section_n_entries = size_of_section / bitmap->page_size;
-		size_t section_index = addr_of_section / bitmap->page_size;
-		bitmap_clear_range(bitmap, section_index, section_n_entries);
-
-		mmap_addr = (multiboot_mem_map_t*)(mmap_addr->size + (size_t)mmap_addr);
+			size_t section_n_entries = size_of_section / bitmap->page_size;
+			size_t section_index = addr_of_section / bitmap->page_size;
+			bitmap_clear_range(bitmap, section_index, section_n_entries);
+		}
+		mmap_addr = (multiboot_mem_map_t*)(mmap_addr->size + (size_t)mmap_addr + sizeof(mmap_addr->size));
 	}
 
 	return true;

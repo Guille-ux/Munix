@@ -32,7 +32,7 @@ void fill_pde32(pd32_entry_t *pde, uint8_t present, uint8_t rw, uint8_t us, uint
 pd32_entry_t *create_page_directory32(bitmap_t *bitmap) {
 	void *page_dir_ptr = bitmap_alloc(bitmap);
 	
-	if (page_dir_ptr == ((void*)((uint32_t)-1))) {
+	if (page_dir_ptr == NULL) {
 		kprintf("Error allocating mem for pd!\n");
 		return page_dir_ptr;
 	}
@@ -47,7 +47,7 @@ pd32_entry_t *create_page_directory32(bitmap_t *bitmap) {
 pt32_entry_t *create_page_table32(bitmap_t *bitmap) {
 	void *page_table_ptr = bitmap_alloc(bitmap);
 	
-	if (page_table_ptr == ((void*)((uint32_t)-1))) {
+	if (page_table_ptr == NULL) {
 		kprintf("Error allocating mem for pt!\n");
 		return page_table_ptr;
 	}
