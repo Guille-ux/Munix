@@ -7,6 +7,10 @@
 #include "../memory/bitmap.h"
 
 typedef struct {
+	uint32_t data[1024];
+} p_block_t;
+
+typedef struct {
 	uint32_t present : 1;
 	uint32_t rw : 1;
 	uint32_t us : 1;
