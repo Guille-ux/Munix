@@ -1,6 +1,8 @@
 #ifndef FDP_H
 #define FDP_H
 
+#include <stdint.h>
+
 #define EXTEND_VAL 5
 
 typedef struct {
