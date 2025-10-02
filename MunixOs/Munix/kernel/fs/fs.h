@@ -14,6 +14,20 @@ typedef struct {
 	void *ifat_table;
 } mfs_meta_t;
 
+typedef struct {
+	char name[256];
+} file_item_t;
+
+struct files_t;
+
+typedef struct files_t {
+	uint32_t current_idx;
+	explorer_t *fs;
+	
+	int (*next)(struct files_t *iterator, file_item_t *out_item);
+	uint32_t (*count)(struct files_t *iterator);
+} files_t;
+
 typedef struct explorer_t {
 	uint16_t owner_id;
 	uint16_t group_id;
@@ -26,6 +40,7 @@ typedef struct explorer_t {
 
 	partition_t *partition;
 
+	//int (*ls)(struct explorer_t *exp, files_t *list);
 	int (*cd)(struct explorer_t *exp, const char *dir_name);
 	int (*mkdir)(struct explorer_t *exp, const char *name);
 	int (*mod)(struct explorer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
@@ -43,7 +58,7 @@ typedef struct explorer_t {
 	
 
 	int (*clean)(struct explorer_t *exp); // específica para mfs, limpiar tomsbtones, se podra usar para limpiar el sistema de archivos
-	int (*destroy)(struct explorer_t *exp);	
+	int (*destroy)(struct explorer_t *exp); // liberar memoria	
 	/* 
 	 * Futuro: crear manejadores de archivos
 	 */

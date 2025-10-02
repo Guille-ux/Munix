@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define MAX_MODULES 16
+#define MAX_MODULES 32
 
 typedef ShellValue (*handler_t)(ASTNode *stmt, EvalCtx *ctx);
 

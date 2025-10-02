@@ -197,8 +197,65 @@ ShellValue ls_handler(ASTNode *stmt, EvalCtx *ctx) {
 		strncat(buff, entries[i].name, 511);
 	}
 
+	ref_del(a);
 	ShellValue ret = newStrVal(buff);
 	return ret;
+}
+
+ShellValue mkdir_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 2) return newNumVal(-1);
+	ASTNode **args = stmt->data.command_call.args;
+
+	ShellValue a = evalExpr(args[0], ctx);
+	if (a.type != VAL_NUMBER) {
+		ref_del(a);
+		return newNumVal(-1);
+	}
+	ShellValue b = evalExpr(args[1], ctx);
+	if (b.type != VAL_STRING) {
+		ref_del(a);
+		ref_del(b);
+		return newNumVal(-1);
+	}
+
+	explorer_t *explorer = (explorer_t*)a.as.num;
+
+	int result = explorer->mkdir(explorer, b.as.str);
+
+	if (result != 0) {
+		return newNumVal(-1);
+	}
+
+	ref_del(a);
+	ref_del(b);
+
+	return newNumVal(0);
+}
+
+ShellValue rm_handler(ASTNode *stmt, EvalCtx *ctx) {
+	if (stmt->data.command_call.argc < 2) return newNumVal(-1);
+
+	ASTNode **args = stmt->data.command_call.args;
+
+	a = evalExpr(args[0], ctx);
+	if (a.type != VAL_NUMBER) {
+		ref_del(a);
+		return newNumVal(-1);
+	}
+	b = evalExpr(args[1], ctx);
+	if (b.type != VAL_STRING) {
+		ref_del(a);
+		ref_del(b);
+		return newNumVal(-1);
+	}
+
+	explorer_t *explorer = (explorer_t*)a.as.num;
+	
+	// aqui deberia hacer código para ir borrando todos los archivos recursivamente
+
+	ref_del(a);
+	ref_del(b);
+	return newNumVal(0);
 }
 
 /*
@@ -238,6 +295,18 @@ int shellEntry() {
 	register_module("pwd", pwd_handler);
 	register_module("ref_count", ref_info_handler);
 	register_module("ls", ls_handler);
+	register_module("mkdir", mkdir_handler);
+	register_module("rm", rm_handler); // RECURSIVO
+	//register_module("cd", cd_handler);
+	//register_module("mod", mod_handler);
+	//register_module("chmod", chmod_handler);
+	//register_module("stat", stat_handler);
+	//register_module("chstat", chstat_handler);
+	//register_module("touch", touch_handler);
+	//register_module("cat", cat_handler);
+	//register_module("write", write_handler);
+	//register_module("clean", clean_handler);
+	
 
 
 	global_ctx->command_handler=multimodule_handler;
