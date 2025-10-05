@@ -21,6 +21,7 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 		return NULL;
 	}
 
+	explorer->ls = mfs_ls;
 	explorer->cd = mfs_cd;
 	explorer->mkdir = mfs_mkdir;
 	explorer->mod = mfs_mod;
@@ -74,6 +75,55 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	*explorer->cwd = kmalloc(n);
 	MFSloaDir(block, partition, table, *explorer->cwd, n, block->RootBlock);
 	return explorer;
+}
+
+int mfs_ls(explorer_t *explorer, files_t *list) {
+	if (explorer == NULL || list == NULL) return -1;
+
+	list->current_idx = 0;
+	list->fs = explorer;
+	list->next = mfs_ls_next;
+	list->count = mfs_ls_count;
+
+	return 0;
+}
+
+static inline mfs_entry_t *mfs_ls_get_entries(files_t *iterator) {
+	return (mfs_entry_t*)(((size_t)(*iterator->fs->cwd)) + sizeof(mfs_dir_header_t));
+}
+
+int mfs_ls_next(files_t *iterator, file_item_t *item) {
+	if (iterator == NULL || item == NULL) return -1;
+	if (!(iterator->current_idx < ((mfs_dir_header_t*)(*iterator->fs->cwd))->num_entries)) return -1;
+
+	mfs_entry_t *entries = mfs_ls_get_entries(iterator);
+	if (entries[iterator->current_idx].first_block == IFAT_FREE_BLOCK) {
+		memcpy(item->name, "NULL", 5);
+		return -1;
+	}
+	while (entries[iterator->current_idx].first_block == IFAT_TOMBSTONE) {
+		iterator->current_idx++;
+	}
+	mfs_entry_t entry = entries[iterator->current_idx++];
+	memcpy(item->name, entry.name, strlen(entry.name)+1);
+
+	return 0;
+}
+
+uint32_t mfs_ls_count(files_t *iterator) {
+	if (iterator == NULL) return 0;
+	
+	uint32_t num_files = 0;
+	mfs_entry_t *entries = mfs_ls_get_entries(iterator);
+
+	for (uint32_t i = 0; i<((mfs_dir_header_t*)(*iterator->fs->cwd))->num_entries; i++) {
+		if (entries[i].first_block == IFAT_TOMBSTONE) continue;
+		if (entries[i].first_block == IFAT_FREE_BLOCK) break;
+		num_files++;
+	}
+
+
+	return num_files;
 }
 
 int mfs_cd(explorer_t *explorer, const char *dir_name) {

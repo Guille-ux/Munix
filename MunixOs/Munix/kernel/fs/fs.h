@@ -23,7 +23,7 @@ struct files_t;
 typedef struct files_t {
 	uint32_t current_idx;
 	explorer_t *fs;
-	
+
 	int (*next)(struct files_t *iterator, file_item_t *out_item);
 	uint32_t (*count)(struct files_t *iterator);
 } files_t;
@@ -40,7 +40,7 @@ typedef struct explorer_t {
 
 	partition_t *partition;
 
-	//int (*ls)(struct explorer_t *exp, files_t *list);
+	int (*ls)(struct explorer_t *exp, files_t *list);
 	int (*cd)(struct explorer_t *exp, const char *dir_name);
 	int (*mkdir)(struct explorer_t *exp, const char *name);
 	int (*mod)(struct explorer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
@@ -69,6 +69,19 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 /*
  * Funciones para MunixFS
  *
+ */
+
+int mfs_ls(explorer_t *explorer, files_t *list);
+
+/*
+ * Subfunciones de LS
+ */
+
+int mfs_ls_next(files_t *iterator, file_item_t *item);
+uint32_t mfs_ls_count(files_t *iterator);
+
+/*
+ * Fin de las subfunciones de LS
  */
 
 int mfs_cd(explorer_t *explorer, const char *dir_name);
