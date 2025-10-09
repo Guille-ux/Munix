@@ -74,7 +74,7 @@ Características únicas:
 
 - [x] Soporte para particiones MBR
 - [ ] Soporte para x86_64
-- [ ] Sistema de archivos básico
+- [x] Sistema de archivos básico
 - [x] Drivers ATA-PIO completos
 - [ ] Multitarea básica
 - [ ] Instalador de Shell funcional
