@@ -73,7 +73,7 @@ Features:
 
 - [x] Support for MBR Partitions
 - [ ] Support for x86_64
-- [ ] Basic FileSystem, like FAT32
+- [x] Basic FileSystem, like FAT32
 - [x] ATA-PIO Drivers
 - [ ] Basic Scheduler
 - [ ] Functioning Shell Installer
@@ -100,3 +100,4 @@ Distributed under GPL-3.0 License, see LICENSE for more information
 ---
 
 *"It isn't a bug, it's an undocumented feature."* - Munix Philosophy
+
