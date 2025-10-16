@@ -83,4 +83,45 @@ Descriptores de Segmento **OBLIGATORIOS** (para que el kernel funcione):
    - **A**: 0 (siempre se configura a 0).
   
 Y ahora, a cargar la **GDT**!
-aunque, con eso sigo despues, espero que esto te haya ayudado, más tarde continuare con esto.
+
+Para cargar la **GDT** primero debemos de comprender los **registros de segmento**, son 6:
+- **CS**: Registro de Segmento de Código (donde se leen las instrucciones).
+- **SS**: Registro de Segmento de Pila (las operaciones de pila operan dentro de el).
+- **DS**: Registro de Segmento de Datos, contiene el selector del segmento de datos predeterminado para acceder a datos globales o locales.
+- **ES**, **GS**, **FS**: registros de segmento extra.
+
+Los **registros de segmento** son de 16 bytes, e indican el indice (en bytes) del segmento en la **GDT**, por ejemplo si el segmento de código del kernel esta en el indice 0, entonces el registro **CS** tendra `0x08` (las entradas son de 8 bytes cada 1).ç
+
+Cargando la **GDT**...
+
+paso nº 1, cargar el gdt_pointer con
+
+```asm
+lgdt [gdt_ptr]
+```
+
+luego de esto ya tendremos nuestra tabla cargada, pero ahora tenemos que actualizar los registros.
+
+para actualizar **CS** realizaremos un salto de segmento:
+
+```asm
+jmp KERNEL_CS:flush_cs
+```
+
+siendo `KERNEL_CS` el indice del segmento de código del kernel en la **GDT** (multiplicado por 8) y flush_cs una parte del código donde trabajaremos con los demás **registros de segmento**.
+
+ahora, actualizaremos todos los demás registros para que apunten a `KERNEL_DS` (segmento de datos del kernel):
+
+```asm
+flush_cs:
+	mov ax, KERNEL_DS
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov ss, ax
+
+	ret
+```
+
+al final de la función usamos ret para volver a antes de cargar la **GDT**.
