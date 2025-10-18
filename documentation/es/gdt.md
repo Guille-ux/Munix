@@ -125,3 +125,6 @@ flush_cs:
 ```
 
 al final de la función usamos ret para volver a antes de cargar la **GDT**.
+
+En el código de **Munix**, tenemos la función `gdt_init` donde se encuentra el código que configura la **GDT**, donde usamos `gdt_set_gate` para ir colocando todos los descriptores
+y finalmente usamos `gdt_flush` (subrutina de ensamblador) que carga la **GDT** y actualiza el segmento en el cual esta funcionando el kernel.
