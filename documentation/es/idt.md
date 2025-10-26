@@ -30,3 +30,10 @@ typedef struct {
 	uint32_t zero;
 } __attribute__((packed)) IDT64_Entry;
 ```
+
+Primero hablemos de la estructura usada en 32bits, `IDT32_Entry`, esta estructura tiene
+- `offset_low`: 16 bits bajos del puntero a la rutina
+- `selector`:
+- `zero`: siempre 0
+- `type_attr`:
+- `offset_high`:
