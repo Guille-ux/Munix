@@ -33,7 +33,15 @@ typedef struct {
 
 Primero hablemos de la estructura usada en 32bits, `IDT32_Entry`, esta estructura tiene
 - `offset_low`: 16 bits bajos del puntero a la rutina
-- `selector`:
+- `selector`: debe apuntar a un selector válido de tu `GDT`
 - `zero`: siempre 0
-- `type_attr`:
+- `type_attr`: tiene `gate type`, `dpl` y `p`
+  	- `gate type`: valor de 4bits que representa 1 de 5 tipos
+  	  	- `Task Gate`: 0x5, el valor de offset debe ser 0
+  	  	- ``
+  	  	-
+  	  	-
+  	  	-
+  	- `dpl`:
+  	- `p`:
 - `offset_high`:
