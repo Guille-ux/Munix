@@ -22,7 +22,7 @@ struct files_t;
 
 typedef struct files_t {
 	uint32_t current_idx;
-	explorer_t *fs;
+	struct explorer_t *fs;
 
 	int (*next)(struct files_t *iterator, file_item_t *out_item);
 	uint32_t (*count)(struct files_t *iterator);

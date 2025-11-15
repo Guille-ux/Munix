@@ -237,12 +237,12 @@ ShellValue rm_handler(ASTNode *stmt, EvalCtx *ctx) {
 
 	ASTNode **args = stmt->data.command_call.args;
 
-	a = evalExpr(args[0], ctx);
+	ShellValue a = evalExpr(args[0], ctx);
 	if (a.type != VAL_NUMBER) {
 		ref_del(a);
 		return newNumVal(-1);
 	}
-	b = evalExpr(args[1], ctx);
+	ShellValue b = evalExpr(args[1], ctx);
 	if (b.type != VAL_STRING) {
 		ref_del(a);
 		ref_del(b);

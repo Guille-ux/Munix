@@ -40,7 +40,7 @@ void munix_paging(multiboot_info_t *mbi) {
 void kernel_main(uint32_t magic, multiboot_info_t *mbi) __attribute__((cdecl));
 
 void kernel_main(uint32_t magic, multiboot_info_t *mbi) {
-	munix_paging(mbi);
+	// munix_paging(mbi);
 	kernel_init();
 	kprintf("Magic Number: %p \n", magic);
 	kprintf("Upper Memory: %lu\n", mbi->mem_upper);
