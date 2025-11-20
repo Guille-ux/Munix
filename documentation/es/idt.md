@@ -37,11 +37,11 @@ Primero hablemos de la estructura usada en 32bits, `IDT32_Entry`, esta estructur
 - `zero`: siempre 0
 - `type_attr`: tiene `gate type`, `dpl` y `p`
   	- `gate type`: valor de 4bits que representa 1 de 5 tipos
-  	  	- `Task Gate`: 0x5, el valor de offset debe ser 0
-  	  	- ``
-  	  	-
-  	  	-
-  	  	-
-  	- `dpl`:
+  	  	- `Task Gate`: `0x5`, el valor de offset debe ser 0
+  	  	- `16b Interrupt Gate`: `0x6`
+  	  	- `16b Trap Gate`: `0x7`
+  	  	- `32b Interrupt Gate`: `0xE`
+  	  	- `32b Trap Gate`: `0xF`
+  	- `dpl`: 2 bits, indica nivel de privilegio.
   	- `p`:
 - `offset_high`:
