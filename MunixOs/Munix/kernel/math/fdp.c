@@ -22,10 +22,22 @@ fdp_t fdp_add(fdp_t a, fdp_t b) {
 		rexp = exp_a;
 	}
 	result = fdp_char_exp(result, rexp);
-	result.Mantissa = a.Mantissa + b.Mantissa;
+	if (b.Negative==a.Negative) {
+		result.Mantissa = a.Mantissa + b.Mantissa;
+		result.Negative = a.Negative;
+	} else {
+		if (a.Mantissa >= b.Mantissa) {
+			result.Mantissa = a.Mantissa - b.Mantissa;
+			result.Negative = a.Negative;
+		} else {
+			result.Mantissa = b.Mantissa - a.Mantissa;
+			result.Negative = b.Negative;
+		}
+	}
 	return fdp_simplify(result);
 }
 fdp_t fdp_sub(fdp_t a, fdp_t b) {
+	/*
 	fdp_t result;
 	a = fdp_simplify(a);
 	b = fdp_simplify(b);
@@ -46,8 +58,22 @@ fdp_t fdp_sub(fdp_t a, fdp_t b) {
 		rexp = exp_a;
 	}
 	result = fdp_char_exp(result, rexp);
-	result.Mantissa = a.Mantissa - b.Mantissa;
+	if (b.Negative==a.Negative) {
+		result.Mantissa = a.Mantissa - b.Mantissa;
+		result.Negative = a.Negative;
+	} else {
+		if (a.Mantissa >= b.Mantissa) {
+			result.Mantissa = a.Mantissa - b.Mantissa;
+			result.Negative = a.Negative;
+		} else {
+			result.Mantissa = b.Mantissa - a.Mantissa;
+			result.Negative = b.Negative;
+		}
+	}
 	return fdp_simplify(result);
+	*/
+	b.Negative = !b.Negative;
+	return fdp_add(a, b);
 }
 fdp_t fdp_mul(fdp_t a, fdp_t b) {
 	fdp_t result;
