@@ -22,4 +22,9 @@ typedef struct {
 	uint8_t typeflag;
 } tar_header_t;
 
+#define TAR_BLOCK_SIZE 512
+
+size_t oct2int(char *chain, char length);
+void int2oct(char *chain, char length, size_t n);
+
 #endif
