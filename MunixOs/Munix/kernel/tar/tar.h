@@ -27,4 +27,25 @@ typedef struct {
 size_t oct2int(char *chain, char length);
 void int2oct(char *chain, char length, size_t n);
 
+// ahora toca definir funciones para más cosas y otras estructuras
+// bueno, allá voy!
+
+typedef struct {
+	void *base; // como el nombre es lo primero sirve tambien para pillar
+		    // el nombre
+	size_t size;
+	size_t gid;
+	size_t uid;
+} tar_entry_t;
+
+typedef struct {
+	void *start;
+	size_t n_entries;
+	tar_entry_t *entries;
+} tar_t;
+
+tar_t *scanTarFile(tar_t *tar, void *block);
+
+// más tarde añadire las funciones para crear tar's
+
 #endif
