@@ -1,4 +1,9 @@
 #include "tar.h"
+#include "../include/libcs2.h"
+
+static size_t roundToBlocks(size_t n) {	
+	return (n + TAR_BLOCK_SIZE - 1) & ~(TAR_BLOCK_SIZE-1);
+}
 
 size_t oct2int(char *chain, char length) {
 	size_t size = 0;
@@ -50,8 +55,55 @@ tar_t *scanTarFile(tar_t *tar, void *block) {
 		entries[n_entries-1].size = oct2int(header->size, 12);
 		entries[n_entries-1].uid = oct2int(header->uid, 8);
 		entries[n_entries-1].gid = oct2int(header->gid, 8);
-		p += entries[n_entries-1]+TAR_BLOCK_SIZE;
+		p += roundToBlocks(entries[n_entries-1].size) + TAR_BLOCK_SIZE;
 	}
+	tar->next_addr = (void*)p;
+	tar->entries = entries;
 
 	return tar;
+}
+
+ntar_t *initTarFile(ntar_t *tar) {
+	tar->base = malloc(TAR_START_SIZE);
+	tar->cap = TAR_START_SIZE;
+	tar->size = 0;
+	tar->n_entries = 0;
+
+	return tar;
+}
+
+ntar_t *appendTarFile(ntar_t *tar, void *block, size_t uid, size_t gid, size_t mtime, size_t size, size_t mode, const char *name) {
+	if (tar->size + size + TAR_BLOCK_SIZE >= tar->cap) {
+		tar->cap = tar->cap * 2 + (tar->size + size + 512 - tar->cap * 2);
+		void *newBase = malloc(tar->cap);
+		memcpy(newBase, tar->base, tar->size);
+		free(tar->base); 
+		tar->base = newBase;
+	}
+	tar->n_entries++;
+	// añadimos la cabecera
+	tar_header_t *header = ((size_t)tar->base+tar->size);
+	memcpy(header->name, name, 100);
+	int2oct(header->mode, 8, mode);
+	int2oct(header->uid, 8, uid);
+	int2oct(header->gid, 8, gid);
+	int2oct(header->size, 12, size);
+	int2oct(header->mtime, 12, mtime);
+
+
+	tar->size += TAR_BLOCK_SIZE;
+	memcpy((void*)((size_t)tar->base+tar->size), block, size);
+	tar->size += roundToBlocks(size);
+	return tar;
+}
+
+void endTarFile(ntar_t *tar) {
+	if (tar->size + 1024 >= tar->cap) {
+		void *newBase = malloc(tar->size + 1024);
+		tar->cap += 1024;
+		memcpy(newBase, tar->base, tar->size);
+		free(tar->base);
+		tar->base = newBase;
+	}
+	memset(tar->base + (tar->size - 1024), 0, 1024);
 }

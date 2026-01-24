@@ -23,6 +23,7 @@ typedef struct {
 } tar_header_t;
 
 #define TAR_BLOCK_SIZE 512
+#define TAR_START_SIZE 4096
 
 size_t oct2int(char *chain, char length);
 void int2oct(char *chain, char length, size_t n);
@@ -38,14 +39,27 @@ typedef struct {
 	size_t uid;
 } tar_entry_t;
 
+// cuando analizamos uno ya existente
 typedef struct {
 	void *start;
 	size_t n_entries;
 	tar_entry_t *entries;
 } tar_t;
 
+// cuando hacemos un nuevo tar
+typedef struct {
+	size_t n_entries;
+	size_t size;
+	size_t cap;
+	void *base;
+} ntar_t;
+
 tar_t *scanTarFile(tar_t *tar, void *block);
 
 // más tarde añadire las funciones para crear tar's
+
+ntar_t *initTarFile(ntar_t *tar);
+ntar_t *appendTarFile(ntar_t *tar, void *block, size_t uid, size_t gid, size_t mtime, size_t size, size_t mode, const char *name);
+void endTarFile(ntar_t *tar);
 
 #endif
