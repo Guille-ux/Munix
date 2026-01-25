@@ -53,10 +53,11 @@ tar_t *scanTarFile(tar_t *tar, void *block) {
 			free(entries);
 			entries = newTable;
 		}
-		entries[n_entries-1].size = oct2int(header->size, 12);
-		entries[n_entries-1].uid = oct2int(header->uid, 8);
-		entries[n_entries-1].gid = oct2int(header->gid, 8);
-		p += roundToBlocks(entries[n_entries-1].size) + TAR_BLOCK_SIZE;
+		entries[tar->n_entries-1].base = &block[p];
+		entries[tar->n_entries-1].size = oct2int(header->size, 12);
+		entries[tar->n_entries-1].uid = oct2int(header->uid, 8);
+		entries[tar->n_entries-1].gid = oct2int(header->gid, 8);
+		p += roundToBlocks(entries[tar->n_entries-1].size) + TAR_BLOCK_SIZE;
 	}
 	tar->next_addr = (void*)p;
 	tar->entries = entries;
@@ -106,6 +107,7 @@ void endTarFile(ntar_t *tar) {
 		free(tar->base);
 		tar->base = newBase;
 	}
+	tar->size += 1024;
 	memset(tar->base + (tar->size - 1024), 0, 1024);
 }
 
@@ -114,7 +116,7 @@ tar_entry_t *findTarFile(tar_t *tar, char *name) {
 	tar_entry_t *centry;
 	for (size_t i=0;i<tar->n_entries;i++) {
 		centry = tar->entries[i];
-		if (strcmp(centry->base, name)==0) {
+		if (strcmp((char*)centry->base, name)==0) {
 			return centry;
 		}
 	}
