@@ -39,7 +39,9 @@ typedef struct {
 #endif
 
 void isr_handler(registers_t *regs);
+/*
 void kernel_keyboard_handler(uint32_t *esp);
+*/
 void kernel_keyboard_handler_2();
 
 #endif
