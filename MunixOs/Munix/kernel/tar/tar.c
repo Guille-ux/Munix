@@ -12,6 +12,7 @@ size_t oct2int(char *chain, char length) {
 		size += chain[i] - '0';
 		size *= 8;
 	}
+	size /= 8;
 
 	return size;
 }
