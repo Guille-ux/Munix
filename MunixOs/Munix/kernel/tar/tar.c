@@ -108,3 +108,16 @@ void endTarFile(ntar_t *tar) {
 	}
 	memset(tar->base + (tar->size - 1024), 0, 1024);
 }
+
+
+tar_entry_t *findTarFile(tar_t *tar, char *name) {
+	tar_entry_t *centry;
+	for (size_t i=0;i<tar->n_entries;i++) {
+		centry = tar->entries[i];
+		if (strcmp(centry->base, name)==0) {
+			return centry;
+		}
+	}
+
+	return NULL;
+}

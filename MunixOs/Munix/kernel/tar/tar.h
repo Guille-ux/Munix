@@ -2,6 +2,7 @@
 #define MUNIX_TAR_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 /*
  *
@@ -61,5 +62,7 @@ tar_t *scanTarFile(tar_t *tar, void *block);
 ntar_t *initTarFile(ntar_t *tar);
 ntar_t *appendTarFile(ntar_t *tar, void *block, size_t uid, size_t gid, size_t mtime, size_t size, size_t mode, const char *name);
 void endTarFile(ntar_t *tar);
+
+tar_entry_t *findTarFile(tar_t *tar, char *name);
 
 #endif
