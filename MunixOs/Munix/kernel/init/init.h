@@ -28,6 +28,8 @@
 #include "../multiboot/multiboot.h"
 #include "../paging/paging32.h"
 #include "../memory/bitmap.h"
+#include "../handlers/kb_handler.h"
+#include "../keyboard/keyboard.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512

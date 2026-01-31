@@ -3,6 +3,7 @@
 #include "../include/timer.h"
 #include "../include/pic.h"
 #include "../include/shell.h"
+#include "../handlers/kb_handler.h"
 
 const char *exception_messages[] = {
     "Division By Zero",
@@ -56,8 +57,10 @@ void isr_handler(registers_t *regs) {
             pic_eoi(0);
             return;
         } else if (regs->int_no==33) {
-            kernel_keyboard_handler_2(); // sera sustituido por el nuevo
-            pic_eoi(1);
+            //kernel_keyboard_handler_2(); // sera sustituido por el nuevo
+            // llego el momento de sustituirlo, ahora usaremos
+	    ps2_handler->getch();
+	    pic_eoi(1);
             return;
         }
 	}

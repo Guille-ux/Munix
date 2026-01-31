@@ -78,6 +78,9 @@ cd ..
 cd handlers
 gcc ${CFLAGS} -c *.c
 cd ..
+cd keyboard
+gcc ${CFLAGS} -c *.c
+cd ..
 gcc ${CFLAGS} -c -o buddy.o src/buddy_alloc.c
 gcc ${CFLAGS} -c -o shell.o src/shell.c
 gcc ${CFLAGS} -c -o timer.o src/timer.c
@@ -89,6 +92,6 @@ gcc ${CFLAGS} -c -o kernel.o kernel.c
 gcc ${CFLAGS} -c -o memory.o src/memory.c
 gcc ${CFLAGS} -c -o ksysarena.o src/sysarena.c
 gcc ${CFLAGS} -c -o handler.o src/handler.c
-i386-elf-ld  -Tlinker.ld -g -o kernel.ELF handlers/*.o tar/*.o math/*.o memory/*.o multiboot/*.o paging/*.o handler.o fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o start.o -L../../libs -lcs2 -lmunixcc -lmlink -lminiasm #-lzynk
+i386-elf-ld  -Tlinker.ld -g -o kernel.ELF keyboard/*.o handlers/*.o tar/*.o math/*.o memory/*.o multiboot/*.o paging/*.o handler.o fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o start.o -L../../libs -lcs2 -lmunixcc -lmlink -lminiasm #-lzynk
 cd ../..
 grub-mkrescue -o munix.iso Munix

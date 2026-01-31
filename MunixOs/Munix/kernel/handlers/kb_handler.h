@@ -12,6 +12,8 @@ typedef struct {
 	void (*getch)(void);
 } kb_handler_t;
 
+extern kb_handler_t ps2_handler;
+
 // nota, ahora son 16 bits para facilitarme la vida
 uint16_t buffer_pop();
 void buffer_push(uint16_t item);

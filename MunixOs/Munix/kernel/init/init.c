@@ -48,9 +48,10 @@ void kernel_init() { // Subrutina para inicializar cosas del kernel
 	
 	// Inicializar hardware más especificamente, IRQs
 	timer_init(100); // Inicializar temporizador
-	set_kb_spec_1(); // Inicializar teclas especiales
-	set_kb_layout(&layout_en_US); // seleccionar teclado en_US
 	ps2_init(0x01); // inicializar teclado PS/2 con scanset 1
+
+	// inicializar el teclado y getchar
+	init_kb();
 
 	// barrer el pci en busca de dispositivos
 	sweepPCI(false);
