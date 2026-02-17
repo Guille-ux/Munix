@@ -72,7 +72,6 @@ void init_kb() {
 }
 
 uint16_t kgetchar() {
-	while (1) {
 	
 		uint16_t key = buffer_pop();
 		if (key & SPECIAL_KEY) {
@@ -83,7 +82,7 @@ uint16_t kgetchar() {
 				} else if (key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
 					shift = false;
 				} 
-				continue;
+				return 0;
 			}
 			if (key == KEY_ALT_GR) {
 				alt_gr = true;
@@ -112,5 +111,4 @@ uint16_t kgetchar() {
 			}
 			return (kbd_es[key][index] == 0) ? key : kbd_es[key][index];
 		}
-	}
 }
