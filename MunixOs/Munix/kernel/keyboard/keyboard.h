@@ -41,13 +41,19 @@ uint16_t kgetchar();
 #define KEY_F11 0x57
 #define KEY_F12 0x58
 
+// las flechas
+#define KEY_ARROW_UP SPECIAL_KEY & 0x48
+#define KEY_ARROW_DOWN SPECIAL_KEY & 0x50
+#define KEY_ARROW_RIGHT SPECIAL_KEY & 0x4D
+#define KEY_ARROW_LEFT SPECIAL_KEY & 0x4B
+
+
 typedef struct {
 	char normal;
 	char shift;
 	char alt;
 } kb_entry_t;
 
-extern kb_entry_t *kb_layout;
-extern kb_entry_t kb_es_layout[128];
+extern const unsigned char kbd_es[128][3];
 
 #endif
