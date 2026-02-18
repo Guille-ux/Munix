@@ -58,5 +58,16 @@ then
 	./debug.sh all
 	exit
 fi
-
+if [ "$1" == debug ]
+then
+	qemu-system-i386 -cdrom munix.iso \
+			-drive file=disk.img,format=raw,if=ide \
+			-boot d \
+			-m 128M \
+			-serial stdio \
+			-no-reboot \
+			-s \
+			-S
+	exit
+fi
 echo "[ Comando No Reconocido ]"

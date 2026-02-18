@@ -8,8 +8,7 @@ bool shift=false;
 bool alt_gr=false;
 
 // this matrix was made with ai because it was too boring
-const unsigned char kbd_es[128][3] = {
-    
+const unsigned char kbd_es[128][3] = { 
     [0x01] = {  27,     27,      0   }, 
     [0x02] = { '1',    '!',      0   },
     [0x03] = { '2',    '"',    '@'   },
@@ -79,25 +78,33 @@ uint16_t kgetchar() {
 				key = key & ~KEY_BREAK;
 				if (key == KEY_ALT_GR) {
 					alt_gr = false;
-				} else if (key == KEY_LEFT_SHIFT || key == KEY_RIGHT_SHIFT) {
-					shift = false;
 				} 
-				return 0;
+				return key;
 			}
 			if (key == KEY_ALT_GR) {
 				alt_gr = true;
 				
-			} else if (key == KEY_LEFT_SHIFT) {
-				shift = true;
-			} else if (key == KEY_RIGHT_SHIFT) {
-				shift = true;
-			} else if (key == KEY_BLOQ_MAYUS) {
-				bloq_mayus = !bloq_mayus;
-			} else if (key == KEY_BLOQ_NUM) {
-				bloq_num = !bloq_num;
+			} 
+			return key;
+		} else if (key & KEY_BREAK) {
+			 if (key == KEY_BREAK | KEY_LEFT_SHIFT || key == KEY_BREAK | KEY_RIGHT_SHIFT) {
+					shift = false;
 			}
 			return key;
 		} else {
+			if (key == KEY_LEFT_SHIFT) {
+				shift = true;
+				return key | KEY_NOT_PRINTABLE;
+			} else if (key == KEY_RIGHT_SHIFT) {
+				shift = true;
+				return key | KEY_NOT_PRINTABLE;
+			} else if (key == KEY_BLOQ_MAYUS) {
+				bloq_mayus = !bloq_mayus;
+				return key | KEY_NOT_PRINTABLE;
+			} else if (key == KEY_BLOQ_NUM) {
+				bloq_num = !bloq_num;
+				return key | KEY_NOT_PRINTABLE;
+			}
 			// lógica para procesar el teclado ouch
 			char index = 0;
 			if (bloq_mayus == true) {

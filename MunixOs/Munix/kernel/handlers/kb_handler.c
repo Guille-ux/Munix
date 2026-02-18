@@ -24,7 +24,10 @@ uint16_t buffer_pop() {
 
 void ps2_get_scancode() {
 	uint8_t scancode = inb(0x60); // leemos el puerto del teclado
-	if (scancode == 0xE0) extended=1; return;
+	if (scancode == 0xE0) {
+		extended = 1;
+		return;
+	}
 
 	uint16_t final_sc = scancode | (extended << 8);
 	buffer_push(final_sc);

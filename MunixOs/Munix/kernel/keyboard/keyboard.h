@@ -14,6 +14,7 @@ uint16_t kgetchar();
 #define SPECIAL_KEY (1 << 8)
 #define KEY_BREAK (1 << 7)
 
+#define KEY_NOT_PRINTABLE (1 << 9)
 #define KEY_HOME SPECIAL_KEY | 0x47
 #define KEY_APPS SPECIAL_KEY | 0x5D
 #define KEY_ESC 0x01

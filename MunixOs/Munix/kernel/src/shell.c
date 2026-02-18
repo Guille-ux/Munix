@@ -274,7 +274,8 @@ void pop_from_buffer() {
 }
 
 void shell_update() { 
-    kprintf("\r%s %s", (const char*)shell_prompt, (const char*)shell_buffer);
+    	shell_index = 0;
+	kprintf("\r%s ", (const char*)shell_prompt);
 }
 
 #define MAX_TOKENS 64
@@ -314,14 +315,17 @@ int shellEntry() {
 	__asm__ volatile("sti"); // por si habian sido interrumpidas
 	while (1) {
 		uint16_t key = kgetchar();
-		if (key != 0) {	
+
+		if (key != 0) {		
 			if (key == '\b') {
+				if (shell_index == 0) continue;
 				uint32_t ccur = stdout_interface.get_cur_y() * max_x + stdout_interface.get_cur_x();
 				ccur--;
 				size_t tmp_x = ccur % max_x;
 				size_t tmp_y = (ccur - ( ccur % max_x)) / max_x;
 				stdout_interface.setcur(tmp_x, tmp_y);
 				stdout_interface.putchar(tmp_x, tmp_y, ' ', stdout_interface.default_color);
+				pop_from_buffer();
 				
 			} else if (key == '\n') {
 				kprintf("\n");
@@ -348,18 +352,20 @@ int shellEntry() {
 				memset(shell_buffer, 0, sizeof(char)*SHELL_BUFFER_SIZE);
 				shell_update(); // Actualizar Prompt
 			} else {
-				if (SPECIAL_KEY & key) {
+				if (SPECIAL_KEY & key || key & KEY_BREAK || key & KEY_NOT_PRINTABLE) {
 					continue;
 				}
+				push_to_buffer(key);
 				shell_putc(key);
 			}
 		}
-		__asm__ volatile("hlt"); // estado de bajo consumo 
+		//__asm__ volatile("hlt"); // estado de bajo consumo 
 	}
 	return 0;
 }
 
 void shell_putc(char c) {
+    
     size_t x = stdout_interface.get_cur_x();
     size_t y = stdout_interface.get_cur_y();
     size_t max_x = stdout_interface.get_max_x();
@@ -376,4 +382,6 @@ void shell_putc(char c) {
 
     
     stdout_interface.setcur(x, y);
+    
+    //kprintf("%c", c);
 }
