@@ -1,6 +1,9 @@
 #ifndef MUNIX_KB_HANDLER_H
 #define MUNIX_KB_HANDLER_H
 
+#include <stdint.h>
+#include <stddef.h>
+
 #define KB_BUFFER_SIZE 512
 
 extern uint16_t kb_ring_buffer[KB_BUFFER_SIZE];

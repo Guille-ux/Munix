@@ -9,7 +9,7 @@ size_t head=0;
 kb_handler_t ps2_handler;
 
 // ESTADOS INTERNOS
-char codebreak;
+char extended;
 
 const char ps2_kb_name[] = "MUNIX PS2 HANDLER";
 
@@ -29,7 +29,6 @@ void ps2_get_scancode() {
 	uint16_t final_sc = scancode | (extended << 8);
 	buffer_push(final_sc);
 	extended=0;
-	codebreak=0;
 }
 
 void buffer_push(uint16_t item) {

@@ -37,8 +37,8 @@ tar_t *scanTarFile(tar_t *tar, void *block) {
 	tar->start = block;
 	size_t p = 0;
 	while (1) {
-		tar_header_t *header = &block[p];
-		if (block[p]=='\0') {
+		tar_header_t *header = (void*)((size_t)block + p);
+		if (*(int*)header=='\n') {
 			break; // genial, llegamos al final del archivo
 		}
 		tar->n_entries++;
@@ -59,7 +59,6 @@ tar_t *scanTarFile(tar_t *tar, void *block) {
 		entries[tar->n_entries-1].gid = oct2int(header->gid, 8);
 		p += roundToBlocks(entries[tar->n_entries-1].size) + TAR_BLOCK_SIZE;
 	}
-	tar->next_addr = (void*)p;
 	tar->entries = entries;
 
 	return tar;
@@ -84,7 +83,7 @@ ntar_t *appendTarFile(ntar_t *tar, void *block, size_t uid, size_t gid, size_t m
 	}
 	tar->n_entries++;
 	// añadimos la cabecera
-	tar_header_t *header = ((size_t)tar->base+tar->size);
+	tar_header_t *header = (void*)((size_t)tar->base+tar->size);
 	memcpy(header->name, name, 100);
 	int2oct(header->mode, 8, mode);
 	int2oct(header->uid, 8, uid);
@@ -115,7 +114,7 @@ void endTarFile(ntar_t *tar) {
 tar_entry_t *findTarFile(tar_t *tar, char *name) {
 	tar_entry_t *centry;
 	for (size_t i=0;i<tar->n_entries;i++) {
-		centry = tar->entries[i];
+		centry = &tar->entries[i];
 		if (strcmp((char*)centry->base, name)==0) {
 			return centry;
 		}

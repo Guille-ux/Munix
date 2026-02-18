@@ -59,7 +59,7 @@ void isr_handler(registers_t *regs) {
         } else if (regs->int_no==33) {
             //kernel_keyboard_handler_2(); // sera sustituido por el nuevo
             // llego el momento de sustituirlo, ahora usaremos
-	    ps2_handler->getch();
+	    ps2_handler.getch();
 	    pic_eoi(1);
             return;
         }
@@ -89,19 +89,4 @@ void kernel_keyboard_handler(uint32_t *esp) {
     __asm__ volatile("sti");
 }
 */
-void kernel_keyboard_handler_2() {
-    keyboard_handler();
-    if (char_out && final_character != 0) {
-        shell_event=true;
-        //push_to_buffer(final_character);
-        /*shell_event=true;
-        shell_buffer[shell_index++]=final_character;
-        kprintf(" %s ", (const char*)shell_buffer);
-        //kprintf("%s ", (const char*)final_character);
-        */
-    } else if (scancode==special_layout.backspace) {
-        backspace=true;
-    } else if (scancode==special_layout.enter) {
-        send=true;
-    }
-}
+
