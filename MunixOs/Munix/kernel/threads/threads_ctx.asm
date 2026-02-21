@@ -8,12 +8,22 @@ save_ctx:
 
 	push esp
 
-	jmp scheduler
+	call scheduler
+	
+	pop esp
+
+	popad
+
+	ret
 
 global restore_ctx
 restore_ctx:
 	mov eax, [esp + 4]
+	
 	mov esp, eax
+	
 	sub esp, 32
+	
 	popad
+	
 	ret
