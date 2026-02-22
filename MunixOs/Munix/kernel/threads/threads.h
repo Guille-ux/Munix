@@ -49,7 +49,10 @@ extern void restore_ctx(uint32_t esp) __attribute__((cdecl));
 void scheduler(uint32_t esp) __attribute__((cdecl));
 void init_proc_list(void);
 process_t *find_free_proc(void);
+process_t *find_zombie_or_finnish(void);
 void spawn(void *(entry_point)(), void *stack_base, uint32_t stack_size);
+int get_pid(void);
+int revive(void *(entry_point)());
 
 #define yield() (save_ctx())
 

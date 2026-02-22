@@ -41,16 +41,57 @@ process_t *find_free_proc() {
 			return &proc_list[i];
 		}
 	}
+	return NULL;
 }
 
-void spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size) {
+process_t *find_zombie_or_finnish() {
+	for (int i=0;i<MAX_PROCESSES;i++) {
+		if (proc_list[i].status == STATUS_ZOMBIE ||
+		    proc_list[i].status == STATUS_FINNISH) {
+			return &proc_list[i];
+		}
+	}
+	return NULL;
+}
+
+
+int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size) {
 	process_t *newProc = find_free_proc();
+	if (!newProc) {
+		return -1;
+	}
 	newProc->status = STATUS_READY;
-	stack_base = (void*)((uint8_t)stack_base - sizeof(uint32_t));
-	*stack_base = (uint32_t)entry_point;
-	stack_base += sizeof(uint32_t);
+	*(uint32_t*)stack_base = (uint32_t)entry_point;
+	(uint32_t)stack_base -= sizeof(uint32_t);
 	newProc->thread.stack_base = stack_base;
 	newProc->thread.stack_size = stack_size;
-	newProc->thread.ctx.old_esp = (void*)((uint8_t)stack_base - sizeof(uint32_t));
+	newProc->thread.ctx.old_esp = (void*)((uint32_t)stack_base - sizeof(uint32_t));
 	newProc->thread.ctx.ebp = stack_base;
+	thread_ctx_t *initial_ctx = (void*)((uint32_t)stack_base - sizeof(thread_ctx_t)); 
+	*initial_ctx = newProc->thread.ctx;
+	return 0;
+}
+
+int get_pid(void) {
+	if (!current_proc) {
+		// ERROR!
+		// no hay un proceso actual
+		return -1;
+	}
+	return current_proc->pid;
+}
+
+int revive(void *(entry_point)()) {
+	process_t *newProc = find_zombie_or_finnish();
+	if (!newProc) {
+		return -1;
+	}
+	newProc->status = STATUS_READY;	
+	newProc->thread.stack_base = (void*)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
+	*(uint32_t*)newProc->thread.stack_base = (uint32_t)entry_point;	
+	newProc->thread.ctx.old_esp = (void*)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
+	newProc->thread.ctx.ebp = stack_base;
+	thread_ctx_t *initial_ctx = (void*)((uint32_t)newProc->thread.stack_base - sizeof(thread_ctx_t)); 
+	*initial_ctx = newProc->thread.ctx;
+	return 0;
 }
