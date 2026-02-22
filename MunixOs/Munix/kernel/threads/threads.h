@@ -53,6 +53,7 @@ process_t *find_zombie_or_finnish(void);
 void spawn(void *(entry_point)(), void *stack_base, uint32_t stack_size);
 int get_pid(void);
 int revive(void *(entry_point)());
+int kill(int pid);
 
 #define yield() (save_ctx())
 

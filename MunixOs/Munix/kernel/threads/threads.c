@@ -7,8 +7,10 @@ void scheduler(uint32_t esp) {
 	// guardar el proceso, ah si, se llamara a una función especial
 	// si el proceso acabó
 	current_proc->thread.ctx = *((void*)esp);
-	current_proc->status = STATUS_READY;
-
+	if (current_proc->status == STATUS_READY) {
+		// comprobamos, los procesos se pueden suicidar, recuerda
+		current_proc->status = STATUS_READY;
+	}
 	// buscar nuevo proceso
 	int pid=current_proc->pid;
 	process_t *newProc = NULL;
@@ -93,5 +95,21 @@ int revive(void *(entry_point)()) {
 	newProc->thread.ctx.ebp = stack_base;
 	thread_ctx_t *initial_ctx = (void*)((uint32_t)newProc->thread.stack_base - sizeof(thread_ctx_t)); 
 	*initial_ctx = newProc->thread.ctx;
+	return 0;
+}
+
+int kill(int pid) {
+	if (pid > MAX_PROCESSES) return -1;
+	if (proc_list[pid]->status == STATUS_ZOMBIE ||
+	    proc_list[pid]->status == STATUS_FINNISH) {
+		return -1; // el proceso ya estaba muerto
+	}
+
+	proc_list[pid]->status = STATUS_ZOMBIE;
+	if (pid == get_pid()) {
+		yield(); // si el proceso se suicida tenemos
+			 // q llamar al scheduler
+	}
+
 	return 0;
 }
