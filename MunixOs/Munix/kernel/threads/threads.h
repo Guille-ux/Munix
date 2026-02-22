@@ -32,6 +32,7 @@ typedef struct {
 } thread_t;
 
 typedef struct {
+	char name[16];
 	thread_t thread;
 	proc_status_t status;	
 	int pid;
@@ -50,10 +51,13 @@ void scheduler(uint32_t esp) __attribute__((cdecl));
 void init_proc_list(void);
 process_t *find_free_proc(void);
 process_t *find_zombie_or_finnish(void);
-void spawn(void *(entry_point)(), void *stack_base, uint32_t stack_size);
+void spawn(void *(entry_point)(), void *stack_base, uint32_t stack_size, char name[16]);
 int get_pid(void);
-int revive(void *(entry_point)());
+int revive(void *(entry_point)(), char name[16]);
 int kill(int pid);
+int wait(void);
+int exit(void);
+int awaken(int pid);
 
 #define yield() (save_ctx())
 

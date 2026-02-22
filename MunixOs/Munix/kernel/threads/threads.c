@@ -57,10 +57,13 @@ process_t *find_zombie_or_finnish() {
 }
 
 
-int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size) {
+int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size, char name[16]) {
 	process_t *newProc = find_free_proc();
 	if (!newProc) {
 		return -1;
+	}
+	for (int i=0;i<16;i++) {
+		newProc->name[i] = name[i];
 	}
 	newProc->status = STATUS_READY;
 	*(uint32_t*)stack_base = (uint32_t)entry_point;
@@ -83,10 +86,13 @@ int get_pid(void) {
 	return current_proc->pid;
 }
 
-int revive(void *(entry_point)()) {
+int revive(void *(entry_point)(), char name[16]) {
 	process_t *newProc = find_zombie_or_finnish();
 	if (!newProc) {
 		return -1;
+	}
+	for (int i=0;i<16;i++) {
+		newProc->name[i] = name[i];
 	}
 	newProc->status = STATUS_READY;	
 	newProc->thread.stack_base = (void*)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
@@ -110,6 +116,27 @@ int kill(int pid) {
 		yield(); // si el proceso se suicida tenemos
 			 // q llamar al scheduler
 	}
+
+	return 0;
+}
+
+int wait(void) {
+	current_proc->status = STATUS_WAITING;
+	yield();
+	return 0;
+}
+
+int exit(void) {
+	current_proc->status = STATUS_FINNISH;
+	yield();
+	return 0;
+}
+
+int awaken(int pid) {
+	if (pid > MAX_PROCESSES) return -1;
+	if (proc_list[pid]->status != STATUS_WAITING) return -1;
+
+	proc_list[pid]->status = STATUS_READY;
 
 	return 0;
 }
