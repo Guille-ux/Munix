@@ -57,14 +57,15 @@ process_t *find_zombie_or_finnish() {
 }
 
 
-int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size, char name[16]) {
+int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size, char name[MAX_NAME_LEN]) {
 	process_t *newProc = find_free_proc();
 	if (!newProc) {
 		return -1;
 	}
-	for (int i=0;i<16;i++) {
+	for (int i=0;i<MAX_NAME_LEN;i++) {
 		newProc->name[i] = name[i];
 	}
+	newProc->entry_point = entry_point;
 	newProc->status = STATUS_READY;
 	*(uint32_t*)stack_base = (uint32_t)entry_point;
 	(uint32_t)stack_base -= sizeof(uint32_t);
@@ -86,14 +87,15 @@ int get_pid(void) {
 	return current_proc->pid;
 }
 
-int revive(void *(entry_point)(), char name[16]) {
+int revive(void *(entry_point)(), char name[MAX_NAME_LEN]) {
 	process_t *newProc = find_zombie_or_finnish();
 	if (!newProc) {
 		return -1;
 	}
-	for (int i=0;i<16;i++) {
+	for (int i=0;i<MAX_NAME_LEN;i++) {
 		newProc->name[i] = name[i];
 	}
+	newProc->entry_point = entry_point;
 	newProc->status = STATUS_READY;	
 	newProc->thread.stack_base = (void*)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
 	*(uint32_t*)newProc->thread.stack_base = (uint32_t)entry_point;	
@@ -139,4 +141,17 @@ int awaken(int pid) {
 	proc_list[pid]->status = STATUS_READY;
 
 	return 0;
+}
+
+int find_proc(char name[MAX_NAME_LEN]) {
+	int i=0;
+	while (i < MAX_PROCESSES) {
+		for (int j;j<MAX_NAME_LEN) {
+			if (name[j]!=proc_list[i].name[j]) goto next;
+		}
+		return i;
+		next:
+		i++;
+	}	
+	return -1;
 }
