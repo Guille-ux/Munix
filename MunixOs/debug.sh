@@ -31,7 +31,7 @@ then
 	qemu-system-i386 -cdrom munix.iso \
 			-drive file=disk.img,format=raw,if=ide \
 			-boot d \
-			-m 128M \
+			-m 512M \
 			-serial stdio \
 			-no-reboot \
 			-s
@@ -63,7 +63,7 @@ then
 	qemu-system-i386 -cdrom munix.iso \
 			-drive file=disk.img,format=raw,if=ide \
 			-boot d \
-			-m 128M \
+			-m 512M \
 			-serial stdio \
 			-no-reboot \
 			-s \
