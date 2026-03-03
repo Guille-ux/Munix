@@ -34,7 +34,7 @@ typedef struct {
 #define MAX_NAME_LEN 16
 
 typedef struct {
-	void *(entry_point)();
+	void (*entry_point)();
 	char name[MAX_NAME_LEN];
 	thread_t thread;
 	proc_status_t status;	
@@ -54,9 +54,9 @@ void scheduler(uint32_t esp) __attribute__((cdecl));
 void init_proc_list(void);
 process_t *find_free_proc(void);
 process_t *find_zombie_or_finnish(void);
-void spawn(void *(entry_point)(), void *stack_base, uint32_t stack_size, char name[MAX_NAME_LEN]);
+int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size, char name[MAX_NAME_LEN]);
 int get_pid(void);
-int revive(void *(entry_point)(), char name[MAX_NAME_LEN]);
+int revive(void (*entry_point)(), char name[MAX_NAME_LEN]);
 int kill(int pid);
 int wait(void);
 int exit(void);

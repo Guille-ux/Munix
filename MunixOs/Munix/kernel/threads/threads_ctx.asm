@@ -1,8 +1,9 @@
-# CAMBIOS DE CONTEXTO EN ASM
-
+; CAMBIOS DE CONTEXTO EN ASM
 extern scheduler
 
 global save_ctx
+global restore_ctx
+
 save_ctx:
 	pushad ; cargamos todos los registros
 
@@ -16,7 +17,6 @@ save_ctx:
 
 	ret
 
-global restore_ctx
 restore_ctx:
 	mov eax, [esp + 4]
 	

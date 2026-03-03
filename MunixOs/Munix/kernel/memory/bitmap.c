@@ -1,6 +1,10 @@
 #include "../include/libcs2.h"
 #include "bitmap.h"
 
+// lo usare para proteger al kernel de si mismo
+extern char _kernel_start;
+extern char _kernel_end;
+
 void register_mmap_scanner(bitmap_t *bitmap, mmap_scanner scanner) {
 	if (bitmap->n_scanners < MAX_MMAP_SCANNERS) {
 		bitmap->scanners[bitmap->n_scanners++]=scanner;
@@ -114,7 +118,5 @@ void bitmap_clear_range(bitmap_t *bitmap, size_t start, size_t len) {
 void protect_bitmap(bitmap_t *bitmap) {
 	size_t start=((size_t)bitmap->bitmap_start)/bitmap->page_size;
 	size_t len=bitmap->bitmap_size/bitmap->page_size+1;
-	bitmap_set_range(bitmap, start, len);
-	bitmap_set_bit(bitmap, ((size_t)bitmap)/bitmap->page_size);
-	bitmap_set_range(bitmap, 0, 256);
+	bitmap_set_range(bitmap, (uint32_t)&_kernel_start, ((uint32_t)&_kernel_end - (uint32_t)&_kernel_start));
 }

@@ -13,12 +13,22 @@ char heap_start[ALL_SIZE];
 int mini_order = 1;
 int maxi_order = 26;
 
+extern char _bitmap_data;
+extern char _bitmap_start;
+extern char _bitmap_end;
+extern char _kernel_start;
+extern char _kernel_end;
 
-void kernel_init() { // Subrutina para inicializar cosas del kernel
+bitmap_t *bitmap = (bitmap_t*)&_bitmap_data;
+
+
+void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas del kernel
 	// Desactivar interrupciones
 	__asm__ volatile("cli");
 	
-	
+	// guardar el multiboot_info en los structs globales del OS
+	kernel_data_t *kdata = (kernel_data_t*)&_kernel_data_start;
+	kdata->mbi = mbi;
 
 	// Inicializar sistema de logs
 	void **buffer_log = (void*)log;
@@ -31,6 +41,14 @@ void kernel_init() { // Subrutina para inicializar cosas del kernel
 	stdout_init_vga();
 	enable_stdout();
 	kclear();
+
+	// inicializar bitmap y memoria
+	mb_mmap_info_t mmap_info;
+	multiboot1_build_mmap_info(&mmap_info, mbi);
+	bitmap_init(bitmap, (void*)&_bitmap_start, mbi->mem_upper, 4096);
+	register_mmap_scanner(bitmap, multiboot_mmap_scanner);
+	bitmap_scan_mmap(bitmap, &mmap_info);
+
 
 	// Inicializar la Gestión de memoria dinámica
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));

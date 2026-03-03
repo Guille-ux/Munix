@@ -6,9 +6,12 @@
 #include <stdbool.h>
 #include "../memory/bitmap.h"
 
+extern char _paging_section_start;
+extern char _paging_section_end;
+
 typedef struct {
 	uint32_t data[1024];
-} p_block_t;
+} __attribute__((aligned(4096))) p_block_t;
 
 typedef struct {
 	uint32_t present : 1;

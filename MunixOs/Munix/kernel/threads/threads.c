@@ -6,7 +6,7 @@ process_t *current_proc = NULL;
 void scheduler(uint32_t esp) {
 	// guardar el proceso, ah si, se llamara a una función especial
 	// si el proceso acabó
-	current_proc->thread.ctx = *((void*)esp);
+	current_proc->thread.ctx = *((thread_ctx_t*)esp);
 	if (current_proc->status == STATUS_READY) {
 		// comprobamos, los procesos se pueden suicidar, recuerda
 		current_proc->status = STATUS_READY;
@@ -68,11 +68,11 @@ int spawn(void (*entry_point)(), void *stack_base, uint32_t stack_size, char nam
 	newProc->entry_point = entry_point;
 	newProc->status = STATUS_READY;
 	*(uint32_t*)stack_base = (uint32_t)entry_point;
-	(uint32_t)stack_base -= sizeof(uint32_t);
+	stack_base = (void*)((uint32_t)stack_base - sizeof(uint32_t));
 	newProc->thread.stack_base = stack_base;
 	newProc->thread.stack_size = stack_size;
-	newProc->thread.ctx.old_esp = (void*)((uint32_t)stack_base - sizeof(uint32_t));
-	newProc->thread.ctx.ebp = stack_base;
+	newProc->thread.ctx.old_esp = ((uint32_t)stack_base - sizeof(uint32_t));
+	newProc->thread.ctx.ebp = (uint32_t)stack_base;
 	thread_ctx_t *initial_ctx = (void*)((uint32_t)stack_base - sizeof(thread_ctx_t)); 
 	*initial_ctx = newProc->thread.ctx;
 	return 0;
@@ -87,7 +87,7 @@ int get_pid(void) {
 	return current_proc->pid;
 }
 
-int revive(void *(entry_point)(), char name[MAX_NAME_LEN]) {
+int revive(void (*entry_point)(), char name[MAX_NAME_LEN]) {
 	process_t *newProc = find_zombie_or_finnish();
 	if (!newProc) {
 		return -1;
@@ -99,8 +99,8 @@ int revive(void *(entry_point)(), char name[MAX_NAME_LEN]) {
 	newProc->status = STATUS_READY;	
 	newProc->thread.stack_base = (void*)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
 	*(uint32_t*)newProc->thread.stack_base = (uint32_t)entry_point;	
-	newProc->thread.ctx.old_esp = (void*)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
-	newProc->thread.ctx.ebp = stack_base;
+	newProc->thread.ctx.old_esp = (uint32_t)((uint32_t)newProc->thread.stack_base - sizeof(uint32_t));
+	newProc->thread.ctx.ebp = (uint32_t)newProc->thread.stack_base;
 	thread_ctx_t *initial_ctx = (void*)((uint32_t)newProc->thread.stack_base - sizeof(thread_ctx_t)); 
 	*initial_ctx = newProc->thread.ctx;
 	return 0;
@@ -108,12 +108,12 @@ int revive(void *(entry_point)(), char name[MAX_NAME_LEN]) {
 
 int kill(int pid) {
 	if (pid > MAX_PROCESSES) return -1;
-	if (proc_list[pid]->status == STATUS_ZOMBIE ||
-	    proc_list[pid]->status == STATUS_FINNISH) {
+	if (proc_list[pid].status == STATUS_ZOMBIE ||
+	    proc_list[pid].status == STATUS_FINNISH) {
 		return -1; // el proceso ya estaba muerto
 	}
 
-	proc_list[pid]->status = STATUS_ZOMBIE;
+	proc_list[pid].status = STATUS_ZOMBIE;
 	if (pid == get_pid()) {
 		yield(); // si el proceso se suicida tenemos
 			 // q llamar al scheduler
@@ -136,9 +136,9 @@ int exit(void) {
 
 int awaken(int pid) {
 	if (pid > MAX_PROCESSES) return -1;
-	if (proc_list[pid]->status != STATUS_WAITING) return -1;
+	if (proc_list[pid].status != STATUS_WAITING) return -1;
 
-	proc_list[pid]->status = STATUS_READY;
+	proc_list[pid].status = STATUS_READY;
 
 	return 0;
 }
@@ -146,7 +146,7 @@ int awaken(int pid) {
 int find_proc(char name[MAX_NAME_LEN]) {
 	int i=0;
 	while (i < MAX_PROCESSES) {
-		for (int j;j<MAX_NAME_LEN) {
+		for (int j;j<MAX_NAME_LEN;j++) {
 			if (name[j]!=proc_list[i].name[j]) goto next;
 		}
 		return i;

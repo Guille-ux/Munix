@@ -1,5 +1,6 @@
 #include "multiboot_mmap.h"
 #include "multiboot_def.h"
+#include "../include/libcs2.h"
 
 bool multiboot_mmap_scanner(bitmap_t *bitmap, void *multiboot_info) {
 	mb_mmap_info_t *mb = (mb_mmap_info_t*)multiboot_info;
@@ -8,20 +9,38 @@ bool multiboot_mmap_scanner(bitmap_t *bitmap, void *multiboot_info) {
 
 	if (mb->signature!=MB_MMAP_SCANNER_SIGNATURE) return false;
 	
-	bitmap_set_range(bitmap, 0, bitmap->bitmap_size*8);
+	bitmap_clear_range(bitmap, 0, bitmap->bitmap_size*8);
 	size_t mmap_end = (size_t)(mb->mmap_addr + mb->mmap_len);
 
 	while (mmap_addr < mmap_end) {
 		
-		if (mmap_addr->type != MULTIBOOT_MEM_AVAILABLE) {
-			size_t size_of_section = mmap_addr->length;
-			size_t addr_of_section = mmap_addr->base_addr;
+		size_t size_of_section = mmap_addr->length;
+		size_t addr_of_section = mmap_addr->base_addr;
 
-			size_t section_n_entries = size_of_section / bitmap->page_size;
-			size_t section_index = addr_of_section / bitmap->page_size;
+		size_t section_n_entries = size_of_section / bitmap->page_size;
+		size_t section_index = addr_of_section / bitmap->page_size;
+		if (mmap_addr->type == MULTIBOOT_MEM_AVAILABLE) {	
+			kprintf("[USABLE REGION FOUND]\n");
+			kprintf("[Addr : %p | Size %lu]\n", addr_of_section, size_of_section);
 			bitmap_clear_range(bitmap, section_index, section_n_entries);
+		} else if (mmap_addr->type == MULTIBOOT_MEM_RESERVED) {
+			kprintf("[RESERVED REGION FOUND]\n");
+			kprintf("[Addr : %p | Size %lu]\n", addr_of_section, size_of_section);
+			bitmap_set_range(bitmap, section_index, section_n_entries);
+		} else if (mmap_addr->type == MULTIBOOT_MEM_ACPI_RECLAIMABLE) {
+			kprintf("[ACPI RECLAIMABLE REGION FOUND]\n");
+			kprintf("[Addr : %p | Size %lu]\n", addr_of_section, size_of_section);
+			bitmap_set_range(bitmap, section_index, section_n_entries);
+		} else if (mmap_addr->type == MULTIBOOT_MEM_NVS) {
+			kprintf("[NON-VOLATILE STORAGE REGION FOUND]\n");
+			kprintf("[Addr : %p | Size %lu]\n", addr_of_section, size_of_section);
+			bitmap_set_range(bitmap, section_index, section_n_entries);
+		} else if (mmap_addr->type == MULTIBOOT_MEM_BADRAM) {
+			kprintf("[BADRAM REGION FOUND]\n");
+			kprintf("[Addr : %p | Size %lu]\n", addr_of_section, size_of_section);
+			bitmap_set_range(bitmap, section_index, section_n_entries);
 		}
-		mmap_addr = (multiboot_mem_map_t*)(mmap_addr->size + (size_t)mmap_addr + sizeof(mmap_addr->size));
+		mmap_addr = (multiboot_mem_map_t*)(mmap_addr->size + (uintptr_t)mmap_addr + sizeof(mmap_addr->size));
 	}
 
 	return true;

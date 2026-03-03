@@ -30,6 +30,12 @@
 #include "../memory/bitmap.h"
 #include "../handlers/kb_handler.h"
 #include "../keyboard/keyboard.h"
+#include "../multiboot/multiboot_mmap.h"
+#include "../threads/threads.h"
+#include "../fs/fs.h"
+#include "../fs/ifat.h"
+#include "../fs/mfs.h"
+#include "../include/kinfo.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512
