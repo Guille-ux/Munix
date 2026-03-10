@@ -36,6 +36,7 @@
 #include "../fs/ifat.h"
 #include "../fs/mfs.h"
 #include "../include/kinfo.h"
+#include "../include/tss.h"
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512

@@ -60,7 +60,9 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 	// Inicializar GDT y IDT
 
 	gdt_init(); // Cargar tabla de descriptores globales (GDT init)
-	
+	init_tss(); // despues de inicializar la GDT tenemos q preparar
+		    // el task state segment
+
 	idt_init();     // inicializar la interrupt descriptor table
 			// remapea PIC a offsets 0x20 y 0x28 (IDT init)
 	

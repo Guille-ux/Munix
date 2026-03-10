@@ -41,7 +41,8 @@ void kernel_main(uint32_t magic, multiboot_info_t *mbi) __attribute__((cdecl));
 
 void kernel_main(uint32_t magic, multiboot_info_t *mbi) {
 	kernel_init(mbi); // para poder debuggear con kprintf
-	munix_paging();
+	// munix_paging(); voy a abandonar la paginación
+	// para ir a x la segmentación
 	kprintf("Magic Number: %p \n", magic);
 	kprintf("Upper Memory: %lu\n", mbi->mem_upper);
 	//kprintf("Page Dir Addr: %p\n", page_dir);

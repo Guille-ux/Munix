@@ -22,6 +22,8 @@ void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_
 	gdt_table[num].access = access;
 }
 
+extern char _kernel_tss_segment;
+
 void gdt_init(void) {
 	kprintf("Adding GDT Entries...\n");
 	gdt_ptr.limit = (sizeof(GDT_Entry)*GDT_LEN)-1;
@@ -36,6 +38,9 @@ void gdt_init(void) {
 
 	gdt_set_gate(2, 0x0, 0xFFFFFFFF, 0x92, 0xCF);
 	kprintf("Kernel Data Descriptor Added\n");
+
+	gdt_set_gate(3, &_kernel_tss_segment, 1023, 0x89, 0x00);
+	kprintf("Kernel Task State Segment Descriptor Added\n");
 
 	gdt_flush();
 

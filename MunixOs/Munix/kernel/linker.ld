@@ -24,6 +24,11 @@ SECTIONS
 	.info BLOCK(4K) : ALIGN(4K) {
 		_kernel_data_start = .;
 		. = . + 64K;
+		_kernel_tss_segment = .;
+		. = . + 1K;
+		_kernel_tss_stack_bottom = .;
+		. = . + 4K;
+		_kernel_tss_stack_top = .;
 		_kernel_data_end = .;
 	}
 
