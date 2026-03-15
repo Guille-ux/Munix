@@ -7,6 +7,18 @@ static GDT_Entry gdt_table[GDT_LEN];
 
 GDT_Pointer gdt_ptr;
 
+void ch_gate_addr(int num, uint32_t base, uint32_t limit) {
+	gdt_table[num].base_low = (base & 0xFFFF);
+	gdt_table[num].base_middle = (base >> 16) & 0xFF;
+	gdt_table[num].base_high = (base >> 24) & 0xFF;
+
+	gdt_table[num].limit_low = (limit & 0xFFFF);
+	
+	gdt_table[num].granularity &= 0xF0;
+
+	gdt_table[num].granularity |= ((limit >> 16) & 0x0F);	
+}
+
 void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran) {
 	// GDT Table
 	gdt_table[num].base_low = (base & 0xFFFF);

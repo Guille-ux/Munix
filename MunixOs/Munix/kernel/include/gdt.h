@@ -21,6 +21,11 @@ typedef struct {
 void gdt_init(void);
 void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran);
 
+void ch_gate_addr(int num, uint32_t base, uint32_t limit);
+
+extern load_segment(uint32_t csel, uint32_t dsel) __attribute__((cdecl));
+extern reload_segment(void);
+
 extern void gdt_flush(void);
 
 #endif
