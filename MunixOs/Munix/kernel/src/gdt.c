@@ -35,6 +35,7 @@ void gdt_set_gate(int num, uint32_t base, uint32_t limit, uint8_t access, uint8_
 }
 
 extern char _kernel_tss_segment;
+extern char _kernel_end;
 
 void gdt_init(void) {
 	kprintf("Adding GDT Entries...\n");
@@ -53,6 +54,12 @@ void gdt_init(void) {
 
 	gdt_set_gate(3, &_kernel_tss_segment, 1023, 0x89, 0x00);
 	kprintf("Kernel Task State Segment Descriptor Added\n");
+
+	gdt_set_gate(4, &_kernel_end, 0xFFFFFFFF, 0b11111010, 0b11000000);
+	kprintf("User Code Descriptor Added\n");
+
+	gdt_set_gate(5, &_kernel_end, 0xFFFFFFFF, 0b11110010, 0b11000000);
+	kprintf("User Data Descriptor Added\n");
 
 	gdt_flush();
 

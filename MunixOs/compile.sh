@@ -24,6 +24,12 @@ nasm -f elf32 -o isr_stubs.o asm/isr_stubs.asm
 nasm -f elf32 -o gdt_load.o asm/gdt.asm
 nasm -f elf32 -o start.o start.asm
 nasm -f elf32 -o tss_awake.o asm/tss_awake.asm
+cd munx
+gcc ${CFLAGS} -c *.c
+cd ..
+cd tasks
+gcc ${CFLAGS} -c *.c
+cd ..
 cd threads
 gcc ${CFLAGS} -c *.c
 cd ..
@@ -98,6 +104,6 @@ gcc ${CFLAGS} -c -o kernel.o kernel.c
 gcc ${CFLAGS} -c -o memory.o src/memory.c
 gcc ${CFLAGS} -c -o ksysarena.o src/sysarena.c
 gcc ${CFLAGS} -c -o handler.o src/handler.c
-i386-elf-ld  -Tlinker.ld -g -o kernel.ELF tss_awake.o tss.o threads/*.o keyboard/*.o handlers/*.o tar/*.o math/*.o memory/*.o multiboot/*.o paging/*.o handler.o fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o start.o -L../../libs -lcs2 -lmunixcc -lmlink -lminiasm #-lzynk
+i386-elf-ld  -Tlinker.ld -g -o kernel.ELF tasks/*.o munx/*.o tss_awake.o tss.o threads/*.o keyboard/*.o handlers/*.o tar/*.o math/*.o memory/*.o multiboot/*.o paging/*.o handler.o fs/*.o init/*.o pci/*.o partitions/*.o disk/*.o buddy.o minim/*.o mbash/*.o shell.o timer.o ksysarena.o pic.o memory.o isr.o gdt_load.o gdt.o isr_stubs.o idt_load.o idt.o kernel.o start.o -L../../libs -lcs2 -lmunixcc -lmlink -lminiasm #-lzynk
 cd ../..
 grub-mkrescue -o munix.iso Munix
