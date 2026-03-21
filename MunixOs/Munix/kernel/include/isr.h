@@ -3,6 +3,7 @@
 
 #include "auto-generated-isr.h"
 #include <stdint.h>
+#include "../tasks/tasks.h"
 
 typedef struct {
     uint32_t gs;
@@ -38,7 +39,7 @@ typedef struct {
 	typedef registers_t_32bit registers_t;
 #endif
 
-void isr_handler(registers_t *regs);
+register_t *isr_handler(registers_t *regs);
 /*
 void kernel_keyboard_handler(uint32_t *esp);
 */

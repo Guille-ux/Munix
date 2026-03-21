@@ -37,6 +37,10 @@
 #include "../fs/mfs.h"
 #include "../include/kinfo.h"
 #include "../include/tss.h"
+#include "../tasks/tasks.h"
+
+#define KERNEL_NIBTC 2 // teniendo en cuenta la frecuencia del reloj
+		       // seria cambiar de tarea cada 20 ms
 
 #define MAX_LOG_LEN 33
 #define MAX_LOGS 512

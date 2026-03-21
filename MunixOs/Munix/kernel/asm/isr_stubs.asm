@@ -87,8 +87,9 @@ isr_common_stub:
 	push esp
 
 	call isr_handler
-
-	add esp, 4 ; descartar el valor de esp_dummy
+	; la linea comentada ya no es necesaria desde la multitarea
+	; add esp, 4 ; descartar el valor de esp_dummy
+	mov esp, eax
 
 	pop gs
 	pop fs

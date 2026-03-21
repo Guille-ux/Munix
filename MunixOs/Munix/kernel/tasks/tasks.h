@@ -3,6 +3,18 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h> 
+
+typedef struct {
+	bool is_enabled; // el reloj necesita saber como va
+	int current_count; // interrupciones de reloj desde
+			   // q se hizo el último cambio de tarea
+	int nibtc; // nº de interrupciones de reloj antes
+			// de volver a hacer un cambio de tarea
+} multitask_clock_t; // es una estructura con estados del multitask
+		     // necesarios para el reloj
+
+extern multitask_clock_t clock_task;
 
 typedef enum {
 	TASK_RUNNING,
@@ -37,5 +49,16 @@ typedef struct {
 	scheduler_map_entry_t *map_start;
 } scheduler_map_t; // es un mapa para q el scheduler sepa q puede asignar
 		   // y q no de memoria.
+
+void initClockTask(int nibtc); 
+// nibtc == Number of Interrupts Before Task Change
+
+inline void enableClockTask() {
+	clock_task.is_enabled = true;
+}
+
+inline void disableClockTask() {
+	clock_task.is_enabled = false;
+}
 
 #endif

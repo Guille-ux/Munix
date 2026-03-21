@@ -63,6 +63,8 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 	init_tss(); // despues de inicializar la GDT tenemos q preparar
 		    // el task state segment
 
+	initClockTask(KERNEL_NIBTC); // antes de activar las interrupciones toca evitar q por accidente el reloj pueda creer q el multitask ya estaba activado
+
 	idt_init();     // inicializar la interrupt descriptor table
 			// remapea PIC a offsets 0x20 y 0x28 (IDT init)
 	

@@ -42,7 +42,7 @@ const char *exception_messages[] = {
 
 
 
-void isr_handler(registers_t *regs) {
+register_t *isr_handler(registers_t *regs) {
 	//kprintf("Interrupt, Number -> %d \n", (int)regs->int_no);
 	if (regs->int_no < 32) {
         kprintf("\n-> FATAL ERROR: %s \n\t -> Int Number : %d \n", (const char*)exception_messages[regs->int_no], regs->int_no);
@@ -53,17 +53,21 @@ void isr_handler(registers_t *regs) {
 		// 2 opciones, halt o añadirlo al log e ignorarlo, yo lo ignoro
 	}  else if (regs->int_no > 31 && regs->int_no < 48) { // lo hare con otros handlers especiales
 		if (regs->int_no==32) {
-            timer_handler_2();
-            pic_eoi(0);
-            return;
-        } else if (regs->int_no==33) {
-            //kernel_keyboard_handler_2(); // sera sustituido por el nuevo
-            // llego el momento de sustituirlo, ahora usaremos
-	    ps2_handler.getch();
-	    pic_eoi(1);
-            return;
-        }
+			timer_handler_2();
+			if (clock_task.is_enabled) {
+				// si la multitarea esta activada...
+			}
+			pic_eoi(0);
+			return regs;
+        	} else if (regs->int_no==33) {
+			//kernel_keyboard_handler_2(); // sera sustituido por el nuevo
+			// llego el momento de sustituirlo, ahora usaremos
+			ps2_handler.getch();
+			pic_eoi(1);
+	        	return regs;
+        	}
 	}
+	return regs;
 }
 
 
