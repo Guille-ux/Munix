@@ -39,7 +39,7 @@ typedef struct {
 	typedef registers_t_32bit registers_t;
 #endif
 
-register_t *isr_handler(registers_t *regs);
+register_t *isr_handler(registers_t *regs) __attribute__((cdecl));
 /*
 void kernel_keyboard_handler(uint32_t *esp);
 */
