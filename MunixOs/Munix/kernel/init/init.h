@@ -57,7 +57,7 @@ extern char heap_start[ALL_SIZE];
 extern int mini_order; 
 extern int maxi_order;
 
-void kernel_init();
+void kernel_init(multiboot_info_t *mbi);
 void init_disk_subsystem();
 void scanByDetectedDisks();
 

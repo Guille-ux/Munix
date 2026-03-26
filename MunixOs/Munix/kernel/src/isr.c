@@ -42,7 +42,7 @@ const char *exception_messages[] = {
 
 
 
-register_t *isr_handler(registers_t *regs) {
+registers_t *isr_handler(registers_t *regs) {
 	//kprintf("Interrupt, Number -> %d \n", (int)regs->int_no);
 	if (regs->int_no < 32) {
         kprintf("\n-> FATAL ERROR: %s \n\t -> Int Number : %d \n", (const char*)exception_messages[regs->int_no], regs->int_no);
