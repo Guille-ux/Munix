@@ -62,7 +62,6 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 	// Inicializar GDT y IDT
 
 	gdt_init(); // Cargar tabla de descriptores globales (GDT init)
-	__asm__ volatile("cli");
 	init_tss(); // despues de inicializar la GDT tenemos q preparar
 		    // el task state segment
 	kprintf("it's working!\n");

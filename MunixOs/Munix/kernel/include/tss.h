@@ -43,7 +43,7 @@ typedef struct {
 	uint16_t reserved_10;
 	uint16_t reserved_11;
 	uint16_t iopb;
-	uint32_t ssp;
+	//uint32_t ssp;
 } __attribute__((packed)) tss_t;
 
 
