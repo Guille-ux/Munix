@@ -118,5 +118,5 @@ void bitmap_clear_range(bitmap_t *bitmap, size_t start, size_t len) {
 void protect_bitmap(bitmap_t *bitmap) {
 	size_t start=((size_t)&_kernel_start)/bitmap->page_size+1;
 	size_t len=((size_t)&_kernel_end - (size_t)&_kernel_start)/bitmap->page_size+1;
-	bitmap_set_range(bitmap, , );
+	bitmap_set_range(bitmap, start, len);
 }
