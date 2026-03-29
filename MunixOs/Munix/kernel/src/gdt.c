@@ -52,13 +52,13 @@ void gdt_init(void) {
 	gdt_set_gate(2, 0x0, 0xFFFFFFFF, 0x92, 0xCF);
 	kprintf("Kernel Data Descriptor Added\n");
 
-	gdt_set_gate(3, &_kernel_tss_segment, 1023, 0x89, 0x00);
+	gdt_set_gate(3, (uint32_t)&_kernel_tss_segment, 1023, 0x89, 0x00);
 	kprintf("Kernel Task State Segment Descriptor Added\n");
 
-	gdt_set_gate(4, &_kernel_end, 0xFFFFFFFF, 0b11111010, 0b11000000);
+	gdt_set_gate(4, (uint32_t)&_kernel_end, 0xFFFFFFFF, 0b11111010, 0b11000000);
 	kprintf("User Code Descriptor Added\n");
 
-	gdt_set_gate(5, &_kernel_end, 0xFFFFFFFF, 0b11110010, 0b11000000);
+	gdt_set_gate(5, (uint32_t)&_kernel_end, 0xFFFFFFFF, 0b11110010, 0b11000000);
 	kprintf("User Data Descriptor Added\n");
 
 	gdt_flush();

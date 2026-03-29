@@ -48,6 +48,8 @@
 #define N_HANDLES 10
 extern handle_t kernel_handles[N_HANDLES];
 
+extern bitmap_t *bitmap;
+
 extern char *log[MAX_LOGS];
 #define ALL_SIZE 1024*1024*64  // 64MB heap size
 

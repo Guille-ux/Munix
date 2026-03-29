@@ -10,8 +10,6 @@ global gdt_flush
 global reload_segment
 global load_segment
 
-segment dw 0
-
 gdt_flush:
 	lgdt [gdt_ptr]
 
@@ -28,11 +26,10 @@ flush_cs:
 	ret
 
 reload_segment:
-	mov [segment], cs
+	push load_selectors
+	push cs
 
-	jmp [segment]:reload_selectors
-
-	ret
+	retf
 
 reload_selectors:
 	mov ax, ds
@@ -46,14 +43,14 @@ reload_selectors:
 	ret
 
 load_segment:
-	mov [segment], [esp + 4]
+	push [esp + 8]
+	push load_selectors
+	push [esp + 12]
 
-	jmp [segment]:load_selectors
-
-	ret
+	retf
 
 load_selectors:
-	mov ax, [esp + 8]
+	pop ax
 
 	mov ds, ax
 	mov es, ax

@@ -23,8 +23,6 @@ extern char _bitmap_start;
 extern char _kernel_start;
 extern char _kernel_end;
 
-bitmap_t *bitmap=(bitmap_t*)(&_bitmap_data);
-
 pd32_entry_t *page_dir;
 p_block_t block __attribute__((aligned(4096), section(".pgtable")));
 

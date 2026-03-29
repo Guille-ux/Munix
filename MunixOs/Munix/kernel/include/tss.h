@@ -1,6 +1,9 @@
 #ifndef MUNIXOS_TSS_H
 #define MUNIXOS_TSS_H
 
+#include <stdint.h>
+#include "libcs2.h"
+
 typedef struct {
 	uint16_t link;
 	uint16_t reserved_0;
