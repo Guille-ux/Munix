@@ -49,7 +49,8 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 	register_mmap_scanner(bitmap, multiboot_mmap_scanner);
 	bitmap_scan_mmap(bitmap, &mmap_info);
 
-
+	kprintf("it's working!\n");
+	while (1);
 	// Inicializar la Gestión de memoria dinámica
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
