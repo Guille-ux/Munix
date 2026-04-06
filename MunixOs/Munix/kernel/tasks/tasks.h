@@ -55,6 +55,7 @@ typedef struct {
 
 typedef struct {
 	scheduler_map_t *scheduler_map;
+	
 } scheduler_t;
 
 void initClockTask(int nibtc); 

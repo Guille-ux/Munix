@@ -5,6 +5,8 @@
 extern char _kernel_start;
 extern char _kernel_end;
 
+uint32_t last_allocated=0;
+
 void register_mmap_scanner(bitmap_t *bitmap, mmap_scanner scanner) {
 	if (bitmap->n_scanners < MAX_MMAP_SCANNERS) {
 		bitmap->scanners[bitmap->n_scanners++]=scanner;
@@ -119,4 +121,41 @@ void protect_bitmap(bitmap_t *bitmap) {
 	size_t start=((size_t)&_kernel_start)/bitmap->page_size+1;
 	size_t len=((size_t)&_kernel_end - (size_t)&_kernel_start)/bitmap->page_size+1;
 	bitmap_set_range(bitmap, start, len);
+}
+
+
+
+void *bitmap_malloc(bitmap_t *bitmap, size_t n) {
+	size_t n_entries = bitmap->bitmap_size*8;
+	size_t index = 0;
+	bool found = false;
+	for (size_t i=last_allocated+1;i!=last_allocated; (i+=1) % n_entries) {
+		if (*((uint32_t*)(size_t)bitmap->bitmap_start+i/8) == 0xFFFFFFFF) {
+			i += 7;
+			continue;
+		}
+		if (get_bit(bitmap, i) == 0) {
+			index = i;
+			for (int j=i;j < n+i;j++) {
+				if (j >= n_entries) {
+					i = 0;
+					break;
+				}
+				if (get_bit(bitmap, j)==1) {
+					i = j+1;
+					break;
+				}
+			}
+			if (index == i) { // si i no cambio entonces == index
+				found=true;
+				bitmap_set_range(bitmap, index, n);
+				break;
+			}
+		}
+	}
+	if (!found) return NULL;
+	
+	last_allocated = index;
+
+	return (void*)(index*bitmap->page_size);
 }

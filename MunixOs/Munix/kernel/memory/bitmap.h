@@ -24,6 +24,7 @@ typedef struct bitmap_mng {
 bool bitmap_init(bitmap_t *bitmap, void *bitmap_start, size_t memory_amount, size_t page_size);
 
 void *bitmap_alloc(bitmap_t *bitmap);
+void *bitmap_malloc(bitmap_t *bitmap, size_t n);
 void bitmap_free(bitmap_t *bitmap, void *page);
 
 void register_mmap_scanner(bitmap_t *bitmap, mmap_scanner scanner);
