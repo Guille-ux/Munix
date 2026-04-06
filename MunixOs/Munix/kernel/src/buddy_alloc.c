@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+/*
 static char *heap_base=NULL;
 static size_t heap_total_size=0;
 static int max_order=0;
@@ -12,6 +13,10 @@ static int min_order=0;
 static int num_orders=0;
 
 static free_node **free_list=NULL;
+*/
+
+
+meta_bud_t *current_buddy;
 
 typedef struct block_header {
     int order;
@@ -36,8 +41,8 @@ static int size2order(size_t size) {
         
     size_t requested_total_size = size + sizeof(block_header);
         
-    if (requested_total_size <= (1 << min_order)) {
-        return min_order;
+    if (requested_total_size <= (1 << current_buddy->min_order)) {
+        return current_buddy->min_order;
     }
         
     int order = log2_int(requested_total_size);
@@ -45,7 +50,7 @@ static int size2order(size_t size) {
         order++;
     }
         
-    if (order > max_order) return -1;
+    if (order > current_buddy->max_order) return -1;
         
     return order;
 }
@@ -55,34 +60,34 @@ void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_no
         kprintf("Err -> Invalid heap parameters\n");
         return;
     }
-    heap_base = (char*)heap_start;
-    heap_total_size = heap_size;
+    current_buddy->heap_base = (char*)heap_start;
+    current_buddy->heap_total_size = heap_size;
 
-    max_order = log2_int(heap_size);
-    if (max_order == -1 || max_order < min_block_order) {
+    current_buddy->max_order = log2_int(heap_size);
+    if (current_buddy->max_order == -1 || current_buddy->max_order < min_block_order) {
         kprintf("Err -> heap size %d is to small\n", (int)heap_size);
-        heap_base = NULL;
+        current_buddy->heap_base = NULL;
         return;
     }
-    min_order = min_block_order;
-    num_orders = max_order - min_order + 1;
+    current_buddy->min_order = min_block_order;
+    current_buddy->num_orders = max_order - current_buddy->min_order + 1;
     /* Esto solo se uso para solucionar errores
     kprintf("Num Orders: %d\n", (int)num_orders);
     kprintf("Max Order: %d\n", (int)max_order);
     kprintf("Min Order: %d\n", (int)min_order);   
     kprintf("Available Memory: %d\n", (int)heap_size);
     */
-    free_list = *new_free_list;
-    for (int i=0;i<num_orders;i++) {
-        free_list[i]=NULL;
+    current_buddy->free_list = *new_free_list;
+    for (int i=0;i<current_buddy->num_orders;i++) {
+        current_buddy->free_list[i]=NULL;
     }
 
-    free_node *initial_block = (free_node *)heap_base;
+    free_node *initial_block = (free_node *)current_buddy->heap_base;
     initial_block->next = NULL;
 
-    int initial_idx = max_order - min_order;
-    free_list[initial_idx]=initial_block;
-    kprintf("Buddy allocator initialized!\n");
+    int initial_idx = current_buddy->max_order - current_buddy->min_order;
+    current_buddy->free_list[initial_idx]=initial_block;
+    //kprintf("Buddy allocator initialized!\n");
 }
 
 void *buddy_malloc(size_t size) {
@@ -91,15 +96,15 @@ void *buddy_malloc(size_t size) {
 
     int target_order = size2order(alloc_size);
 
-    if (target_order == -1 || target_order > max_order) {
+    if (target_order == -1 || target_order > current_buddy->max_order) {
         kprintf("Err -> Invalid Order\n");
         return NULL;
     }
 
-    int clist_idx = target_order - min_order;
+    int clist_idx = target_order - current_buddy->min_order;
     int found_order = -1; // -1 por defector por si hay un error
-    for (int i=clist_idx;i<num_orders;i++) {
-        if (free_list[i]!=NULL) {
+    for (int i=clist_idx;i<current_buddy->num_orders;i++) {
+        if (current_buddy->free_list[i]!=NULL) {
             found_order = i;
             break;
         }
@@ -110,10 +115,10 @@ void *buddy_malloc(size_t size) {
         return NULL;
     }
 
-    free_node *to_alloc=free_list[found_order];
-    free_list[found_order]=to_alloc->next;
+    free_node *to_alloc=current_buddy->free_list[found_order];
+    current_buddy->free_list[found_order]=to_alloc->next;
 
-    int real_order = found_order + min_order;
+    int real_order = found_order + current_buddy->min_order;
 
     while (real_order > target_order) {
         real_order--;
@@ -122,8 +127,8 @@ void *buddy_malloc(size_t size) {
         void *new_buddy = (void*)((char*)to_alloc + new_size);
         
         free_node *buddy_node=(free_node*)new_buddy;
-        buddy_node->next = free_list[real_order - min_order];
-        free_list[real_order - min_order] = buddy_node;
+        buddy_node->next = current_buddy->free_list[real_order - current_buddy->min_order];
+        current_buddy->free_list[real_order - current_buddy->min_order] = buddy_node;
     }
     //kprintf("Malloc -> Real Order : %d, target order : %d\n", (int)real_order, (int)target_order);
 
@@ -158,26 +163,26 @@ void buddy_free(void *block) {
     int order = header->order;
     void *block_addr = (void*)header;
 
-    if (order > max_order || order < min_order) {
+    if (order > current_buddy->max_order || order < current_buddy->min_order) {
         kprintf("Free Err -> Illegal order %d (min %d, max %d)!\n", 
-               order, min_order, max_order);
+               order, current_buddy->min_order, current_buddy->max_order);
         return;
     }
 
     // Validación extensiva de dirección
     size_t block_size = (1 << order);
-    if ((char*)block_addr < heap_base || 
-        (char*)block_addr >= heap_base + heap_total_size ||
-        ((size_t)block_addr - (size_t)heap_base) % block_size != 0) {
+    if ((char*)block_addr < current_buddy->heap_base || 
+        (char*)block_addr >= current_buddy->heap_base + current_buddy->heap_total_size ||
+        ((size_t)block_addr - (size_t)current_buddy->heap_base) % block_size != 0) {
         kprintf("Free Err -> Illegal Address %d (heap: %d - %d) size: %d!\n",
-               (int)block_addr, (int)heap_base, (int)(heap_base + heap_total_size), block_size);
+               (int)block_addr, (int)current_buddy->heap_base, (int)(current_buddy->heap_base + current_buddy->heap_total_size), block_size);
         return;
     }    
 
     while (order < max_order) {
         void *buddy_addr = getBuddyAddr(block_addr, order);
-        int clist_idx = order - min_order;
-        free_node **current = &free_list[clist_idx];
+        int clist_idx = order - current_buddy->min_order;
+        free_node **current = &current_buddy->free_list[clist_idx];
         bool found_and_free=false;
         while (*current != NULL) {
             if ((void*)*current == buddy_addr) {
@@ -196,7 +201,7 @@ void buddy_free(void *block) {
         }
     }
     free_node *new_free_node=(free_node*)block_addr;
-    int flist_idx = order - min_order;
-    new_free_node->next = free_list[flist_idx];
-    free_list[flist_idx]=new_free_node;
+    int flist_idx = order - current_buddy->min_order;
+    new_free_node->next = current_buddy->free_list[flist_idx];
+    current_buddy->free_list[flist_idx]=new_free_node;
 }

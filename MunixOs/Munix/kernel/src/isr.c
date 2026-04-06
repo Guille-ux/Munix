@@ -56,6 +56,7 @@ registers_t *isr_handler(registers_t *regs) {
 			timer_handler_2();
 			if (clock_task.is_enabled) {
 				// si la multitarea esta activada...
+				// aqui llamaremos al scheduler
 			}
 			pic_eoi(0);
 			return regs;

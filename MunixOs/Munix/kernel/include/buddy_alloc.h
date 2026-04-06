@@ -19,9 +19,20 @@
 #endif
 */
 
+
+
 typedef struct free_node {
     struct free_node *next;
 } free_node;
+
+typedef struct {
+	char *heap_base;
+	size_t heap_total_size;
+	int max_order;
+	int min_order;
+	int num_orders;
+	free_node **free_list;
+} meta_bud_t;
 
 void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_node ***new_free_list);
 void *buddy_malloc(size_t size) __attribute__((malloc));

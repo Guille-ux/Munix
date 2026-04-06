@@ -6,12 +6,14 @@ handle_t kernel_handles[N_HANDLES];
 // para stdlog
 char *log[MAX_LOGS];
 
+extern char kernel_heap;
+
 // para malloc y free
 free_node *my_free_list[64];
 size_t size=ALL_SIZE;
-char heap_start[ALL_SIZE];
+char *heap_start = &_kernel_heap;
 int mini_order = 1;
-int maxi_order = 26;
+int maxi_order = 22;
 
 extern char _bitmap_data;
 extern char _bitmap_start;
@@ -53,7 +55,10 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 	// Inicializar la Gestión de memoria dinámica
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
-	
+	kprintf("Cleaning Buddy Heap...\n");
+	memset(&_kernel_heap, 0, ALL_SIZE);
+	kprintf("Buddy Allocator Ready!\n");
+
 	
 	// inicializar gestión de handles
 	register_handle_chain(kernel_handles, N_HANDLES);

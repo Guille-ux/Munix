@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h> 
+#include "../include/libcs2.h"
+#include "../include/isr.h"
 
 typedef struct {
 	bool is_enabled; // el reloj necesita saber como va
@@ -27,7 +29,8 @@ typedef enum {
 struct scheduler_map_entry;
 
 typedef struct {
-	uint32_t esp;
+	char *name;
+	registers_t registers;
 	uint32_t stack_base;
 	struct scheduler_map_entry *memory;
 	int pid;
@@ -49,6 +52,10 @@ typedef struct {
 	scheduler_map_entry_t *map_start;
 } scheduler_map_t; // es un mapa para q el scheduler sepa q puede asignar
 		   // y q no de memoria.
+
+typedef struct {
+	scheduler_map_t *scheduler_map;
+} scheduler_t;
 
 void initClockTask(int nibtc); 
 // nibtc == Number of Interrupts Before Task Change
