@@ -38,9 +38,9 @@ SECTIONS
 	.data BLOCK(16K) : ALIGN(4K) {
 		*(.data)
 	}
-	.bss BLOCK(5M) : ALIGN(4K) {
+	.bss BLOCK(4M) : ALIGN(4K) {
 		_kernel_heap = .;
-		. = . + 4M;
+		. = . + 8M;
 		*(.bss)
 		*(COMMON)
 	}

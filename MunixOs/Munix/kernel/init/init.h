@@ -51,7 +51,7 @@ extern handle_t kernel_handles[N_HANDLES];
 extern bitmap_t *bitmap;
 
 extern char *log[MAX_LOGS];
-#define ALL_SIZE 1024*1024*4  // 4MB heap size
+#define ALL_SIZE 1024*1024*8  // 4MB heap size
 
 extern free_node *my_free_list[64];
 extern size_t size;

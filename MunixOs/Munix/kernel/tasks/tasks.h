@@ -26,36 +26,33 @@ typedef enum {
 	TASK_ZOMBIE, // si no cierra correctamente
 } taskState;
 
-struct scheduler_map_entry;
+struct pma; // physical memory access
+
+typedef struct pma {
+	size_t start;
+	size_t length;
+	struct pma *next; 
+} pma_t;
 
 typedef struct {
 	char *name;
 	registers_t registers;
 	uint32_t stack_base;
-	struct scheduler_map_entry *memory;
+	void *main_memory;
+	pma_t *registered_mem;
 	int pid;
 	taskState status;
 } task_t;
 
-typedef struct scheduler_map_entry {
-	uint32_t start;
-	uint32_t end;
-	uint32_t pid; // si es -1 entonces es bloque libre
-	struct scheduler_map_entry *next;
-	struct scheduler_map_entry *prev;
-} scheduler_map_entry_t;
+struct task_list;
 
+typedef struct task_list {
+	task_t task;
+	struct task_list *next;
+} task_list_t;
 
 typedef struct {
-	uint32_t region_start;
-	uint32_t region_end;
-	scheduler_map_entry_t *map_start;
-} scheduler_map_t; // es un mapa para q el scheduler sepa q puede asignar
-		   // y q no de memoria.
-
-typedef struct {
-	scheduler_map_t *scheduler_map;
-	
+	task_list_t *start;
 } scheduler_t;
 
 void initClockTask(int nibtc); 
