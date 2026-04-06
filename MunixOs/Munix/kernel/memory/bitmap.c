@@ -129,8 +129,8 @@ void *bitmap_malloc(bitmap_t *bitmap, size_t n) {
 	size_t n_entries = bitmap->bitmap_size*8;
 	size_t index = 0;
 	bool found = false;
-	for (size_t i=last_allocated+1;i!=last_allocated; (i+=1) % n_entries) {
-		if (*((uint32_t*)(size_t)bitmap->bitmap_start+i/8) == 0xFFFFFFFF) {
+	for (size_t i=last_allocated+1;i!=last_allocated; i = (i + 1) % n_entries) {
+		if ((*(uint32_t*)((size_t)bitmap->bitmap_start+i/8)) == 0xFFFFFFFF) {
 			i += 7;
 			continue;
 		}
