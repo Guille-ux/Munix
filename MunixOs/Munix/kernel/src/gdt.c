@@ -62,6 +62,10 @@ void gdt_init(void) {
 	gdt_set_gate(5, (uint32_t)&_kernel_end, 0xFFFFFFFF, 0b11110010, 0b11000000);
 	kprintf("User Data Descriptor Added\n");
 
+	gdt_set_gate(6, 0, 0xFFFFFFFF, 0b11110010, 0b11000000);
+	
+	kprintf("User Far Segment Descriptor Added\n");
+
 	gdt_flush();
 
 	kprintf("GDT Initialized and Loaded\n");

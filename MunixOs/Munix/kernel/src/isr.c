@@ -4,6 +4,7 @@
 #include "../include/pic.h"
 #include "../include/shell.h"
 #include "../handlers/kb_handler.h"
+#include "../tasks/tasks.h"
 
 const char *exception_messages[] = {
     "Division By Zero",
@@ -57,6 +58,7 @@ registers_t *isr_handler(registers_t *regs) {
 			if (clock_task.is_enabled) {
 				// si la multitarea esta activada...
 				// aqui llamaremos al scheduler
+				kernel_scheduler(registers);
 			}
 			pic_eoi(0);
 			return regs;

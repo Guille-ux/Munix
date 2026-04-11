@@ -39,6 +39,7 @@ typedef struct {
 	registers_t registers;
 	uint32_t stack_base;
 	void *main_memory;
+	uint32_t main_mem_len;
 	pma_t *registered_mem;
 	int pid;
 	taskState status;
@@ -53,6 +54,7 @@ typedef struct task_list {
 
 typedef struct {
 	task_list_t *start;
+	task_list_t *current;
 } scheduler_t;
 
 void initClockTask(int nibtc); 
@@ -65,5 +67,10 @@ inline void enableClockTask() {
 inline void disableClockTask() {
 	clock_task.is_enabled = false;
 }
+
+extern scheduler_t k_scheduler;
+
+void initKernelScheduler(void);
+registers_t *kernel_scheduler(registers_t *regs);
 
 #endif
