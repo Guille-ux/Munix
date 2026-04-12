@@ -15,6 +15,8 @@ void initKernelScheduler() {
 }
 
 
+int g_pid=0;
+
 // es imposible de entender el código
 // voy a escribir más comentarios
 registers_t *kernel_scheduler(registers_t *regs) {
@@ -40,7 +42,28 @@ registers_t *kernel_scheduler(registers_t *regs) {
 		}
 		k_scheduler.current = k_scheduler.current->next;
 	}
+	// aqui hay q a;adir codigo q cambie la base y limite
+	// del segmento en uso
 	memcpy((void*)regs, &k_scheduler.current.task.registers, sizeof(registers_t));
 	k_scheduler.current.task.status = TASK_RUNNING;
 	return regs;
+}
+
+int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount, uint32_t eip, char *name) {
+	// primero crear una entrada nueva, usando malloc
+	task_list_t *newProc = malloc(sizeof(task_list_t));
+	newProc->next = k_scheduler.start;
+	newProc->task.name = name; // chapuzas pero temporal
+	newProc->task.pid = g_pid++; // otra chapuza temporal
+	newProc->task.main_memory = mem_start;
+	newProc->task.main_mem_len = mem_amount;
+	newProc->task.status = TASK_READY;
+	newProc->task.registers.eip = eip;
+	newProc->task.registers.cs = cs;
+	newProc->task.registers.ds = ds;
+	newProc->task.registers.fs = KERNEL_FAR_PTR;
+
+	k_scheduler.start = newProc;
+
+	return 0;
 }

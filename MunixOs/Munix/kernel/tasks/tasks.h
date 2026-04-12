@@ -7,6 +7,8 @@
 #include "../include/libcs2.h"
 #include "../include/isr.h"
 
+#define KERNEL_FAR_PTR 48
+
 typedef struct {
 	bool is_enabled; // el reloj necesita saber como va
 	int current_count; // interrupciones de reloj desde
@@ -37,7 +39,7 @@ typedef struct pma {
 typedef struct {
 	char *name;
 	registers_t registers;
-	uint32_t stack_base;
+	//uint32_t stack_base;
 	void *main_memory;
 	uint32_t main_mem_len;
 	pma_t *registered_mem;
@@ -72,5 +74,6 @@ extern scheduler_t k_scheduler;
 
 void initKernelScheduler(void);
 registers_t *kernel_scheduler(registers_t *regs);
+int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount, uint32_t eip, char *name);
 
 #endif
