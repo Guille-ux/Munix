@@ -6,6 +6,8 @@
 #include "../handlers/kb_handler.h"
 #include "../tasks/tasks.h"
 
+extern char _kernel_end;
+
 const char *exception_messages[] = {
     "Division By Zero",
     "Debug",
@@ -55,10 +57,11 @@ registers_t *isr_handler(registers_t *regs) {
 	}  else if (regs->int_no > 31 && regs->int_no < 48) { // lo hare con otros handlers especiales
 		if (regs->int_no==32) {
 			timer_handler_2();
-			if (clock_task.is_enabled) {
+			if (clock_task.is_enabled && clock_task.current_count >=clock_task.nibtc) {
 				// si la multitarea esta activada...
 				// aqui llamaremos al scheduler
-				kernel_scheduler(registers);
+				clock_task.current_count = 0;
+				kernel_scheduler(regs);
 			}
 			pic_eoi(0);
 			return regs;
@@ -69,6 +72,50 @@ registers_t *isr_handler(registers_t *regs) {
 			pic_eoi(1);
 	        	return regs;
         	}
+	} else if (regs->int_no==0x80) { // para las syscalls
+		if (regs->eax==0x00) {
+			// wait
+			twait();
+		} else if (regs->eax==0x01) {
+			// getPid
+			regs->eax = getPid();
+		} else if (regs->eax==0x02) {
+			// kill
+			tkill(regs->ebx);
+		} else if (regs->eax==0x03) {
+			uint32_t ptr = regs->ecx;
+			if (regs->edx==0) {
+				ptr+=&_kernel_end;
+			} else {
+				task_t *proc = &searchPid(getPid())->task;
+				if (ptr>proc->main_mem_len) {
+					// oh no, se pasa
+					// código para matar al ofensor
+					kill(getPid());
+				} else {
+					ptr+=(uint32_t)proc->main_memory;
+				}
+			}
+			ipc_send(regs->ebx, (msg_t*)ptr);
+		} else if (regs->eax==0x04) {
+			uint32_t ptr = regs->ebx;
+			if (regs->ecx==0) {
+				ptr+=&_kernel_end;
+			} else {
+				task_t *proc = &searchPid(getPid())->task;
+				if (ptr>proc->main_mem_len) {
+					// oh no, se pasa
+					// código para matar al ofensor
+					kill(getPid());
+				} else {
+					ptr+=(uint32_t)proc->main_memory;
+				}
+			}
+			ipc_receive((msg_t*)ptr);
+		} else if (regs->eax==0x05) {
+			tawake(regs->ebx);
+		}
+		kernel_scheduler(regs);
 	}
 	return regs;
 }

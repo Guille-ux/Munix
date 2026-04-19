@@ -10,6 +10,21 @@
 #define KERNEL_FAR_PTR 48
 
 typedef struct {
+	int pid;
+	uint8_t data[124];
+} __attribute__((packed)) msg_t;
+
+typedef struct {
+	int pid;
+	uint32_t tail;
+	uint32_t head;
+	uint32_t count;
+	uint32_t max_msg;
+	uint8_t padding[104];
+	uint8_t buffer[3968]
+} __attribute__((packed)) MailBox_t;
+
+typedef struct {
 	bool is_enabled; // el reloj necesita saber como va
 	int current_count; // interrupciones de reloj desde
 			   // q se hizo el último cambio de tarea
@@ -43,6 +58,7 @@ typedef struct {
 	void *main_memory;
 	uint32_t main_mem_len;
 	pma_t *registered_mem;
+	MailBox_t *mailbox;
 	int pid;
 	taskState status;
 } task_t;
@@ -75,5 +91,16 @@ extern scheduler_t k_scheduler;
 void initKernelScheduler(void);
 registers_t *kernel_scheduler(registers_t *regs);
 int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount, uint32_t eip, char *name);
+
+int getPid(void);
+void twait(void);
+void tkill(int pid);
+task_list_t *searchPid(int pid);
+task_list_t *searchName(char *name);
+int getTaskPid(char *name);
+void tawake(int pid);
+
+void ipc_receive(msg_t *message);
+void ipc_send(int pid, msg_t *message);
 
 #endif

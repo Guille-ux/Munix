@@ -100,7 +100,7 @@ isr_common_stub:
 
 	add esp, 8
 
-	sti ; rehabilitar las interrupciones
+	; ya no rehabilitamos las interrupciones, de eso se encarga iret
 
 
 	iret ; volver desde donde se llamo la interrupt
