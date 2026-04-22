@@ -27,16 +27,16 @@ registers_t *kernel_scheduler(registers_t *regs) {
 	if (k_scheduler.start == NULL) return regs; // wtf, no hay tareas
 	if (k_scheduler.current->next == NULL) { // si llegamos al final de la lista
 		// guardamos todo y cambiamos a la tarea del inicio
-		memcpy((void*)&k_scheduler.current.task.registers, regs, sizeof(registers_t));
-		k_scheduler.current.task.status = TASK_READY;
+		memcpy((void*)&k_scheduler.current->task.registers, regs, sizeof(registers_t));
+		k_scheduler.current->task.status = TASK_READY;
 		k_scheduler.current = k_scheduler.start;
 	} else {
 		// guardamos todo y cambiamos a la siguiente
-		memcpy((void*)&k_scheduler.current.task.registers, regs, sizeof(registers_t));
-		k_scheduler.current.task.status = TASK_READY;
+		memcpy((void*)&k_scheduler.current->task.registers, regs, sizeof(registers_t));
+		k_scheduler.current->task.status = TASK_READY;
 		k_scheduler.current = k_scheduler.current->next;
 	}
-	while (k_scheduler.current.task.status != TASK_READY) { // hasta q sea
+	while (k_scheduler.current->task.status != TASK_READY) { // hasta q sea
 								// uno
 								// q podamos
 								// correr
@@ -51,8 +51,8 @@ registers_t *kernel_scheduler(registers_t *regs) {
 	ch_gate_addr(4, (uint32_t)t->main_memory, t->main_mem_len);
 	ch_gate_addr(5, (uint32_t)t->main_memory, t->main_mem_len);
 	// ahora copiamos los registros del proceso a ejecutar
-	memcpy((void*)regs, &k_scheduler.current.task.registers, sizeof(registers_t));
-	k_scheduler.current.task.status = TASK_RUNNING;
+	memcpy((void*)regs, &k_scheduler.current->task.registers, sizeof(registers_t));
+	k_scheduler.current->task.status = TASK_RUNNING;
 	return regs;
 }
 
@@ -71,12 +71,12 @@ int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount
 	newProc->task.registers.fs = KERNEL_FAR_PTR;
 	// ponemos los eflags!
 	newProc->task.registers.eflags = 1 << 9;
-	newProc->task.mailbox = bitmap_alloc(&(bitmap_t)_bitmap_data);
-	newProc->task.mailbox.pid = newProc->task.pid;
-	newProc->task.mailbox.tail = 0;
-	newProc->task.mailbox.head = 0;
-	newProc->task.mailbox.count = 0;
-	newProc->task.mailbox.max_msg = 31;
+	newProc->task.mailbox = bitmap_alloc((bitmap_t*)&_bitmap_data);
+	newProc->task.mailbox->pid = newProc->task.pid;
+	newProc->task.mailbox->tail = 0;
+	newProc->task.mailbox->head = 0;
+	newProc->task.mailbox->count = 0;
+	newProc->task.mailbox->max_msg = 31;
 	
 	k_scheduler.start = newProc;
 
@@ -132,9 +132,9 @@ void ipc_receive(msg_t *message) {
 		// el buffer esta vacío!
 		// creo q deberiamos poner el proceso a esperar
 		// hasta q llegue un mensaje
-		wait();
+		twait();
 	} else {
-		memcpy(message, mailbox->buffer[mailbox->tail << 7], 128);
+		memcpy(message, &mailbox->buffer[mailbox->tail << 7], 128);
 		mailbox->count--;
 		mailbox->tail = (mailbox->tail + 1) % mailbox->max_msg;
 	}
@@ -146,7 +146,7 @@ void ipc_send(int pid, msg_t *message) {
 	if (mailbox->count >= mailbox->max_msg) {
 		// o q mal, no le
 	} else {
-		memcpy(mailbox->buffer[mailbox->head << 7], message, 128);
+		memcpy(&mailbox->buffer[mailbox->head << 7], message, 128);
 		mailbox->count++;
 		mailbox->head = (mailbox->head+1) % mailbox->max_msg;
 	}

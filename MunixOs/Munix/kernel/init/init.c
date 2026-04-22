@@ -6,7 +6,7 @@ handle_t kernel_handles[N_HANDLES];
 // para stdlog
 char *log[MAX_LOGS];
 
-extern char kernel_heap;
+extern char _kernel_heap;
 
 // para malloc y free
 free_node *my_free_list[64];

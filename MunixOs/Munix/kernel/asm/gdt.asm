@@ -36,9 +36,10 @@ reload_selectors:
 	
 	mov ds, ax
 	mov es, ax
-	mov fs, 48
 	mov gs, ax
 	mov ss, ax
+	mov ax, 48
+	mov fs, ax
 
 	ret
 
@@ -53,9 +54,10 @@ load_selectors:
 	pop ax
 
 	mov ds, ax
-	mov es, ax
-	mov fs, 48
+	mov es, ax	
 	mov gs, ax
 	mov ss, ax
+	mov ax, 48
+	mov fs, ax
 
 	ret

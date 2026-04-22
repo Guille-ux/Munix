@@ -70,7 +70,7 @@ void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_no
         return;
     }
     current_buddy->min_order = min_block_order;
-    current_buddy->num_orders = max_order - current_buddy->min_order + 1;
+    current_buddy->num_orders = current_buddy->max_order - current_buddy->min_order + 1;
     /* Esto solo se uso para solucionar errores
     kprintf("Num Orders: %d\n", (int)num_orders);
     kprintf("Max Order: %d\n", (int)max_order);
@@ -179,7 +179,7 @@ void buddy_free(void *block) {
         return;
     }    
 
-    while (order < max_order) {
+    while (order < current_buddy->max_order) {
         void *buddy_addr = getBuddyAddr(block_addr, order);
         int clist_idx = order - current_buddy->min_order;
         free_node **current = &current_buddy->free_list[clist_idx];

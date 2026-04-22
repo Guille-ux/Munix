@@ -85,13 +85,13 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x03) {
 			uint32_t ptr = regs->ecx;
 			if (regs->edx==0) {
-				ptr+=&_kernel_end;
+				ptr+=(uint32_t)&_kernel_end;
 			} else {
 				task_t *proc = &searchPid(getPid())->task;
 				if (ptr>proc->main_mem_len) {
 					// oh no, se pasa
 					// código para matar al ofensor
-					kill(getPid());
+					tkill(getPid());
 				} else {
 					ptr+=(uint32_t)proc->main_memory;
 				}
@@ -100,13 +100,13 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x04) {
 			uint32_t ptr = regs->ebx;
 			if (regs->ecx==0) {
-				ptr+=&_kernel_end;
+				ptr+=(uint32_t)&_kernel_end;
 			} else {
 				task_t *proc = &searchPid(getPid())->task;
 				if (ptr>proc->main_mem_len) {
 					// oh no, se pasa
 					// código para matar al ofensor
-					kill(getPid());
+					tkill(getPid());
 				} else {
 					ptr+=(uint32_t)proc->main_memory;
 				}

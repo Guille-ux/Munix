@@ -3,7 +3,6 @@
 
 #include "auto-generated-isr.h"
 #include <stdint.h>
-#include "../tasks/tasks.h"
 
 typedef struct {
     uint32_t gs;
