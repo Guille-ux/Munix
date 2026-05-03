@@ -25,4 +25,11 @@ fdp_t fdp_extend(fdp_t num, uint32_t times);
 
 uint32_t powd(uint32_t n);
 
+static uint32_t shrink(uint64_t n) {
+	while (n > 6710886) {
+		n /= 10;
+	}
+	return (uint32_t)n;
+}
+
 #endif

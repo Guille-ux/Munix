@@ -23,14 +23,20 @@ fdp_t fdp_add(fdp_t a, fdp_t b) {
 	}
 	result = fdp_char_exp(result, rexp);
 	if (b.Negative==a.Negative) {
-		result.Mantissa = a.Mantissa + b.Mantissa;
+		uint64_t mid = (uint64_t)a.Mantissa + b.Mantissa;
+		result.Mantissa = shrink(mid);
+		result.Exp = mid / result.Mantissa;	
 		result.Negative = a.Negative;
 	} else {
 		if (a.Mantissa >= b.Mantissa) {
-			result.Mantissa = a.Mantissa - b.Mantissa;
+			uint64_t mid = (uint64_t)a.Mantissa - b.Mantissa;
+			result.Mantissa = shrink(mid);
+			result.Exp = mid / result.Mantissa;
 			result.Negative = a.Negative;
 		} else {
-			result.Mantissa = b.Mantissa - a.Mantissa;
+			uint64_t mid = (uint64_t)b.Mantissa - a.Mantissa;
+			result.Mantissa = shrink(mid);
+			result.Exp = mid / result.Mantissa;
 			result.Negative = b.Negative;
 		}
 	}
@@ -79,7 +85,9 @@ fdp_t fdp_mul(fdp_t a, fdp_t b) {
 	fdp_t result;
 	a = fdp_simplify(a);
 	b = fdp_simplify(b);
-	result.Mantissa = a.Mantissa * b.Mantissa; 
+	uint64_t mid = (uint64_t)a.Mantissa * b.Mantissa;
+	result.Mantissa = shrink(mid);
+	result.Exp = mid / result.Mantissa;	
 	result = fdp_char_exp(result, fdp_exp_char(a)+fdp_exp_char(b));
 	return fdp_simplify(result);
 }
@@ -87,7 +95,9 @@ fdp_t fdp_div(fdp_t a, fdp_t b) {
 	fdp_t result;
 	a = fdp_extend(a, EXTEND_VAL);
 	b = fdp_extend(b, EXTEND_VAL);
-	result.Mantissa = a.Mantissa / b.Mantissa; 
+	uint64_t mid = (uint64_t)a.Mantissa / b.Mantissa;
+	result.Mantissa = shrink(mid);
+	result.Exp = mid / result.Mantissa;
 	result = fdp_char_exp(result, fdp_exp_char(a)-fdp_exp_char(b));
 	return fdp_simplify(result);
 }
@@ -121,6 +131,9 @@ fdp_t fdp_char_exp(fdp_t num, char exp) {
 }
 
 fdp_t fdp_order_sub(fdp_t num) {
+	if (num.Mantissa > 6710886) { 
+        	return num; 
+    	}
 	char exp = fdp_exp_char(num);
 	num = fdp_char_exp(num, exp-1);
 	num.Mantissa *= 10;

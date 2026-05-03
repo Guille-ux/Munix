@@ -38,3 +38,6 @@ set ecx to 1 if to program's memory or 0 if to far pointer
 ## `awake(int pid);`
 set eax to 0x05
 set ebx to pid
+
+## `spawn(size_t ram_amount, file_t *file);`
+*note that this call will use the caller's code segment and data segment*

@@ -37,6 +37,7 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	explorer->remove = mfs_remove;
 	explorer->clean = mfs_clean;
 	explorer->destroy = mfs_destroy;
+	explorer->new_fd = mfs_new_fd;
 
 
 	mfs_superblock_t *block = (mfs_superblock_t*)kmalloc(sizeof(mfs_superblock_t));
@@ -316,6 +317,11 @@ int mfs_destroy(explorer_t *explorer) {
 	kfree(metadata->superblock);
 	kfree(metadata->ifat_table);
 	kfree(metadata);
+	return 0;
+}
+
+int mfs_new_fd(explorer_t *explorer, file_t *fd, const char *name) {
+	mfs_entry_t *entry = MFSearchEntry(explorer->cwd, name);
 	return 0;
 }
 

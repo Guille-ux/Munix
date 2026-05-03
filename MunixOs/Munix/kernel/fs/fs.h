@@ -61,7 +61,9 @@ typedef struct explorer_t {
 	int (*destroy)(struct explorer_t *exp); // liberar memoria	
 	/* 
 	 * Futuro: crear manejadores de archivos
+	 * Spoiler: es el presente
 	 */
+	int (*new_fd)(struct explorer_t *exp, file_t *fd, const char *name);
 } explorer_t;
 
 explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
