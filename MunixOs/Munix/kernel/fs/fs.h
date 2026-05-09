@@ -104,4 +104,11 @@ int mfs_clean(explorer_t *explorer);
 
 int mfs_destroy(explorer_t *explorer);
 
+
+int mfs_fd_read(file_t *file, void *buffer, size_t size);
+
+int mfs_fd_write(file_t *file,  void *buffer, size_t size);
+
+int mfs_fd_extend(file_t *file);
+
 #endif

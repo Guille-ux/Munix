@@ -88,7 +88,7 @@ registers_t *isr_handler(registers_t *regs) {
 				ptr+=(uint32_t)&_kernel_end;
 			} else {
 				task_t *proc = &searchPid(getPid())->task;
-				if (ptr>proc->main_mem_len) {
+				if ((ptr+128)>proc->main_mem_len) {
 					// oh no, se pasa
 					// código para matar al ofensor
 					tkill(getPid());
@@ -103,7 +103,7 @@ registers_t *isr_handler(registers_t *regs) {
 				ptr+=(uint32_t)&_kernel_end;
 			} else {
 				task_t *proc = &searchPid(getPid())->task;
-				if (ptr>proc->main_mem_len) {
+				if ((ptr+128)>proc->main_mem_len) {
 					// oh no, se pasa
 					// código para matar al ofensor
 					tkill(getPid());

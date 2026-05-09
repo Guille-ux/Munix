@@ -321,7 +321,74 @@ int mfs_destroy(explorer_t *explorer) {
 }
 
 int mfs_new_fd(explorer_t *explorer, file_t *fd, const char *name) {
-	mfs_entry_t *entry = MFSearchEntry(explorer->cwd, name);
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	// metadatos no específicos (el nombre no cuenta)
+	fd->explorer = explorer;
+	// metiendo metadatos específicos
+	fd->as.mfs.first_block = entry->first_block;
+	fd->as.mfs.size_in_blocks = entry->blockSize;
+	fd->as.mfs.modified = entry->modified;
+	fd->as.mfs.attr = entry->attr;
+	fd->as.mfs.folder_block = ((mfs_dir_header_t)(*explorer->cwd))->block;
+	fs->as.mfs.folder_size = ((mfs_dir_header_t)(*explorer->cwd))->dirBlocks;
+	// pegando nombre
+	strcpy(fd->name, name);
+	// metiendo las funciones
+	fd->read = mfs_fd_read;
+	fd->write = mfs_fd_write;
+	fd->extend = mfs_fd_extend;
+	return 0;
+}
+
+int mfs_fd_read(file_t *file, void *buffer, size_t size) {
+	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
+
+	IFATreadChain(block, table, file->as.mfs->first_block, buffer, file->explorer->partition, amount);
+	return 0;
+}
+
+int mfs_fd_write(file_t *file,  void *buffer, size_t size) {
+	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
+
+	IFATwriteChain(block, table, file->as.mfs.first_block, content, file->explorer->partition, size);
+	return 0;
+}
+
+int mfs_fd_extend(file_t *file) {
+	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;	
+	uint32_t new_end = 0; // abierto para optimizaciones
+	IFATallocateChain(block, table, 1, &new_end); // esto asigna un bloque nuevo
+	uint32_t file_start = file->as.mfs.first_block;
+	
+	IFATappendChain(block, table, file_start, new_end);
+
+	file->as.mfs.size_in_blocks++;
+
+	// ahora toca algo complejo, modificar la carpeta, ouch esto dolera
+	uint32_t dir_size = file->as.mfs.folder_size * block->SectorsPerBlock;
+
+	void *dir = malloc(file->as.mfs.folder_size * block->SectorsPerBlock);
+	
+	IFATreadChain(block, table, file->as.mfs.folder_block, dir, file->explorer->partition, file->as.mfs.folder_size * block->SectorsPerBlock);
+
+	mfs_entry_t *usable = (mfs_entry_t*)dir;
+
+	while (((uint32_t)++usable) < dir_size) {
+		if (strcmp(usable->name, file->name)==0) {
+			// lo encontramos aqui hay q escribir
+			// ns, supongo q diremos q alargamos el archivo
+			usable->blockSize++;
+			break;
+		}
+	}
+
+	IFATwriteChain(block, table, file->as.mfs.folder_block, dir, file->explorer->partition, file->as.mfs.folder_size * block->SectorsPerBlock);
+
+	free(dir);
+
 	return 0;
 }
 

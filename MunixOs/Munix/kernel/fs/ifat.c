@@ -146,9 +146,12 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 	}
 }
 
-
 void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
 	*start = 0;
+	IFATallocateChain(sblock, table, n, start);
+}
+
+void IFATallocateChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
 	uint32_t last;
 	uint32_t current=0;
 	uint32_t count=0;
@@ -171,5 +174,28 @@ void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t 
 		return;
 	}
 	sblock->FreeBlocks -= n;
+}
+
+int IFATappendChain(mfs_superblock_t *sblock, void *table, uint32_t first, uint32_t last) {
+	uint32_t next = first;
+	while (next != IFAT_END_OF_CHAIN) {
+		if (next == IFAT_BAD_BLOCK) {
+			// ns q hacer aqui
+			return 1;
+		} else if (next == IFAT_TOMBSTONE) {
+			// lo mismo
+			return 2;
+		} else if (next == IFAT_FREE_BLOCK) {
+			// lo mismo x2
+			return 3;
+		}
+		next = IFATreadEntry(block, table, next);
+
+	}
+
+	IFATwriteEntry(block, table, next, last);
+
+	IFATSave(block, table, file->explorer->partition);
+	return 0;
 }
 

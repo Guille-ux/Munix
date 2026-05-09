@@ -6470,6 +6470,9 @@ set ecx to 1 if to program's memory or 0 if to far pointer
 set eax to 0x05
 set ebx to pid
 
+## `spawn(size_t ram_amount, file_t *file);`
+*note that this call will use the caller's code segment and data segment*
+
 
 ========================================
  FILE: ./MunixOs/Munix/kernel/asm/idt64.asm
@@ -11019,19 +11022,344 @@ typedef struct {
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/fs/fsd.h
+ FILE: ./MunixOs/Munix/kernel/fs/fs.c
 ========================================
-#ifndef FSD
-#define FSD
+#include "fs.h"
+#include "../include/libcs2.h"
+#include "../include/memory.h"
+#include "../include/handler.h"
+#include "mfs.h"
+#include "ifat.h"
 
-#include <stdint.h>
-#include <stddef.h>
-#include "../disk/general.h"
-#include "../partitions/partitions.h"
-#include "../partitions/partition_mng.h"
-#include "../disk/diski.h"
+#define MFS_DIR_BLOCKS 1
 
-#endif
+#define kmallloc(size) (stdmem_interface.kmalloc((size)))
+#define kfree(ptr) (stdmem_interface.kfree((ptr)))
+
+explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id) {
+	if (partition==NULL || explorer == NULL) {
+		kprintf("[EXPLORER]: Invalid Parameters!\n");
+		return NULL;
+	}
+
+	if (partition->fs_type!=FS_TYPE_MFS) {
+		kprintf("[EXPLORER]: Partition isn't MFS!\n");
+		return NULL;
+	}
+
+	explorer->ls = mfs_ls;
+	explorer->cd = mfs_cd;
+	explorer->mkdir = mfs_mkdir;
+	explorer->mod = mfs_mod;
+	explorer->chmod = mfs_chmod;
+	explorer->stat = mfs_stat;
+	explorer->chstat = mfs_chstat;
+	explorer->size = mfs_size;
+	explorer->time = mfs_time;
+	explorer->chtime = mfs_chtime;
+	explorer->touch = mfs_touch;
+	explorer->cat = mfs_cat;
+	explorer->write = mfs_write;
+	explorer->remove = mfs_remove;
+	explorer->clean = mfs_clean;
+	explorer->destroy = mfs_destroy;
+	explorer->new_fd = mfs_new_fd;
+
+
+	mfs_superblock_t *block = (mfs_superblock_t*)kmalloc(sizeof(mfs_superblock_t));
+	loadMFSuperBlock(partition, block);
+	if (block->signature!=MFS_SIGNATURE) {
+
+		kprintf("[EXPLORER]: Invalid MFS Partition!\n");
+		kfree(block);
+		return NULL;
+	}
+
+	kprintf("[EXPLORER]: Valid MFS Partition\n");
+	
+	void *table = kmalloc(block->IFATSize*512);
+	
+	IFATload(block, table, partition);
+	
+	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(mfs_meta_t));
+	metadata->superblock = block;
+	metadata->ifat_table = table;
+	explorer->meta = metadata;
+	explorer->path[0]='/';
+	explorer->path[1]='\0';
+	explorer->group_id = group_id;
+	explorer->owner_id = owner_id;
+	
+	if (block->RootBlock == 0) {
+		kprintf("Creating Root...\n");
+		makeMFSroot(partition, block, table, MFS_DIR_BLOCKS); // usaremos por defecto 1
+		block->RootSize=MFS_DIR_BLOCKS;
+		IFATSave(block, table, partition);
+		saveMFSuperBlock(partition, block);
+	}
+	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
+	explorer->cwd = alloc_handle();
+	*explorer->cwd = kmalloc(n);
+	MFSloaDir(block, partition, table, *explorer->cwd, n, block->RootBlock);
+	return explorer;
+}
+
+int mfs_ls(explorer_t *explorer, files_t *list) {
+	if (explorer == NULL || list == NULL) return -1;
+
+	list->current_idx = 0;
+	list->fs = explorer;
+	list->next = mfs_ls_next;
+	list->count = mfs_ls_count;
+
+	return 0;
+}
+
+static inline mfs_entry_t *mfs_ls_get_entries(files_t *iterator) {
+	return (mfs_entry_t*)(((size_t)(*iterator->fs->cwd)) + sizeof(mfs_dir_header_t));
+}
+
+int mfs_ls_next(files_t *iterator, file_item_t *item) {
+	if (iterator == NULL || item == NULL) return -1;
+	if (!(iterator->current_idx < ((mfs_dir_header_t*)(*iterator->fs->cwd))->num_entries)) return -1;
+
+	mfs_entry_t *entries = mfs_ls_get_entries(iterator);
+	if (entries[iterator->current_idx].first_block == IFAT_FREE_BLOCK) {
+		memcpy(item->name, "NULL", 5);
+		return -1;
+	}
+	while (entries[iterator->current_idx].first_block == IFAT_TOMBSTONE) {
+		iterator->current_idx++;
+	}
+	mfs_entry_t entry = entries[iterator->current_idx++];
+	memcpy(item->name, entry.name, strlen(entry.name)+1);
+
+	return 0;
+}
+
+uint32_t mfs_ls_count(files_t *iterator) {
+	if (iterator == NULL) return 0;
+	
+	uint32_t num_files = 0;
+	mfs_entry_t *entries = mfs_ls_get_entries(iterator);
+
+	for (uint32_t i = 0; i<((mfs_dir_header_t*)(*iterator->fs->cwd))->num_entries; i++) {
+		if (entries[i].first_block == IFAT_TOMBSTONE) continue;
+		if (entries[i].first_block == IFAT_FREE_BLOCK) break;
+		num_files++;
+	}
+
+
+	return num_files;
+}
+
+int mfs_cd(explorer_t *explorer, const char *dir_name) {
+	mfs_superblock_t *block=((mfs_meta_t*)explorer->meta)->superblock;
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table; 
+	if (strcmp(dir_name, ".")==0) {
+		return 0;
+	}
+
+	int ret = MFSchdir(explorer->cwd, dir_name, block, explorer->partition, table);
+
+	if (ret != 0) return ret;
+
+	if (strcmp(dir_name, "..")==0) {
+		if (strcmp(explorer->path, "/")==0) {
+			return 0; // ya estamos en la raíz
+		}
+
+		char *ch = strrchr(explorer->path, '/');
+		if (ch != NULL) {
+			*ch = '\0';
+		}
+		if (explorer->path[0]=='\0') {
+			explorer->path[0]='/';
+			explorer->path[1]='\0';
+		}
+	} else if (strcmp(explorer->path, "/")==0) {
+		strcat(explorer->path, dir_name);
+	} else if ((1 + strlen(explorer->path) + strlen(dir_name)) < 256) {
+		strcat(explorer->path, "/");
+		strcat(explorer->path, dir_name);
+	}
+
+	return ret;
+}
+
+int mfs_mkdir(explorer_t *explorer, const char *name) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	int ret = mfsMkDir(block, *explorer->cwd, name, explorer->partition, table, MFS_DIR_BLOCKS);
+	if (ret == 0) {
+		saveMFSuperBlock(explorer->partition, block);
+		IFATSave(block, table, explorer->partition);
+	}
+	return ret;
+}
+
+int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner) {
+	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
+	*permissions = tmp->permissions;
+	*group = tmp->group_id;
+	*owner = tmp->owner_id;
+	return 0;
+}
+
+static inline void mfs_sadir(explorer_t *explorer, mfs_superblock_t *block, void *table) {	
+	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
+	MFSsaveDir(block, explorer->partition, table, *explorer->cwd, tmp->dirBlocks*512*block->SectorsPerBlock, tmp->block);
+}
+
+int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	MFStatChDir(*explorer->cwd, permissions, owner, group, "idk");
+	
+	mfs_sadir(explorer, block, table);
+
+	return 0;
+}
+
+int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	*attr = entry->attr;
+	return 0;
+}
+
+int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	entry->attr = attr;
+	
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_sadir(explorer, block, table);	
+
+	return 0;
+}
+
+int mfs_size(explorer_t *explorer, const char *name, uint32_t *size) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1; // si no existe devolver error
+	
+	*size = entry->blockSize;
+
+	return 0;
+}
+
+int mfs_time(explorer_t *explorer, const char *name, uint32_t *mod) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	*mod = entry->modified;
+
+	return 0;
+}
+
+int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	entry->modified = mod;
+
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+
+	mfs_sadir(explorer, block, table);
+
+	return 0;	
+}
+
+int mfs_touch(explorer_t *explorer, const char *name, uint32_t size) {
+	uint8_t attr = MFS_ATTR_TYPE_FILE;
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+
+	int ret = MFScreateEntry(block, *explorer->cwd, table, name, attr, size, explorer->partition);
+	
+	if (ret != 0) return ret;
+
+	mfs_sadir(explorer, block, table);
+	IFATSave(block, table, explorer->partition);
+
+	return ret;
+}
+
+int mfs_cat(explorer_t *explorer, const char *name, void *buffer, uint32_t amount) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	IFATreadChain(block, table, entry->first_block, buffer, explorer->partition, amount);
+
+	return 0;
+}
+
+int mfs_write(explorer_t *explorer, const char *name, void *content, uint32_t n) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	IFATwriteChain(block, table, entry->first_block, content, explorer->partition, n);
+
+	return 0;
+}
+
+int mfs_remove(explorer_t *explorer, const char *name) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	if (entry==NULL) return -1;
+
+	IFATremoveChain(block, table, entry->first_block, false);
+
+	mfs_sadir(explorer, block, table);
+	IFATSave(block, table, explorer->partition);
+
+	return 0;
+}
+
+int mfs_clean(explorer_t *explorer) {
+	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
+
+	IFATcleanTombstones(block, table);
+	IFATSave(block, table, explorer->partition);
+	saveMFSuperBlock(explorer->partition, block);
+
+	return 0;
+}
+
+int mfs_destroy(explorer_t *explorer) {
+	free_handle(explorer->cwd);
+	kfree(*explorer->cwd);
+	mfs_meta_t *metadata = (mfs_meta_t*)explorer->meta;
+	kfree(metadata->superblock);
+	kfree(metadata->ifat_table);
+	kfree(metadata);
+	return 0;
+}
+
+int mfs_new_fd(explorer_t *explorer, file_t *fd, const char *name) {
+	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	// metiendo metadatos específicos
+	fd->as.mfs.first_block = entry->first_block;
+	fd->as.mfs.size_in_blocks = entry->blockSize;
+	fd->as.mfs.modified = entry->modified;
+	fd->as.mfs.attr = entry->attr;
+	fd->as.mfs.folder_block = ((mfs_dir_header_t)(*explorer->cwd))->block;
+	// pegando nombre
+	strcpy(fd->name, name);
+	// metiendo las funciones
+	return 0;
+}
+
 
 
 ========================================
@@ -11326,7 +11654,9 @@ typedef struct explorer_t {
 	int (*destroy)(struct explorer_t *exp); // liberar memoria	
 	/* 
 	 * Futuro: crear manejadores de archivos
+	 * Spoiler: es el presente
 	 */
+	int (*new_fd)(struct explorer_t *exp, file_t *fd, const char *name);
 } explorer_t;
 
 explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
@@ -12341,329 +12671,47 @@ void MFStatChDir(void *dir, uint16_t permissions, uint16_t owner_id, uint16_t gr
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/fs/fs.c
+ FILE: ./MunixOs/Munix/kernel/fs/fsd.h
 ========================================
+#ifndef FSD
+#define FSD
+
+#include <stdint.h>
+#include <stddef.h>
+#include "../disk/general.h"
+#include "../partitions/partitions.h"
+#include "../partitions/partition_mng.h"
+#include "../disk/diski.h"
 #include "fs.h"
-#include "../include/libcs2.h"
-#include "../include/memory.h"
-#include "../include/handler.h"
-#include "mfs.h"
-#include "ifat.h"
 
-#define MFS_DIR_BLOCKS 1
-
-#define kmallloc(size) (stdmem_interface.kmalloc((size)))
-#define kfree(ptr) (stdmem_interface.kfree((ptr)))
-
-explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id) {
-	if (partition==NULL || explorer == NULL) {
-		kprintf("[EXPLORER]: Invalid Parameters!\n");
-		return NULL;
-	}
-
-	if (partition->fs_type!=FS_TYPE_MFS) {
-		kprintf("[EXPLORER]: Partition isn't MFS!\n");
-		return NULL;
-	}
-
-	explorer->ls = mfs_ls;
-	explorer->cd = mfs_cd;
-	explorer->mkdir = mfs_mkdir;
-	explorer->mod = mfs_mod;
-	explorer->chmod = mfs_chmod;
-	explorer->stat = mfs_stat;
-	explorer->chstat = mfs_chstat;
-	explorer->size = mfs_size;
-	explorer->time = mfs_time;
-	explorer->chtime = mfs_chtime;
-	explorer->touch = mfs_touch;
-	explorer->cat = mfs_cat;
-	explorer->write = mfs_write;
-	explorer->remove = mfs_remove;
-	explorer->clean = mfs_clean;
-	explorer->destroy = mfs_destroy;
-
-
-	mfs_superblock_t *block = (mfs_superblock_t*)kmalloc(sizeof(mfs_superblock_t));
-	loadMFSuperBlock(partition, block);
-	if (block->signature!=MFS_SIGNATURE) {
-
-		kprintf("[EXPLORER]: Invalid MFS Partition!\n");
-		kfree(block);
-		return NULL;
-	}
-
-	kprintf("[EXPLORER]: Valid MFS Partition\n");
-	
-	void *table = kmalloc(block->IFATSize*512);
-	
-	IFATload(block, table, partition);
-	
-	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(mfs_meta_t));
-	metadata->superblock = block;
-	metadata->ifat_table = table;
-	explorer->meta = metadata;
-	explorer->path[0]='/';
-	explorer->path[1]='\0';
-	explorer->group_id = group_id;
-	explorer->owner_id = owner_id;
-	
-	if (block->RootBlock == 0) {
-		kprintf("Creating Root...\n");
-		makeMFSroot(partition, block, table, MFS_DIR_BLOCKS); // usaremos por defecto 1
-		block->RootSize=MFS_DIR_BLOCKS;
-		IFATSave(block, table, partition);
-		saveMFSuperBlock(partition, block);
-	}
-	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
-	explorer->cwd = alloc_handle();
-	*explorer->cwd = kmalloc(n);
-	MFSloaDir(block, partition, table, *explorer->cwd, n, block->RootBlock);
-	return explorer;
-}
-
-int mfs_ls(explorer_t *explorer, files_t *list) {
-	if (explorer == NULL || list == NULL) return -1;
-
-	list->current_idx = 0;
-	list->fs = explorer;
-	list->next = mfs_ls_next;
-	list->count = mfs_ls_count;
-
-	return 0;
-}
-
-static inline mfs_entry_t *mfs_ls_get_entries(files_t *iterator) {
-	return (mfs_entry_t*)(((size_t)(*iterator->fs->cwd)) + sizeof(mfs_dir_header_t));
-}
-
-int mfs_ls_next(files_t *iterator, file_item_t *item) {
-	if (iterator == NULL || item == NULL) return -1;
-	if (!(iterator->current_idx < ((mfs_dir_header_t*)(*iterator->fs->cwd))->num_entries)) return -1;
-
-	mfs_entry_t *entries = mfs_ls_get_entries(iterator);
-	if (entries[iterator->current_idx].first_block == IFAT_FREE_BLOCK) {
-		memcpy(item->name, "NULL", 5);
-		return -1;
-	}
-	while (entries[iterator->current_idx].first_block == IFAT_TOMBSTONE) {
-		iterator->current_idx++;
-	}
-	mfs_entry_t entry = entries[iterator->current_idx++];
-	memcpy(item->name, entry.name, strlen(entry.name)+1);
-
-	return 0;
-}
-
-uint32_t mfs_ls_count(files_t *iterator) {
-	if (iterator == NULL) return 0;
-	
-	uint32_t num_files = 0;
-	mfs_entry_t *entries = mfs_ls_get_entries(iterator);
-
-	for (uint32_t i = 0; i<((mfs_dir_header_t*)(*iterator->fs->cwd))->num_entries; i++) {
-		if (entries[i].first_block == IFAT_TOMBSTONE) continue;
-		if (entries[i].first_block == IFAT_FREE_BLOCK) break;
-		num_files++;
-	}
-
-
-	return num_files;
-}
-
-int mfs_cd(explorer_t *explorer, const char *dir_name) {
-	mfs_superblock_t *block=((mfs_meta_t*)explorer->meta)->superblock;
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table; 
-	if (strcmp(dir_name, ".")==0) {
-		return 0;
-	}
-
-	int ret = MFSchdir(explorer->cwd, dir_name, block, explorer->partition, table);
-
-	if (ret != 0) return ret;
-
-	if (strcmp(dir_name, "..")==0) {
-		if (strcmp(explorer->path, "/")==0) {
-			return 0; // ya estamos en la raíz
-		}
-
-		char *ch = strrchr(explorer->path, '/');
-		if (ch != NULL) {
-			*ch = '\0';
-		}
-		if (explorer->path[0]=='\0') {
-			explorer->path[0]='/';
-			explorer->path[1]='\0';
-		}
-	} else if (strcmp(explorer->path, "/")==0) {
-		strcat(explorer->path, dir_name);
-	} else if ((1 + strlen(explorer->path) + strlen(dir_name)) < 256) {
-		strcat(explorer->path, "/");
-		strcat(explorer->path, dir_name);
-	}
-
-	return ret;
-}
-
-int mfs_mkdir(explorer_t *explorer, const char *name) {
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	int ret = mfsMkDir(block, *explorer->cwd, name, explorer->partition, table, MFS_DIR_BLOCKS);
-	if (ret == 0) {
-		saveMFSuperBlock(explorer->partition, block);
-		IFATSave(block, table, explorer->partition);
-	}
-	return ret;
-}
-
-int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner) {
-	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
-	*permissions = tmp->permissions;
-	*group = tmp->group_id;
-	*owner = tmp->owner_id;
-	return 0;
-}
-
-static inline void mfs_sadir(explorer_t *explorer, mfs_superblock_t *block, void *table) {	
-	mfs_dir_header_t *tmp = MFStatDir(*explorer->cwd);
-	MFSsaveDir(block, explorer->partition, table, *explorer->cwd, tmp->dirBlocks*512*block->SectorsPerBlock, tmp->block);
-}
-
-int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner) {
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	MFStatChDir(*explorer->cwd, permissions, owner, group, "idk");
-	
-	mfs_sadir(explorer, block, table);
-
-	return 0;
-}
-
-int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr) {
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	*attr = entry->attr;
-	return 0;
-}
-
-int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr) {
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	entry->attr = attr;
-	
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	mfs_sadir(explorer, block, table);	
-
-	return 0;
-}
-
-int mfs_size(explorer_t *explorer, const char *name, uint32_t *size) {
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1; // si no existe devolver error
-	
-	*size = entry->blockSize;
-
-	return 0;
-}
-
-int mfs_time(explorer_t *explorer, const char *name, uint32_t *mod) {
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	*mod = entry->modified;
-
-	return 0;
-}
-
-int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod) {
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	entry->modified = mod;
-
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-
-	mfs_sadir(explorer, block, table);
-
-	return 0;	
-}
-
-int mfs_touch(explorer_t *explorer, const char *name, uint32_t size) {
-	uint8_t attr = MFS_ATTR_TYPE_FILE;
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-
-	int ret = MFScreateEntry(block, *explorer->cwd, table, name, attr, size, explorer->partition);
-	
-	if (ret != 0) return ret;
-
-	mfs_sadir(explorer, block, table);
-	IFATSave(block, table, explorer->partition);
-
-	return ret;
-}
-
-int mfs_cat(explorer_t *explorer, const char *name, void *buffer, uint32_t amount) {
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	IFATreadChain(block, table, entry->first_block, buffer, explorer->partition, amount);
-
-	return 0;
-}
-
-int mfs_write(explorer_t *explorer, const char *name, void *content, uint32_t n) {
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	IFATwriteChain(block, table, entry->first_block, content, explorer->partition, n);
-
-	return 0;
-}
-
-int mfs_remove(explorer_t *explorer, const char *name) {
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
-	if (entry==NULL) return -1;
-
-	IFATremoveChain(block, table, entry->first_block, false);
-
-	mfs_sadir(explorer, block, table);
-	IFATSave(block, table, explorer->partition);
-
-	return 0;
-}
-
-int mfs_clean(explorer_t *explorer) {
-	void *table = ((mfs_meta_t*)explorer->meta)->ifat_table;
-	mfs_superblock_t *block = ((mfs_meta_t*)explorer->meta)->superblock;
-
-	IFATcleanTombstones(block, table);
-	IFATSave(block, table, explorer->partition);
-	saveMFSuperBlock(explorer->partition, block);
-
-	return 0;
-}
-
-int mfs_destroy(explorer_t *explorer) {
-	free_handle(explorer->cwd);
-	kfree(*explorer->cwd);
-	mfs_meta_t *metadata = (mfs_meta_t*)explorer->meta;
-	kfree(metadata->superblock);
-	kfree(metadata->ifat_table);
-	kfree(metadata);
-	return 0;
-}
-
+// esto contiene el descriptor de archivos, q permitira un uso más sencillo
+// de los archivos, vamos no habra q usar el explorador
+
+typedef struct {
+	size_t start_block;
+} mfs_file_t;
+
+struct file;
+
+typedef struct file {
+	char name[256];
+	union {
+		mfs_file_t mfs;
+	} as;
+	void (*read)(file *file, void *buffer, size_t size);
+	void (*write)(file *file, void *buffer, size_t size);
+	void (*extend)(file *file);
+} file_t;
+
+typedef struct {
+	uint32_t first_block;
+	uint32_t size_in_blocks;
+	uint32_t modified;
+	uint8_t attr;
+	uint32_t folder_block;
+} mfs_file_t;
+
+#endif
 
 
 ========================================
@@ -13649,39 +13697,6 @@ void multiboot1_build_mmap_info(mb_mmap_info_t *mmap_info, multiboot_info_t *mbi
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/math/fdp.h
-========================================
-#ifndef FDP_H
-#define FDP_H
-
-#include <stdint.h>
-
-#define EXTEND_VAL 5
-
-typedef struct {
-	uint32_t Negative : 1;
-	uint32_t Enega : 1;
-	uint32_t Exp : 4;
-	uint32_t Mantissa : 26;
-} fdp_t; // floating decimal point
-
-fdp_t fdp_add(fdp_t a, fdp_t b);
-fdp_t fdp_sub(fdp_t a, fdp_t b);
-fdp_t fdp_mul(fdp_t a, fdp_t b);
-fdp_t fdp_div(fdp_t a, fdp_t b);
-fdp_t fdp_simplify(fdp_t num);
-char fdp_exp_char(fdp_t num);
-fdp_t fdp_char_exp(fdp_t num, char exp);
-fdp_t fdp_order_sub(fdp_t num);
-fdp_t fdp_order_inc(fdp_t num);
-fdp_t fdp_extend(fdp_t num, uint32_t times);
-
-uint32_t powd(uint32_t n);
-
-#endif
-
-
-========================================
  FILE: ./MunixOs/Munix/kernel/math/fdp.c
 ========================================
 #include <stdint.h>
@@ -13709,14 +13724,20 @@ fdp_t fdp_add(fdp_t a, fdp_t b) {
 	}
 	result = fdp_char_exp(result, rexp);
 	if (b.Negative==a.Negative) {
-		result.Mantissa = a.Mantissa + b.Mantissa;
+		uint64_t mid = (uint64_t)a.Mantissa + b.Mantissa;
+		result.Mantissa = shrink(mid);
+		result.Exp = mid / result.Mantissa;	
 		result.Negative = a.Negative;
 	} else {
 		if (a.Mantissa >= b.Mantissa) {
-			result.Mantissa = a.Mantissa - b.Mantissa;
+			uint64_t mid = (uint64_t)a.Mantissa - b.Mantissa;
+			result.Mantissa = shrink(mid);
+			result.Exp = mid / result.Mantissa;
 			result.Negative = a.Negative;
 		} else {
-			result.Mantissa = b.Mantissa - a.Mantissa;
+			uint64_t mid = (uint64_t)b.Mantissa - a.Mantissa;
+			result.Mantissa = shrink(mid);
+			result.Exp = mid / result.Mantissa;
 			result.Negative = b.Negative;
 		}
 	}
@@ -13765,7 +13786,9 @@ fdp_t fdp_mul(fdp_t a, fdp_t b) {
 	fdp_t result;
 	a = fdp_simplify(a);
 	b = fdp_simplify(b);
-	result.Mantissa = a.Mantissa * b.Mantissa; 
+	uint64_t mid = (uint64_t)a.Mantissa * b.Mantissa;
+	result.Mantissa = shrink(mid);
+	result.Exp = mid / result.Mantissa;	
 	result = fdp_char_exp(result, fdp_exp_char(a)+fdp_exp_char(b));
 	return fdp_simplify(result);
 }
@@ -13773,7 +13796,9 @@ fdp_t fdp_div(fdp_t a, fdp_t b) {
 	fdp_t result;
 	a = fdp_extend(a, EXTEND_VAL);
 	b = fdp_extend(b, EXTEND_VAL);
-	result.Mantissa = a.Mantissa / b.Mantissa; 
+	uint64_t mid = (uint64_t)a.Mantissa / b.Mantissa;
+	result.Mantissa = shrink(mid);
+	result.Exp = mid / result.Mantissa;
 	result = fdp_char_exp(result, fdp_exp_char(a)-fdp_exp_char(b));
 	return fdp_simplify(result);
 }
@@ -13807,6 +13832,9 @@ fdp_t fdp_char_exp(fdp_t num, char exp) {
 }
 
 fdp_t fdp_order_sub(fdp_t num) {
+	if (num.Mantissa > 6710886) { 
+        	return num; 
+    	}
 	char exp = fdp_exp_char(num);
 	num = fdp_char_exp(num, exp-1);
 	num.Mantissa *= 10;
@@ -13826,6 +13854,46 @@ fdp_t fdp_extend(fdp_t num, uint32_t times) {
 	}
 	return num;
 }
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/math/fdp.h
+========================================
+#ifndef FDP_H
+#define FDP_H
+
+#include <stdint.h>
+
+#define EXTEND_VAL 5
+
+typedef struct {
+	uint32_t Negative : 1;
+	uint32_t Enega : 1;
+	uint32_t Exp : 4;
+	uint32_t Mantissa : 26;
+} fdp_t; // floating decimal point
+
+fdp_t fdp_add(fdp_t a, fdp_t b);
+fdp_t fdp_sub(fdp_t a, fdp_t b);
+fdp_t fdp_mul(fdp_t a, fdp_t b);
+fdp_t fdp_div(fdp_t a, fdp_t b);
+fdp_t fdp_simplify(fdp_t num);
+char fdp_exp_char(fdp_t num);
+fdp_t fdp_char_exp(fdp_t num, char exp);
+fdp_t fdp_order_sub(fdp_t num);
+fdp_t fdp_order_inc(fdp_t num);
+fdp_t fdp_extend(fdp_t num, uint32_t times);
+
+uint32_t powd(uint32_t n);
+
+static uint32_t shrink(uint64_t n) {
+	while (n > 6710886) {
+		n /= 10;
+	}
+	return (uint32_t)n;
+}
+
+#endif
 
 
 ========================================
