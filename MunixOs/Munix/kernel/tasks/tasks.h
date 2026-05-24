@@ -66,6 +66,7 @@ typedef struct {
 	int pid;
 	taskState status;
 	fd_t *file_descriptors[32];
+	kid_t kid;
 } task_t;
 
 struct task_list;

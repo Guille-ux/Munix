@@ -44,7 +44,7 @@ typedef struct fd {
 	uint32_t ref_count; // contador de referencias
 	file_t file; // recordemos q file puede usarse para cualquier cosa
 		     // realmente
-} fd_t;
+} __attribute__((packed)) fd_t;
 
 
 void initFd(); // inicializa la memoria donde se guardan los fd's 
