@@ -4,6 +4,7 @@
 #include "../include/handler.h"
 #include "mfs.h"
 #include "ifat.h"
+#include "fsd.h"
 
 #define MFS_DIR_BLOCKS 1
 
@@ -329,8 +330,8 @@ int mfs_new_fd(explorer_t *explorer, file_t *fd, const char *name) {
 	fd->as.mfs.size_in_blocks = entry->blockSize;
 	fd->as.mfs.modified = entry->modified;
 	fd->as.mfs.attr = entry->attr;
-	fd->as.mfs.folder_block = ((mfs_dir_header_t)(*explorer->cwd))->block;
-	fs->as.mfs.folder_size = ((mfs_dir_header_t)(*explorer->cwd))->dirBlocks;
+	fd->as.mfs.folder_block = ((mfs_dir_header_t*)(*explorer->cwd))->block;
+	fd->as.mfs.folder_size = ((mfs_dir_header_t*)(*explorer->cwd))->dirBlocks;
 	// pegando nombre
 	strcpy(fd->name, name);
 	// metiendo las funciones
@@ -344,7 +345,7 @@ int mfs_fd_read(file_t *file, void *buffer, size_t size) {
 	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
 	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
 
-	IFATreadChain(block, table, file->as.mfs->first_block, buffer, file->explorer->partition, amount);
+	IFATreadChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
 	return 0;
 }
 
@@ -352,7 +353,7 @@ int mfs_fd_write(file_t *file,  void *buffer, size_t size) {
 	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
 	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
 
-	IFATwriteChain(block, table, file->as.mfs.first_block, content, file->explorer->partition, size);
+	IFATwriteChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
 	return 0;
 }
 
@@ -363,7 +364,7 @@ int mfs_fd_extend(file_t *file) {
 	IFATallocateChain(block, table, 1, &new_end); // esto asigna un bloque nuevo
 	uint32_t file_start = file->as.mfs.first_block;
 	
-	IFATappendChain(block, table, file_start, new_end);
+	IFATappendChain(block, table, file_start, new_end, file->explorer->partition);
 
 	file->as.mfs.size_in_blocks++;
 

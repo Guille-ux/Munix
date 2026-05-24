@@ -71,6 +71,9 @@ ShellValue lsblk_handler(ASTNode *stmt, EvalCtx *ctx) {
 					case FS_TYPE_MFS:
 						kprintf("MunixFileSystem\n");
 						break;
+					case FS_TYPE_MTAR:
+						kprintf("Munix Tape Archive\n");
+						break;
 					default:
 						kprintf("Unknown Type\n");
 				}

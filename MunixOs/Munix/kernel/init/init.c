@@ -23,6 +23,7 @@ extern char _kernel_end;
 
 bitmap_t *bitmap = (bitmap_t*)&_bitmap_data;
 
+meta_bud_t kernel_bud;
 
 void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas del kernel
 	// Desactivar interrupciones
@@ -53,6 +54,7 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 
 	
 	// Inicializar la Gestión de memoria dinámica
+	current_buddy = kernel_bud;
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
 	kprintf("Cleaning Buddy Heap...\n");
@@ -88,6 +90,10 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 
 	// Inicializar el disco camaradas, digo inicializando particiones!
 	scanByDetectedDisks();
+	
+	// ahora inicializamos los 2 nuevos sistemas, fd y kid
+	initIdentities();
+	initFd();
 
 	// Activar Interrupciones
 	__asm__ volatile("sti");

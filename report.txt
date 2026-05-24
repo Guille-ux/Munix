@@ -4574,52 +4574,6 @@ void free_handle(void **ptr);
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/include/buddy_alloc.h
-========================================
-#ifndef BUDDY_ALLOCATOR
-#define BUDDY_ALLOCATOR
-
-#include "libcs2.h"
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-
-/* Comentado porque prefiero algo más flexible
-#define BUDDY_HEAP_SIZE (1 * 1024 * 1024)
-#define MIN_BLOCK_ORDER 4
-#define MAX_BLOCK_ORDER 20
-
-#if (1 << MAX_BLOCK_ORDER) != BUDDY_HEAP_SIZE
-#error "BUDDY_HEAP_SIZE must be a power of 2 and equal to (1 << MAX_BLOCK_ORDER)"
-#endif
-#if MIN_BLOCK_ORDER >= MAX_BLOCK_ORDER
-#error "MIN_BLOCK_ORDER must be less than MAX_BLOCK_ORDER"
-#endif
-*/
-
-
-
-typedef struct free_node {
-    struct free_node *next;
-} free_node;
-
-typedef struct {
-	char *heap_base;
-	size_t heap_total_size;
-	int max_order;
-	int min_order;
-	int num_orders;
-	free_node **free_list;
-} meta_bud_t;
-
-void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_node ***new_free_list);
-void *buddy_malloc(size_t size) __attribute__((malloc));
-void buddy_free(void *ptr) __attribute__((no_instrument_function));
-
-#endif
-
-
-========================================
  FILE: ./MunixOs/Munix/kernel/include/mlink/compat.h
 ========================================
 #ifndef MINIASM_COMPAT_H
@@ -5089,154 +5043,49 @@ typedef struct {
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/src/isr.c
+ FILE: ./MunixOs/Munix/kernel/include/buddy_alloc.h
 ========================================
-#include "../include/isr.h"
-#include "../include/libcs2.h"
-#include "../include/timer.h"
-#include "../include/pic.h"
-#include "../include/shell.h"
-#include "../handlers/kb_handler.h"
-#include "../tasks/tasks.h"
+#ifndef BUDDY_ALLOCATOR
+#define BUDDY_ALLOCATOR
 
-extern char _kernel_end;
+#include "libcs2.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
-const char *exception_messages[] = {
-    "Division By Zero",
-    "Debug",
-    "Non-Maskable Interrupt",
-    "Breakpoint",
-    "Overflow",
-    "Bound Range Exceeded",
-    "Invalid Opcode",
-    "Device Not Available (No Math Coprocessor)",
-    "Double Fault",
-    "Coprocessor Segment Overrun (Reserved)",
-    "Invalid TSS",
-    "Segment Not Present",
-    "Stack-Segment Fault",
-    "General Protection Fault",
-    "Page Fault",
-    "Reserved", // 0x0F
-    "x87 Floating-Point Exception",
-    "Alignment Check",
-    "Machine Check",
-    "SIMD Floating-Point Exception",
-    "Virtualization Exception",
-    "Control Protection Exception",
-    "Reserved", // 0x16
-    "Reserved", // 0x17
-    "Reserved", // 0x18
-    "Reserved", // 0x19
-    "Reserved", // 0x1A
-    "Reserved", // 0x1B
-    "Reserved", // 0x1C
-    "Reserved", // 0x1D
-    "Reserved", // 0x1E
-    "Reserved"  // 0x1F
-}; // 32 exceptions
+/* Comentado porque prefiero algo más flexible
+#define BUDDY_HEAP_SIZE (1 * 1024 * 1024)
+#define MIN_BLOCK_ORDER 4
+#define MAX_BLOCK_ORDER 20
 
-
-
-registers_t *isr_handler(registers_t *regs) {
-	//kprintf("Interrupt, Number -> %d \n", (int)regs->int_no);
-	if (regs->int_no < 32) {
-        kprintf("\n-> FATAL ERROR: %s \n\t -> Int Number : %d \n", (const char*)exception_messages[regs->int_no], regs->int_no);
-		//__asm__ volatile("cli");
-        //__asm__ volatile("halt");
-        while (1);
-		stdlog_interface.append(exception_messages[regs->int_no]);
-		// 2 opciones, halt o añadirlo al log e ignorarlo, yo lo ignoro
-	}  else if (regs->int_no > 31 && regs->int_no < 48) { // lo hare con otros handlers especiales
-		if (regs->int_no==32) {
-			timer_handler_2();
-			if (clock_task.is_enabled && clock_task.current_count >=clock_task.nibtc) {
-				// si la multitarea esta activada...
-				// aqui llamaremos al scheduler
-				clock_task.current_count = 0;
-				kernel_scheduler(regs);
-			}
-			pic_eoi(0);
-			return regs;
-        	} else if (regs->int_no==33) {
-			//kernel_keyboard_handler_2(); // sera sustituido por el nuevo
-			// llego el momento de sustituirlo, ahora usaremos
-			ps2_handler.getch();
-			pic_eoi(1);
-	        	return regs;
-        	}
-	} else if (regs->int_no==0x80) { // para las syscalls
-		if (regs->eax==0x00) {
-			// wait
-			twait();
-		} else if (regs->eax==0x01) {
-			// getPid
-			regs->eax = getPid();
-		} else if (regs->eax==0x02) {
-			// kill
-			tkill(regs->ebx);
-		} else if (regs->eax==0x03) {
-			uint32_t ptr = regs->ecx;
-			if (regs->edx==0) {
-				ptr+=(uint32_t)&_kernel_end;
-			} else {
-				task_t *proc = &searchPid(getPid())->task;
-				if (ptr>proc->main_mem_len) {
-					// oh no, se pasa
-					// código para matar al ofensor
-					tkill(getPid());
-				} else {
-					ptr+=(uint32_t)proc->main_memory;
-				}
-			}
-			ipc_send(regs->ebx, (msg_t*)ptr);
-		} else if (regs->eax==0x04) {
-			uint32_t ptr = regs->ebx;
-			if (regs->ecx==0) {
-				ptr+=(uint32_t)&_kernel_end;
-			} else {
-				task_t *proc = &searchPid(getPid())->task;
-				if (ptr>proc->main_mem_len) {
-					// oh no, se pasa
-					// código para matar al ofensor
-					tkill(getPid());
-				} else {
-					ptr+=(uint32_t)proc->main_memory;
-				}
-			}
-			ipc_receive((msg_t*)ptr);
-		} else if (regs->eax==0x05) {
-			tawake(regs->ebx);
-		}
-		kernel_scheduler(regs);
-	}
-	return regs;
-}
-
-
-
-/*
-void kernel_keyboard_handler(uint32_t *esp) {
-    __asm__ volatile("cli");
-    keyboard_handler();
-    if (char_out && final_character != 0) {
-        shell_event=true;
-        //push_to_buffer(final_character);
-        shell_event=true;
-        shell_buffer[shell_index++]=final_character;
-        kprintf(" %s ", (const char*)shell_buffer);
-        //kprintf("%s ", (const char*)final_character);
-        
-    } else if (scancode==special_layout.backspace) {
-        backspace=true;
-    } else if (scancode==special_layout.enter) {
-        send=true;
-    }
-    pic_eoi(1);
-    __asm__ volatile("sti");
-}
+#if (1 << MAX_BLOCK_ORDER) != BUDDY_HEAP_SIZE
+#error "BUDDY_HEAP_SIZE must be a power of 2 and equal to (1 << MAX_BLOCK_ORDER)"
+#endif
+#if MIN_BLOCK_ORDER >= MAX_BLOCK_ORDER
+#error "MIN_BLOCK_ORDER must be less than MAX_BLOCK_ORDER"
+#endif
 */
 
+extern meta_bud_t *current_buddy;
+
+typedef struct free_node {
+    struct free_node *next;
+} free_node;
+
+typedef struct {
+	char *heap_base;
+	size_t heap_total_size;
+	int max_order;
+	int min_order;
+	int num_orders;
+	free_node **free_list;
+} meta_bud_t;
+
+void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_node ***new_free_list);
+void *buddy_malloc(size_t size) __attribute__((malloc));
+void buddy_free(void *ptr) __attribute__((no_instrument_function));
+
+#endif
 
 
 ========================================
@@ -5525,6 +5374,9 @@ ShellValue lsblk_handler(ASTNode *stmt, EvalCtx *ctx) {
 						break;
 					case FS_TYPE_MFS:
 						kprintf("MunixFileSystem\n");
+						break;
+					case FS_TYPE_MTAR:
+						kprintf("Munix Tape Archive\n");
 						break;
 					default:
 						kprintf("Unknown Type\n");
@@ -6472,6 +6324,157 @@ set ebx to pid
 
 ## `spawn(size_t ram_amount, file_t *file);`
 *note that this call will use the caller's code segment and data segment*
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/src/isr.c
+========================================
+#include "../include/isr.h"
+#include "../include/libcs2.h"
+#include "../include/timer.h"
+#include "../include/pic.h"
+#include "../include/shell.h"
+#include "../handlers/kb_handler.h"
+#include "../tasks/tasks.h"
+
+extern char _kernel_end;
+
+const char *exception_messages[] = {
+    "Division By Zero",
+    "Debug",
+    "Non-Maskable Interrupt",
+    "Breakpoint",
+    "Overflow",
+    "Bound Range Exceeded",
+    "Invalid Opcode",
+    "Device Not Available (No Math Coprocessor)",
+    "Double Fault",
+    "Coprocessor Segment Overrun (Reserved)",
+    "Invalid TSS",
+    "Segment Not Present",
+    "Stack-Segment Fault",
+    "General Protection Fault",
+    "Page Fault",
+    "Reserved", // 0x0F
+    "x87 Floating-Point Exception",
+    "Alignment Check",
+    "Machine Check",
+    "SIMD Floating-Point Exception",
+    "Virtualization Exception",
+    "Control Protection Exception",
+    "Reserved", // 0x16
+    "Reserved", // 0x17
+    "Reserved", // 0x18
+    "Reserved", // 0x19
+    "Reserved", // 0x1A
+    "Reserved", // 0x1B
+    "Reserved", // 0x1C
+    "Reserved", // 0x1D
+    "Reserved", // 0x1E
+    "Reserved"  // 0x1F
+}; // 32 exceptions
+
+
+
+registers_t *isr_handler(registers_t *regs) {
+	//kprintf("Interrupt, Number -> %d \n", (int)regs->int_no);
+	if (regs->int_no < 32) {
+        kprintf("\n-> FATAL ERROR: %s \n\t -> Int Number : %d \n", (const char*)exception_messages[regs->int_no], regs->int_no);
+		//__asm__ volatile("cli");
+        //__asm__ volatile("halt");
+        while (1);
+		stdlog_interface.append(exception_messages[regs->int_no]);
+		// 2 opciones, halt o añadirlo al log e ignorarlo, yo lo ignoro
+	}  else if (regs->int_no > 31 && regs->int_no < 48) { // lo hare con otros handlers especiales
+		if (regs->int_no==32) {
+			timer_handler_2();
+			if (clock_task.is_enabled && clock_task.current_count >=clock_task.nibtc) {
+				// si la multitarea esta activada...
+				// aqui llamaremos al scheduler
+				clock_task.current_count = 0;
+				kernel_scheduler(regs);
+			}
+			pic_eoi(0);
+			return regs;
+        	} else if (regs->int_no==33) {
+			//kernel_keyboard_handler_2(); // sera sustituido por el nuevo
+			// llego el momento de sustituirlo, ahora usaremos
+			ps2_handler.getch();
+			pic_eoi(1);
+	        	return regs;
+        	}
+	} else if (regs->int_no==0x80) { // para las syscalls
+		if (regs->eax==0x00) {
+			// wait
+			twait();
+		} else if (regs->eax==0x01) {
+			// getPid
+			regs->eax = getPid();
+		} else if (regs->eax==0x02) {
+			// kill
+			tkill(regs->ebx);
+		} else if (regs->eax==0x03) {
+			uint32_t ptr = regs->ecx;
+			if (regs->edx==0) {
+				ptr+=(uint32_t)&_kernel_end;
+			} else {
+				task_t *proc = &searchPid(getPid())->task;
+				if ((ptr+128)>proc->main_mem_len) {
+					// oh no, se pasa
+					// código para matar al ofensor
+					tkill(getPid());
+				} else {
+					ptr+=(uint32_t)proc->main_memory;
+				}
+			}
+			ipc_send(regs->ebx, (msg_t*)ptr);
+		} else if (regs->eax==0x04) {
+			uint32_t ptr = regs->ebx;
+			if (regs->ecx==0) {
+				ptr+=(uint32_t)&_kernel_end;
+			} else {
+				task_t *proc = &searchPid(getPid())->task;
+				if ((ptr+128)>proc->main_mem_len) {
+					// oh no, se pasa
+					// código para matar al ofensor
+					tkill(getPid());
+				} else {
+					ptr+=(uint32_t)proc->main_memory;
+				}
+			}
+			ipc_receive((msg_t*)ptr);
+		} else if (regs->eax==0x05) {
+			tawake(regs->ebx);
+		}
+		kernel_scheduler(regs);
+	}
+	return regs;
+}
+
+
+
+/*
+void kernel_keyboard_handler(uint32_t *esp) {
+    __asm__ volatile("cli");
+    keyboard_handler();
+    if (char_out && final_character != 0) {
+        shell_event=true;
+        //push_to_buffer(final_character);
+        shell_event=true;
+        shell_buffer[shell_index++]=final_character;
+        kprintf(" %s ", (const char*)shell_buffer);
+        //kprintf("%s ", (const char*)final_character);
+        
+    } else if (scancode==special_layout.backspace) {
+        backspace=true;
+    } else if (scancode==special_layout.enter) {
+        send=true;
+    }
+    pic_eoi(1);
+    __asm__ volatile("sti");
+}
+*/
+
 
 
 ========================================
@@ -10347,6 +10350,7 @@ typedef enum {
 	FS_TYPE_LINUX=0x83, // All Linux FS uses the same code xD
 	FS_TYPE_LINUX_SWAP=0x82,
 	FS_TYPE_MFS=0x0D,
+	FS_TYPE_MTAR=0xAD,
 } fs_type_t;
 
 struct kernel_disk_t;
@@ -10488,6 +10492,7 @@ extern char _kernel_end;
 
 bitmap_t *bitmap = (bitmap_t*)&_bitmap_data;
 
+meta_bud_t kernel_bud;
 
 void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas del kernel
 	// Desactivar interrupciones
@@ -10518,6 +10523,7 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 
 	
 	// Inicializar la Gestión de memoria dinámica
+	current_buddy = kernel_bud;
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
 	kprintf("Cleaning Buddy Heap...\n");
@@ -11022,6 +11028,431 @@ typedef struct {
 
 
 ========================================
+ FILE: ./MunixOs/Munix/kernel/fs/fs.h
+========================================
+#ifndef FILE_SYSTEM
+#define FILE_SYSTEM
+
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../partitions/partitions.h"
+#include "mfs.h"
+
+struct file;
+struct explorer_t;
+
+typedef struct {
+	mfs_superblock_t *superblock;
+	void *ifat_table;
+} mfs_meta_t;
+
+typedef struct {
+	char name[256];
+} file_item_t;
+
+struct files_t;
+
+typedef struct files_t {
+	uint32_t current_idx;
+	struct explorer_t *fs;
+
+	int (*next)(struct files_t *iterator, file_item_t *out_item);
+	uint32_t (*count)(struct files_t *iterator);
+} files_t;
+
+typedef struct explorer_t {
+	uint16_t owner_id;
+	uint16_t group_id;
+
+	void *meta;
+
+	char path[256];
+
+	void **cwd; // Ahora es un handle para mayor flexibilidad
+
+	partition_t *partition;
+
+	int (*ls)(struct explorer_t *exp, files_t *list);
+	int (*cd)(struct explorer_t *exp, const char *dir_name);
+	int (*mkdir)(struct explorer_t *exp, const char *name);
+	int (*mod)(struct explorer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
+	int (*chmod)(struct explorer_t *exp, uint16_t permissions, uint16_t group, uint16_t owner);
+	int (*stat)(struct explorer_t *exp, const char *name, uint8_t *attr);
+	int (*chstat)(struct explorer_t *exp, const char *name, uint8_t attr);
+	int (*size)(struct explorer_t *exp, const char *name, uint32_t *size);
+	int (*time)(struct explorer_t *exp, const char *name, uint32_t *mod);
+	int (*chtime)(struct explorer_t *exp, const char *name, uint32_t mod);
+
+	int (*touch)(struct explorer_t *exp, const char *name, uint32_t size);
+	int (*cat)(struct explorer_t *exp, const char *name, void *buffer, uint32_t amount);
+	int (*write)(struct explorer_t *exp, const char *name, void *content, uint32_t n);
+	int (*remove)(struct explorer_t *exp, const char *name);
+	
+
+	int (*clean)(struct explorer_t *exp); // específica para mfs, limpiar tomsbtones, se podra usar para limpiar el sistema de archivos
+	int (*destroy)(struct explorer_t *exp); // liberar memoria	
+	/* 
+	 * Futuro: crear manejadores de archivos
+	 * Spoiler: es el presente
+	 */
+	int (*new_fd)(struct explorer_t *exp, struct file *fd, const char *name);
+} explorer_t;
+
+explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
+
+/*
+ * Funciones para MunixFS
+ *
+ */
+
+int mfs_ls(explorer_t *explorer, files_t *list);
+
+/*
+ * Subfunciones de LS
+ */
+
+int mfs_ls_next(files_t *iterator, file_item_t *item);
+uint32_t mfs_ls_count(files_t *iterator);
+
+/*
+ * Fin de las subfunciones de LS
+ */
+
+int mfs_cd(explorer_t *explorer, const char *dir_name);
+int mfs_mkdir(explorer_t *explorer, const char *name);
+int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner);
+int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner);
+int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr);
+int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr);
+int mfs_size(explorer_t *explorer, const char *name, uint32_t *size);
+int mfs_time(explorer_t *explorer, const char *name, uint32_t *mod);
+int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod);
+int mfs_touch(explorer_t *explorer, const char *name, uint32_t size);
+int mfs_cat(explorer_t *explorer, const char *name, void *buffer, uint32_t amount);
+int mfs_write(explorer_t *explorer, const char *name, void *content, uint32_t n);
+int mfs_remove(explorer_t *explorer, const char *name);
+
+int mfs_clean(explorer_t *explorer);
+
+int mfs_destroy(explorer_t *explorer);
+
+int mfs_new_fd(explorer_t *explorer, struct file *fd, const char *name);
+
+int mfs_fd_read(struct file *file, void *buffer, size_t size);
+
+int mfs_fd_write(struct file *file,  void *buffer, size_t size);
+
+int mfs_fd_extend(struct file *file);
+
+#endif
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/fs/ifat.c
+========================================
+#include "ifat.h"
+#include "../include/memory.h"
+#include "../include/libcs2.h"
+
+void IFATload(mfs_superblock_t *sblock, void *buffer, partition_t *partition) {
+	readPartition(partition, buffer, sblock->IFATStart, sblock->IFATSize);
+}
+
+void IFATSave(mfs_superblock_t *sblock, void *buffer, partition_t *partition) {
+	writePartition(partition, buffer, sblock->IFATStart, sblock->IFATSize);
+}
+
+uint32_t IFATreadEntry(mfs_superblock_t *sblock, void *table, uint32_t index) {
+	if (index==IFAT_END_OF_CHAIN ||
+	    index==IFAT_BAD_BLOCK ||
+	    index==IFAT_TOMBSTONE ||
+	    index==IFAT_FREE_BLOCK ||
+	    sblock==NULL ||
+	    table==NULL ||
+	    index >= sblock->NumBlocks
+	    ) {
+		return IFAT_BAD_BLOCK;
+	} // para que de error, básicamente
+	uint32_t *t = (uint32_t*)table;
+	return t[index-1]; // porque el 0 no puede ser, entonces restamos 1, para no desperdiciarlo
+}
+
+void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint32_t val) {
+	if (index==IFAT_END_OF_CHAIN ||
+	    index==IFAT_BAD_BLOCK ||
+	    index==IFAT_TOMBSTONE ||
+	    index==IFAT_FREE_BLOCK ||
+	    sblock==NULL ||
+	    table==NULL ||
+	    index >= sblock->NumBlocks
+	    ) {
+		return;
+	} // para que de error, básicamente
+	uint32_t *t = (uint32_t*)table;
+	t[index-1]=val;
+}
+
+
+void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
+	if (buffer==NULL || table==NULL || sblock==NULL) return;
+
+	uint32_t start_idx=index;
+	uint32_t current_idx=index;
+	uint32_t new_idx;
+	bool should_break=false;
+	uint32_t read=0;
+	while (read < (max/512)/sblock->SectorsPerBlock) {
+		do {
+			new_idx = IFATreadEntry(sblock, table, current_idx++);
+			if (new_idx == IFAT_BAD_BLOCK ||
+			    new_idx == IFAT_FREE_BLOCK ||
+			    new_idx == IFAT_TOMBSTONE) {
+				
+				return;
+			}
+
+			if (new_idx == IFAT_END_OF_CHAIN) {
+				should_break = true;
+				break;
+			}
+		} while (new_idx == current_idx);
+		lba_t lba = uint64_2_lba(lba2uint64(sblock->DataBegin) + sblock->SectorsPerBlock*(start_idx-1));	
+		readPartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
+		
+		if (should_break==true) break;
+		buffer = (void*)((size_t)buffer + sblock->SectorsPerBlock*512*(current_idx-start_idx));
+
+		read += (current_idx-start_idx);
+		start_idx = new_idx;
+		current_idx = new_idx;
+	}
+}
+
+
+void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool clean) {
+	uint32_t current_idx=index;
+	uint32_t next_idx;
+	uint32_t fill_val = (clean) ? IFAT_FREE_BLOCK : IFAT_TOMBSTONE;
+	do  {
+		next_idx = IFATreadEntry(sblock, table, current_idx);
+		IFATwriteEntry(sblock, table, current_idx, fill_val);
+		current_idx = next_idx;
+	}
+	while  (next_idx!= IFAT_BAD_BLOCK &&
+		next_idx!= IFAT_END_OF_CHAIN &&
+		next_idx!= IFAT_FREE_BLOCK &&
+		next_idx!= IFAT_TOMBSTONE);
+}
+
+void IFATcleanTombstones(mfs_superblock_t *sblock, void *table) {
+	uint32_t current=1;
+	uint32_t block;
+	uint32_t freed=0;
+	while (current < sblock->NumBlocks) {
+		block = IFATreadEntry(sblock, table, current);
+		if (block == IFAT_TOMBSTONE) {
+			IFATwriteEntry(sblock, table, current, IFAT_FREE_BLOCK);
+			freed++;
+		}
+		current++;
+	}
+	sblock->FreeBlocks += freed;
+}
+
+
+void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
+	if (buffer==NULL || table==NULL || sblock==NULL) return;
+	
+	uint32_t start_idx=index;
+	uint32_t current_idx=index;
+	uint32_t new_idx;
+	bool should_break=false;
+	uint32_t write=0;
+	while (write < (max/512)/sblock->SectorsPerBlock) {
+		do {
+			new_idx = IFATreadEntry(sblock, table, current_idx++);
+			if (new_idx == IFAT_BAD_BLOCK ||
+			    new_idx == IFAT_FREE_BLOCK ||
+			    new_idx == IFAT_TOMBSTONE) {
+				
+				return;
+			}
+
+			if (new_idx == IFAT_END_OF_CHAIN) {
+				should_break = true;
+				break;
+			}
+		
+		} while (new_idx == current_idx);
+		uint32_t n_blocks = current_idx - start_idx;
+		uint32_t n_sec = sblock->SectorsPerBlock * n_blocks;
+		lba_t lba = uint64_2_lba(lba2uint64(sblock->DataBegin) + sblock->SectorsPerBlock*(start_idx-1));
+		writePartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
+
+		if (should_break==true) break;
+		buffer =(void*)((size_t)buffer + sblock->SectorsPerBlock*512*(current_idx-start_idx));
+
+		write += (current_idx-start_idx);
+		start_idx = new_idx;	
+		current_idx = new_idx;
+	}
+}
+
+void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
+	*start = 0;
+	IFATallocateChain(sblock, table, n, start);
+}
+
+void IFATallocateChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
+	uint32_t last;
+	uint32_t current=0;
+	uint32_t count=0;
+	while (current++ < sblock->NumBlocks && count < n) {
+		if (IFATreadEntry(sblock, table, current)!=IFAT_FREE_BLOCK) continue;
+		if (*start == 0) {
+			*start = current;
+			last = current;
+		} else {
+			IFATwriteEntry(sblock, table, last, current);
+			last = current;
+		}
+
+		count++;
+	}
+	IFATwriteEntry(sblock, table, last, IFAT_END_OF_CHAIN);
+	if (count < n) {
+		IFATremoveChain(sblock, table, *start, true);
+		*start = 0;
+		return;
+	}
+	sblock->FreeBlocks -= n;
+}
+
+int IFATappendChain(mfs_superblock_t *sblock, void *table, uint32_t first, uint32_t last, partition_t *partition) {
+	uint32_t next = first;
+	while (next != IFAT_END_OF_CHAIN) {
+		if (next == IFAT_BAD_BLOCK) {
+			// ns q hacer aqui
+			return 1;
+		} else if (next == IFAT_TOMBSTONE) {
+			// lo mismo
+			return 2;
+		} else if (next == IFAT_FREE_BLOCK) {
+			// lo mismo x2
+			return 3;
+		}
+		next = IFATreadEntry(sblock, table, next);
+
+	}
+
+	IFATwriteEntry(sblock, table, next, last);
+
+	IFATSave(sblock, table, partition);
+	return 0;
+}
+
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/fs/fsd.h
+========================================
+#ifndef FSD
+#define FSD
+
+#include <stdint.h>
+#include <stddef.h>
+#include "../disk/general.h"
+#include "../partitions/partitions.h"
+#include "../partitions/partition_mng.h"
+#include "../disk/diski.h"
+#include "fs.h"
+#include "../usr/usr.h"
+
+// esto contiene el descriptor de archivos, q permitira un uso más sencillo
+// de los archivos, vamos no habra q usar el explorador
+
+typedef struct {
+	uint32_t first_block;
+	uint32_t size_in_blocks;
+	uint32_t modified;
+	uint8_t attr;
+	uint32_t folder_size;
+	uint32_t folder_block;
+} mfs_file_t;
+
+struct file;
+
+typedef struct file {
+	char name[256];
+	union {
+		mfs_file_t mfs;
+	} as;
+	explorer_t *explorer;
+	int (*read)(struct file *file, void *buffer, size_t size);
+	int (*write)(struct file *file, void *buffer, size_t size);
+	int (*extend)(struct file *file);
+} file_t;
+
+#define 
+
+typedef struct fd {
+	uint8_t flags; // para los permisos
+	
+
+	uint32_t ref_count; // contador de referencias
+	file_t file; // recordemos q file puede usarse para cualquier cosa
+		     // realmente
+} fd_t;
+
+
+void initFdSize(); // solo rellena kernel_fds_size
+#endif
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/fs/ifat.h
+========================================
+#ifndef IFAT
+#define IFAT
+
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
+#include "../disk/general.h"
+#include "../partitions/partitions.h"
+#include "../partitions/partition_mng.h"
+#include "../disk/diski.h"
+#include "mfs.h"
+
+#define IFAT_BAD_BLOCK 0xFFFFFFFE // no deberiamos asignar bloques que no podemos usar
+#define IFAT_TOMBSTONE 0xFFFFFFFD // una tombstone
+#define IFAT_FREE_BLOCK 0x00000000 // un bloque libre
+#define IFAT_END_OF_CHAIN 0xFFFFFFFF // el final de la cadena
+
+void IFATload(mfs_superblock_t *sblock, void *buffer, partition_t *partition);
+void IFATSave(mfs_superblock_t *sblock, void *buffer, partition_t *partition);uint32_t IFATreadEntry(mfs_superblock_t *sblock, void *table, uint32_t index);
+void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint32_t val);
+
+
+void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max);
+
+void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool clean);
+
+void IFATcleanTombstones(mfs_superblock_t *sblock, void *table);
+
+void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max);
+
+void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start);
+
+void IFATallocateChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start);
+
+int IFATappendChain(mfs_superblock_t *sblock, void *table, uint32_t first, uint32_t last, partition_t *partition);
+
+#endif
+
+
+========================================
  FILE: ./MunixOs/Munix/kernel/fs/fs.c
 ========================================
 #include "fs.h"
@@ -11030,6 +11461,7 @@ typedef struct {
 #include "../include/handler.h"
 #include "mfs.h"
 #include "ifat.h"
+#include "fsd.h"
 
 #define MFS_DIR_BLOCKS 1
 
@@ -11348,356 +11780,76 @@ int mfs_destroy(explorer_t *explorer) {
 
 int mfs_new_fd(explorer_t *explorer, file_t *fd, const char *name) {
 	mfs_entry_t *entry = MFSearchEntry(*explorer->cwd, name);
+	// metadatos no específicos (el nombre no cuenta)
+	fd->explorer = explorer;
 	// metiendo metadatos específicos
 	fd->as.mfs.first_block = entry->first_block;
 	fd->as.mfs.size_in_blocks = entry->blockSize;
 	fd->as.mfs.modified = entry->modified;
 	fd->as.mfs.attr = entry->attr;
-	fd->as.mfs.folder_block = ((mfs_dir_header_t)(*explorer->cwd))->block;
+	fd->as.mfs.folder_block = ((mfs_dir_header_t*)(*explorer->cwd))->block;
+	fd->as.mfs.folder_size = ((mfs_dir_header_t*)(*explorer->cwd))->dirBlocks;
 	// pegando nombre
 	strcpy(fd->name, name);
 	// metiendo las funciones
+	fd->read = mfs_fd_read;
+	fd->write = mfs_fd_write;
+	fd->extend = mfs_fd_extend;
 	return 0;
 }
 
+int mfs_fd_read(file_t *file, void *buffer, size_t size) {
+	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
 
-
-========================================
- FILE: ./MunixOs/Munix/kernel/fs/ifat.h
-========================================
-#ifndef IFAT
-#define IFAT
-
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include "../disk/general.h"
-#include "../partitions/partitions.h"
-#include "../partitions/partition_mng.h"
-#include "../disk/diski.h"
-#include "mfs.h"
-
-#define IFAT_BAD_BLOCK 0xFFFFFFFE // no deberiamos asignar bloques que no podemos usar
-#define IFAT_TOMBSTONE 0xFFFFFFFD // una tombstone
-#define IFAT_FREE_BLOCK 0x00000000 // un bloque libre
-#define IFAT_END_OF_CHAIN 0xFFFFFFFF // el final de la cadena
-
-void IFATload(mfs_superblock_t *sblock, void *buffer, partition_t *partition);
-void IFATSave(mfs_superblock_t *sblock, void *buffer, partition_t *partition);uint32_t IFATreadEntry(mfs_superblock_t *sblock, void *table, uint32_t index);
-void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint32_t val);
-
-
-void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max);
-
-void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool clean);
-
-void IFATcleanTombstones(mfs_superblock_t *sblock, void *table);
-
-void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max);
-
-void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start);
-
-#endif
-
-
-========================================
- FILE: ./MunixOs/Munix/kernel/fs/fsd.c
-========================================
-#include "fsd.h"
-#include "../include/memory.h"
-#include "../include/libcs2.h"
-
-
-========================================
- FILE: ./MunixOs/Munix/kernel/fs/ifat.c
-========================================
-#include "ifat.h"
-#include "../include/memory.h"
-#include "../include/libcs2.h"
-
-void IFATload(mfs_superblock_t *sblock, void *buffer, partition_t *partition) {
-	readPartition(partition, buffer, sblock->IFATStart, sblock->IFATSize);
+	IFATreadChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
+	return 0;
 }
 
-void IFATSave(mfs_superblock_t *sblock, void *buffer, partition_t *partition) {
-	writePartition(partition, buffer, sblock->IFATStart, sblock->IFATSize);
+int mfs_fd_write(file_t *file,  void *buffer, size_t size) {
+	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
+
+	IFATwriteChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
+	return 0;
 }
 
-uint32_t IFATreadEntry(mfs_superblock_t *sblock, void *table, uint32_t index) {
-	if (index==IFAT_END_OF_CHAIN ||
-	    index==IFAT_BAD_BLOCK ||
-	    index==IFAT_TOMBSTONE ||
-	    index==IFAT_FREE_BLOCK ||
-	    sblock==NULL ||
-	    table==NULL ||
-	    index >= sblock->NumBlocks
-	    ) {
-		return IFAT_BAD_BLOCK;
-	} // para que de error, básicamente
-	uint32_t *t = (uint32_t*)table;
-	return t[index-1]; // porque el 0 no puede ser, entonces restamos 1, para no desperdiciarlo
-}
-
-void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint32_t val) {
-	if (index==IFAT_END_OF_CHAIN ||
-	    index==IFAT_BAD_BLOCK ||
-	    index==IFAT_TOMBSTONE ||
-	    index==IFAT_FREE_BLOCK ||
-	    sblock==NULL ||
-	    table==NULL ||
-	    index >= sblock->NumBlocks
-	    ) {
-		return;
-	} // para que de error, básicamente
-	uint32_t *t = (uint32_t*)table;
-	t[index-1]=val;
-}
-
-
-void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
-	if (buffer==NULL || table==NULL || sblock==NULL) return;
-
-	uint32_t start_idx=index;
-	uint32_t current_idx=index;
-	uint32_t new_idx;
-	bool should_break=false;
-	uint32_t read=0;
-	while (read < (max/512)/sblock->SectorsPerBlock) {
-		do {
-			new_idx = IFATreadEntry(sblock, table, current_idx++);
-			if (new_idx == IFAT_BAD_BLOCK ||
-			    new_idx == IFAT_FREE_BLOCK ||
-			    new_idx == IFAT_TOMBSTONE) {
-				
-				return;
-			}
-
-			if (new_idx == IFAT_END_OF_CHAIN) {
-				should_break = true;
-				break;
-			}
-		} while (new_idx == current_idx);
-		lba_t lba = uint64_2_lba(lba2uint64(sblock->DataBegin) + sblock->SectorsPerBlock*(start_idx-1));	
-		readPartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
-		
-		if (should_break==true) break;
-		buffer = (void*)((size_t)buffer + sblock->SectorsPerBlock*512*(current_idx-start_idx));
-
-		read += (current_idx-start_idx);
-		start_idx = new_idx;
-		current_idx = new_idx;
-	}
-}
-
-
-void IFATremoveChain(mfs_superblock_t *sblock, void *table, uint32_t index, bool clean) {
-	uint32_t current_idx=index;
-	uint32_t next_idx;
-	uint32_t fill_val = (clean) ? IFAT_FREE_BLOCK : IFAT_TOMBSTONE;
-	do  {
-		next_idx = IFATreadEntry(sblock, table, current_idx);
-		IFATwriteEntry(sblock, table, current_idx, fill_val);
-		current_idx = next_idx;
-	}
-	while  (next_idx!= IFAT_BAD_BLOCK &&
-		next_idx!= IFAT_END_OF_CHAIN &&
-		next_idx!= IFAT_FREE_BLOCK &&
-		next_idx!= IFAT_TOMBSTONE);
-}
-
-void IFATcleanTombstones(mfs_superblock_t *sblock, void *table) {
-	uint32_t current=1;
-	uint32_t block;
-	uint32_t freed=0;
-	while (current < sblock->NumBlocks) {
-		block = IFATreadEntry(sblock, table, current);
-		if (block == IFAT_TOMBSTONE) {
-			IFATwriteEntry(sblock, table, current, IFAT_FREE_BLOCK);
-			freed++;
-		}
-		current++;
-	}
-	sblock->FreeBlocks += freed;
-}
-
-
-void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
-	if (buffer==NULL || table==NULL || sblock==NULL) return;
+int mfs_fd_extend(file_t *file) {
+	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
+	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;	
+	uint32_t new_end = 0; // abierto para optimizaciones
+	IFATallocateChain(block, table, 1, &new_end); // esto asigna un bloque nuevo
+	uint32_t file_start = file->as.mfs.first_block;
 	
-	uint32_t start_idx=index;
-	uint32_t current_idx=index;
-	uint32_t new_idx;
-	bool should_break=false;
-	uint32_t write=0;
-	while (write < (max/512)/sblock->SectorsPerBlock) {
-		do {
-			new_idx = IFATreadEntry(sblock, table, current_idx++);
-			if (new_idx == IFAT_BAD_BLOCK ||
-			    new_idx == IFAT_FREE_BLOCK ||
-			    new_idx == IFAT_TOMBSTONE) {
-				
-				return;
-			}
+	IFATappendChain(block, table, file_start, new_end, file->explorer->partition);
 
-			if (new_idx == IFAT_END_OF_CHAIN) {
-				should_break = true;
-				break;
-			}
-		
-		} while (new_idx == current_idx);
-		uint32_t n_blocks = current_idx - start_idx;
-		uint32_t n_sec = sblock->SectorsPerBlock * n_blocks;
-		lba_t lba = uint64_2_lba(lba2uint64(sblock->DataBegin) + sblock->SectorsPerBlock*(start_idx-1));
-		writePartition(partition, buffer, lba, sblock->SectorsPerBlock*(current_idx-start_idx));
+	file->as.mfs.size_in_blocks++;
 
-		if (should_break==true) break;
-		buffer =(void*)((size_t)buffer + sblock->SectorsPerBlock*512*(current_idx-start_idx));
+	// ahora toca algo complejo, modificar la carpeta, ouch esto dolera
+	uint32_t dir_size = file->as.mfs.folder_size * block->SectorsPerBlock;
 
-		write += (current_idx-start_idx);
-		start_idx = new_idx;	
-		current_idx = new_idx;
-	}
-}
-
-
-void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
-	*start = 0;
-	uint32_t last;
-	uint32_t current=0;
-	uint32_t count=0;
-	while (current++ < sblock->NumBlocks && count < n) {
-		if (IFATreadEntry(sblock, table, current)!=IFAT_FREE_BLOCK) continue;
-		if (*start == 0) {
-			*start = current;
-			last = current;
-		} else {
-			IFATwriteEntry(sblock, table, last, current);
-			last = current;
-		}
-
-		count++;
-	}
-	IFATwriteEntry(sblock, table, last, IFAT_END_OF_CHAIN);
-	if (count < n) {
-		IFATremoveChain(sblock, table, *start, true);
-		*start = 0;
-		return;
-	}
-	sblock->FreeBlocks -= n;
-}
-
-
-
-========================================
- FILE: ./MunixOs/Munix/kernel/fs/fs.h
-========================================
-#ifndef FILE_SYSTEM
-#define FILE_SYSTEM
-
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include "../partitions/partitions.h"
-#include "mfs.h"
-
-struct explorer_t;
-
-typedef struct {
-	mfs_superblock_t *superblock;
-	void *ifat_table;
-} mfs_meta_t;
-
-typedef struct {
-	char name[256];
-} file_item_t;
-
-struct files_t;
-
-typedef struct files_t {
-	uint32_t current_idx;
-	struct explorer_t *fs;
-
-	int (*next)(struct files_t *iterator, file_item_t *out_item);
-	uint32_t (*count)(struct files_t *iterator);
-} files_t;
-
-typedef struct explorer_t {
-	uint16_t owner_id;
-	uint16_t group_id;
-
-	void *meta;
-
-	char path[256];
-
-	void **cwd; // Ahora es un handle para mayor flexibilidad
-
-	partition_t *partition;
-
-	int (*ls)(struct explorer_t *exp, files_t *list);
-	int (*cd)(struct explorer_t *exp, const char *dir_name);
-	int (*mkdir)(struct explorer_t *exp, const char *name);
-	int (*mod)(struct explorer_t *exp, uint16_t *permissions, uint16_t *group, uint16_t *owner);
-	int (*chmod)(struct explorer_t *exp, uint16_t permissions, uint16_t group, uint16_t owner);
-	int (*stat)(struct explorer_t *exp, const char *name, uint8_t *attr);
-	int (*chstat)(struct explorer_t *exp, const char *name, uint8_t attr);
-	int (*size)(struct explorer_t *exp, const char *name, uint32_t *size);
-	int (*time)(struct explorer_t *exp, const char *name, uint32_t *mod);
-	int (*chtime)(struct explorer_t *exp, const char *name, uint32_t mod);
-
-	int (*touch)(struct explorer_t *exp, const char *name, uint32_t size);
-	int (*cat)(struct explorer_t *exp, const char *name, void *buffer, uint32_t amount);
-	int (*write)(struct explorer_t *exp, const char *name, void *content, uint32_t n);
-	int (*remove)(struct explorer_t *exp, const char *name);
+	void *dir = malloc(file->as.mfs.folder_size * block->SectorsPerBlock);
 	
+	IFATreadChain(block, table, file->as.mfs.folder_block, dir, file->explorer->partition, file->as.mfs.folder_size * block->SectorsPerBlock);
 
-	int (*clean)(struct explorer_t *exp); // específica para mfs, limpiar tomsbtones, se podra usar para limpiar el sistema de archivos
-	int (*destroy)(struct explorer_t *exp); // liberar memoria	
-	/* 
-	 * Futuro: crear manejadores de archivos
-	 * Spoiler: es el presente
-	 */
-	int (*new_fd)(struct explorer_t *exp, file_t *fd, const char *name);
-} explorer_t;
+	mfs_entry_t *usable = (mfs_entry_t*)dir;
 
-explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
+	while (((uint32_t)++usable) < dir_size) {
+		if (strcmp(usable->name, file->name)==0) {
+			// lo encontramos aqui hay q escribir
+			// ns, supongo q diremos q alargamos el archivo
+			usable->blockSize++;
+			break;
+		}
+	}
 
-/*
- * Funciones para MunixFS
- *
- */
+	IFATwriteChain(block, table, file->as.mfs.folder_block, dir, file->explorer->partition, file->as.mfs.folder_size * block->SectorsPerBlock);
 
-int mfs_ls(explorer_t *explorer, files_t *list);
+	free(dir);
 
-/*
- * Subfunciones de LS
- */
+	return 0;
+}
 
-int mfs_ls_next(files_t *iterator, file_item_t *item);
-uint32_t mfs_ls_count(files_t *iterator);
-
-/*
- * Fin de las subfunciones de LS
- */
-
-int mfs_cd(explorer_t *explorer, const char *dir_name);
-int mfs_mkdir(explorer_t *explorer, const char *name);
-int mfs_mod(explorer_t *explorer, uint16_t *permissions, uint16_t *group, uint16_t *owner);
-int mfs_chmod(explorer_t *explorer, uint16_t permissions, uint16_t group, uint16_t owner);
-int mfs_stat(explorer_t *explorer, const char *name, uint8_t *attr);
-int mfs_chstat(explorer_t *explorer, const char *name, uint8_t attr);
-int mfs_size(explorer_t *explorer, const char *name, uint32_t *size);
-int mfs_time(explorer_t *explorer, const char *name, uint32_t *mod);
-int mfs_chtime(explorer_t *explorer, const char *name, uint32_t mod);
-int mfs_touch(explorer_t *explorer, const char *name, uint32_t size);
-int mfs_cat(explorer_t *explorer, const char *name, void *buffer, uint32_t amount);
-int mfs_write(explorer_t *explorer, const char *name, void *content, uint32_t n);
-int mfs_remove(explorer_t *explorer, const char *name);
-
-int mfs_clean(explorer_t *explorer);
-
-int mfs_destroy(explorer_t *explorer);
-
-#endif
 
 
 ========================================
@@ -12671,47 +12823,22 @@ void MFStatChDir(void *dir, uint16_t permissions, uint16_t owner_id, uint16_t gr
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/fs/fsd.h
+ FILE: ./MunixOs/Munix/kernel/fs/fsd.c
 ========================================
-#ifndef FSD
-#define FSD
-
+#include "fsd.h"
+#include "../include/memory.h"
+#include "../include/libcs2.h"
 #include <stdint.h>
-#include <stddef.h>
-#include "../disk/general.h"
-#include "../partitions/partitions.h"
-#include "../partitions/partition_mng.h"
-#include "../disk/diski.h"
-#include "fs.h"
 
-// esto contiene el descriptor de archivos, q permitira un uso más sencillo
-// de los archivos, vamos no habra q usar el explorador
+extern char _kernel_fds_start;
+extern char _kernel_fds_end;
 
-typedef struct {
-	size_t start_block;
-} mfs_file_t;
+fd_t *kernel_fds = &_kernel_fds_start;
+uint32_t kernel_fds_size = 0;
 
-struct file;
+void initFdSize() {
 
-typedef struct file {
-	char name[256];
-	union {
-		mfs_file_t mfs;
-	} as;
-	void (*read)(file *file, void *buffer, size_t size);
-	void (*write)(file *file, void *buffer, size_t size);
-	void (*extend)(file *file);
-} file_t;
-
-typedef struct {
-	uint32_t first_block;
-	uint32_t size_in_blocks;
-	uint32_t modified;
-	uint8_t attr;
-	uint32_t folder_block;
-} mfs_file_t;
-
-#endif
+}
 
 
 ========================================
@@ -13220,8 +13347,12 @@ void ipc_send(int pid, msg_t *message) {
 #include <stdbool.h> 
 #include "../include/libcs2.h"
 #include "../include/isr.h"
+#include "../fs/fsd.h"
+#include "../usr/usr.h"
 
 #define KERNEL_FAR_PTR 48
+#define MAX_FILE_DESCRIPTORS 32
+
 
 typedef struct {
 	int pid;
@@ -13275,6 +13406,7 @@ typedef struct {
 	MailBox_t *mailbox;
 	int pid;
 	taskState status;
+	fd_t *file_descriptors[32];
 } task_t;
 
 struct task_list;
@@ -14742,6 +14874,41 @@ void kernel_main(uint32_t magic, multiboot_info_t *mbi) {
 		__asm__ volatile("hlt");
 	} // bucle infinito
 }
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/usr/usr.c
+========================================
+#include "usr.h"
+
+extern char _kernel_identities_start;
+extern char _kernel_identities_end;
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/usr/usr.h
+========================================
+#ifndef MUNIX_KERNEL_USR_USR_H
+#define MUNIX_KERNEL_USR_USR_H
+
+#include <stdint.h>
+#include <stdbool.h>
+
+// aqui tengo el KID o Kernel Identity Document, para nada el nombre basado en DNI
+
+typedef struct kid {
+	uint32_t gid;
+	uint32_t uid;
+} kid_t;
+
+typedef uint32_t permission_lvl_t;
+
+typedef struct identities {
+	permission_lvl_t level;
+	bool free;
+} identities_t
+
+#endif
 
 
 ========================================

@@ -7,6 +7,7 @@
 #include "../partitions/partitions.h"
 #include "mfs.h"
 
+struct file;
 struct explorer_t;
 
 typedef struct {
@@ -63,7 +64,7 @@ typedef struct explorer_t {
 	 * Futuro: crear manejadores de archivos
 	 * Spoiler: es el presente
 	 */
-	int (*new_fd)(struct explorer_t *exp, file_t *fd, const char *name);
+	int (*new_fd)(struct explorer_t *exp, struct file *fd, const char *name);
 } explorer_t;
 
 explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint16_t owner_id, uint16_t group_id);
@@ -104,11 +105,12 @@ int mfs_clean(explorer_t *explorer);
 
 int mfs_destroy(explorer_t *explorer);
 
+int mfs_new_fd(explorer_t *explorer, struct file *fd, const char *name);
 
-int mfs_fd_read(file_t *file, void *buffer, size_t size);
+int mfs_fd_read(struct file *file, void *buffer, size_t size);
 
-int mfs_fd_write(file_t *file,  void *buffer, size_t size);
+int mfs_fd_write(struct file *file,  void *buffer, size_t size);
 
-int mfs_fd_extend(file_t *file);
+int mfs_fd_extend(struct file *file);
 
 #endif

@@ -8,6 +8,7 @@
 #include "../partitions/partition_mng.h"
 #include "../disk/diski.h"
 #include "fs.h"
+#include "../usr/usr.h"
 
 // esto contiene el descriptor de archivos, q permitira un uso más sencillo
 // de los archivos, vamos no habra q usar el explorador
@@ -29,11 +30,22 @@ typedef struct file {
 		mfs_file_t mfs;
 	} as;
 	explorer_t *explorer;
-	int (*read)(file *file, void *buffer, size_t size);
-	int (*write)(file *file, void *buffer, size_t size);
-	int (*extend)(file *file);
+	int (*read)(struct file *file, void *buffer, size_t size);
+	int (*write)(struct file *file, void *buffer, size_t size);
+	int (*extend)(struct file *file);
 } file_t;
 
+#define 
+
+typedef struct fd {
+	uint8_t flags; // para los permisos
+	
+
+	uint32_t ref_count; // contador de referencias
+	file_t file; // recordemos q file puede usarse para cualquier cosa
+		     // realmente
+} fd_t;
 
 
+void initFd(); // inicializa la memoria donde se guardan los fd's 
 #endif

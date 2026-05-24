@@ -6,8 +6,12 @@
 #include <stdbool.h> 
 #include "../include/libcs2.h"
 #include "../include/isr.h"
+#include "../fs/fsd.h"
+#include "../usr/usr.h"
 
 #define KERNEL_FAR_PTR 48
+#define MAX_FILE_DESCRIPTORS 32
+
 
 typedef struct {
 	int pid;
@@ -61,6 +65,7 @@ typedef struct {
 	MailBox_t *mailbox;
 	int pid;
 	taskState status;
+	fd_t *file_descriptors[32];
 } task_t;
 
 struct task_list;

@@ -31,6 +31,7 @@ typedef enum {
 	FS_TYPE_LINUX=0x83, // All Linux FS uses the same code xD
 	FS_TYPE_LINUX_SWAP=0x82,
 	FS_TYPE_MFS=0x0D,
+	FS_TYPE_MTAR=0xAD,
 } fs_type_t;
 
 struct kernel_disk_t;

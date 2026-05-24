@@ -32,6 +32,6 @@ void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t 
 
 void IFATallocateChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start);
 
-int IFATappendChain(mfs_superblock_t *sblock, void *table, uint32_t first, uint32_t last);
+int IFATappendChain(mfs_superblock_t *sblock, void *table, uint32_t first, uint32_t last, partition_t *partition);
 
 #endif

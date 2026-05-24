@@ -19,7 +19,7 @@
 #endif
 */
 
-
+extern meta_bud_t *current_buddy;
 
 typedef struct free_node {
     struct free_node *next;
