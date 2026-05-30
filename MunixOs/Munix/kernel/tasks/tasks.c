@@ -25,6 +25,10 @@ int g_pid=0;
 // voy a escribir más comentarios
 registers_t *kernel_scheduler(registers_t *regs) {
 	if (k_scheduler.start == NULL) return regs; // wtf, no hay tareas
+	if (k_scheduler.current->task.status==TASK_FINNISH) {
+		// aqui liberamos su memoria
+		// aqui llamaremos a free_proc
+	}
 	if (k_scheduler.current->next == NULL) { // si llegamos al final de la lista
 		// guardamos todo y cambiamos a la tarea del inicio
 		memcpy((void*)&k_scheduler.current->task.registers, regs, sizeof(registers_t));
@@ -36,7 +40,7 @@ registers_t *kernel_scheduler(registers_t *regs) {
 		k_scheduler.current->task.status = TASK_READY;
 		k_scheduler.current = k_scheduler.current->next;
 	}
-	while (k_scheduler.current->task.status != TASK_READY) { // hasta q sea
+	while (k_scheduler.current->task.status != TASK_READY) { // hasta q sea	
 								// uno
 								// q podamos
 								// correr
@@ -105,14 +109,16 @@ task_list_t *searchName(char *name) {
 }
 
 void tkill(int pid) {
+	task_list_t *t = searchPid(pid);
 	if (pid == getPid()) {
 		// ok, la cosa cambia un poco
 		k_scheduler.current->task.status = TASK_ZOMBIE;
 
 	} else {
-		task_list_t *t = searchPid(pid);
+		
 		t->task.status = TASK_ZOMBIE;
 	}
+	// llamaremos a free_proc
 }
 
 int getTaskPid(char *name) {

@@ -26,6 +26,7 @@ bool bitmap_init(bitmap_t *bitmap, void *bitmap_start, size_t memory_amount, siz
 void *bitmap_alloc(bitmap_t *bitmap);
 void *bitmap_malloc(bitmap_t *bitmap, size_t n);
 void bitmap_free(bitmap_t *bitmap, void *page);
+void bitmap_frees(bitmap_t *bitmap, void *page, size_t n);
 
 void register_mmap_scanner(bitmap_t *bitmap, mmap_scanner scanner);
 bool bitmap_scan_mmap(bitmap_t *bitmap, void *mmap);

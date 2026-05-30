@@ -5,8 +5,10 @@
 #include "../include/shell.h"
 #include "../handlers/kb_handler.h"
 #include "../tasks/tasks.h"
+#include "../memory/bitmap.h"
 
 extern char _kernel_end;
+extern char _bitmap_data;
 
 const char *exception_messages[] = {
     "Division By Zero",
@@ -114,6 +116,26 @@ registers_t *isr_handler(registers_t *regs) {
 			ipc_receive((msg_t*)ptr);
 		} else if (regs->eax==0x05) {
 			tawake(regs->ebx);
+		} else if (regs->eax==0x06) {
+
+		} else if (regs->eax==0x07) {
+
+		} else if (regs->eax==0x08) {
+
+		} else if (regs->eax==0x09) {
+
+		} else if (regs->eax==0x0A) {
+
+		} else if (regs->eax==0x0B) {
+
+		} else if (regs->eax==0x0C) {
+
+		} else if (regs->eax==0x0D) {
+
+		} else if (regs->eax==0x0F) {
+
+		} else if (regs->eax==0x10) {
+
 		}
 		kernel_scheduler(regs);
 	}

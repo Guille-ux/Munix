@@ -159,3 +159,10 @@ void *bitmap_malloc(bitmap_t *bitmap, size_t n) {
 
 	return (void*)(index*bitmap->page_size);
 }
+
+void bitmap_frees(bitmap_t *bitmap, void *page, size_t n) {
+	size_t index = (size_t)(((size_t)page)/bitmap->page_size);
+	while (0<n--) {
+		bitmap_clear_bit(bitmap, index++);
+	} 
+}

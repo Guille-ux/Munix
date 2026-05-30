@@ -12,6 +12,8 @@
 #define KERNEL_FAR_PTR 48
 #define MAX_FILE_DESCRIPTORS 32
 
+// TODO: AÑADIR FREE_PROC, las syscalls (TODAS)
+
 
 typedef struct {
 	int pid;
@@ -40,6 +42,7 @@ typedef struct {
 extern multitask_clock_t clock_task;
 
 typedef enum {
+	TASK_NULL=0,
 	TASK_RUNNING,
 	TASK_READY,
 	TASK_WAITING,
@@ -51,21 +54,23 @@ struct pma; // physical memory access
 
 typedef struct pma {
 	size_t start;
-	size_t length;
-	struct pma *next; 
+	size_t length; // in pages
 } pma_t;
+
+#define MAX_REGIONS 32
+#define MAX_FDS 32
 
 typedef struct {
 	char *name;
 	registers_t registers;
 	//uint32_t stack_base;
 	void *main_memory;
-	uint32_t main_mem_len;
-	pma_t *registered_mem;
+	uint32_t main_mem_len; // in bytes
+	pma_t registered_mem[MAX_REGIONS]; // me parece q es muy probable q no lo use
 	MailBox_t *mailbox;
 	int pid;
 	taskState status;
-	fd_t *file_descriptors[32];
+	fd_t *file_descriptors[MAX_FDS];
 	kid_t kid;
 } task_t;
 
