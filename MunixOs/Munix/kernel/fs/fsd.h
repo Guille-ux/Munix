@@ -24,6 +24,8 @@ typedef struct {
 
 struct file;
 
+#define MAX_FD_NAME_SIZE 256
+
 typedef struct file {
 	char name[256];
 	union {
@@ -38,7 +40,8 @@ typedef struct file {
 #define 
 
 typedef struct fd {
-	uint8_t flags; // para los permisos
+	uint8_t flags; // para los permisos, no con los q se abre, pero para
+		       // los del archivo, y ser más fácil gestionarlos
 	
 
 	uint32_t ref_count; // contador de referencias
@@ -48,4 +51,10 @@ typedef struct fd {
 
 
 void initFd(); // inicializa la memoria donde se guardan los fd's 
+
+int createFd(permission_lvl_t lvl, bool is_group, char *name);
+					   // es xq hubo un error
+int removeFd(int fid);
+identity_t *getFd(int fid); // función PELIGROSA,
+				  // NO USAR A MENOS Q SEPAS LO Q HACES
 #endif

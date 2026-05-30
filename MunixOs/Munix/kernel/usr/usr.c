@@ -11,7 +11,7 @@ void initIdentities() {
 	memset(&_kernel_identities_start, 0, kernel_identities_size);
 }
 
-int_t createIdentity(permission_lvl_t lvl, bool is_group, char *name) {
+int createIdentity(permission_lvl_t lvl, bool is_group, char *name) {
 	int iid = -1;
 	for (int i =0; i < kernel_identities_size / sizeof(identity_t);i++) {
 		if (kernel_identities[i].used == false) {
@@ -30,7 +30,8 @@ int_t createIdentity(permission_lvl_t lvl, bool is_group, char *name) {
 	if (name != NULL) {
 		strncpy(identity.name, name, IDENTITY_NAME_SIZE);
 	}
-	identity.is_group = is_group
+	identity.is_group = is_group;
+	
 	identity.level = lvl;
 	
 	return iid;
