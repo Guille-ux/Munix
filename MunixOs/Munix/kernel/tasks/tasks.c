@@ -159,5 +159,5 @@ void ipc_send(int pid, msg_t *message) {
 }
 
 uint32_t sys_whoami() {
-	return (uint32_t)k_scheduler.current.task.main_memory;
+	return (uint32_t)k_scheduler.current.task.main_memory - (uint32_t)&_kernel_end;
 }
