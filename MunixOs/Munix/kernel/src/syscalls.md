@@ -102,4 +102,5 @@ this will write in ebx a lot of info of the kernel, it's 16kb because it will be
 
 set eax to 0x10
 
-this returns you where your memory starts relative to the far pointer
+this returns you where your memory starts relative to the far pointer (to eax)
+

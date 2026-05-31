@@ -10,6 +10,8 @@ struct bitmap_mng;
 
 #define MAX_MMAP_SCANNERS 2
 
+
+
 typedef bool (*mmap_scanner)(struct bitmap_mng *bitmap, void *mmap);
 
 typedef struct bitmap_mng {

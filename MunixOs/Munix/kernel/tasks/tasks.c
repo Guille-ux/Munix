@@ -157,3 +157,7 @@ void ipc_send(int pid, msg_t *message) {
 		mailbox->head = (mailbox->head+1) % mailbox->max_msg;
 	}
 }
+
+uint32_t sys_whoami() {
+	return (uint32_t)k_scheduler.current.task.main_memory;
+}

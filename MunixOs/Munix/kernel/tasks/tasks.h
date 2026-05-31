@@ -113,5 +113,6 @@ void tawake(int pid);
 
 void ipc_receive(msg_t *message);
 void ipc_send(int pid, msg_t *message);
+uint32_t sys_whoami();
 
 #endif

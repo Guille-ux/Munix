@@ -135,7 +135,7 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x0F) {
 
 		} else if (regs->eax==0x10) {
-
+			regs->eax = sys_whoami();
 		}
 		kernel_scheduler(regs);
 	}
