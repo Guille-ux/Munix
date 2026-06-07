@@ -1,5 +1,26 @@
 # SysCalls for MunixOs
 
+## Syscalls Implemented
+- [x] `wait();`
+- [x] `getPid();`
+- [x] `kill(int pid);` 
+- [x] `ipc_send(int pid, msg_t *message);`
+- [x] `ipc_receive(msg_t *message);`
+- [x] `awake(int pid);`
+- [x] `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);` 
+- [ ] `open(char *name);`
+- [ ] `read(int fd, void *buffer, size_t size);`
+- [ ] `write(int fd, void *buffer, size_t size);`
+- [ ] `extend(int fd);`
+- [ ] `remove(char *name);`
+- [ ] `getch();`
+- [ ] `register_mem(int how_many_pages);`
+- [ ] `who();`
+- [ ] `whoami();`
+- [ ] `release_mem();`
+- [ ] `change_my_name(char *new_name);`
+
+
 The `int` prefix for MunixOs is `0x80`.
 
 ## `wait();`
@@ -39,12 +60,16 @@ set ecx to 1 if to program's memory or 0 if to far pointer
 set eax to 0x05
 set ebx to pid
 
-## `spawn(size_t ram_amount, int file);`
+## `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);`
 *note that this call will use the caller's code segment and data segment*
 
 set eax to 0x06
 set ebx to the ram amount
-set ecx to the file descriptor
+set ecx to the blob pointer
+set edx to the blob length
+set edi to the position where code starts
+
+this will return to eax 0 if successful or -1 if an error happens
 
 # NOTE: AHEAD IF A INTERRUPT ASK FOR A BUFFER IS RELATIVE TO THE FAR POINTER
 
@@ -104,3 +129,15 @@ set eax to 0x10
 
 this returns you where your memory starts relative to the far pointer (to eax)
 
+## `release_mem();`
+
+set eax to 0x11
+
+this releases all the mem you got by register_mem
+
+## `change_my_name(char *new_name);`
+
+set eax to 0x12
+set ebx to the name pointer
+
+*Note: max length is 128 bytes*

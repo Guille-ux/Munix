@@ -59,6 +59,7 @@ typedef struct pma {
 
 #define MAX_REGIONS 32
 #define MAX_FDS 32
+#define MAX_MSG 31
 
 typedef struct {
 	char *name;
@@ -70,7 +71,7 @@ typedef struct {
 	MailBox_t *mailbox;
 	int pid;
 	taskState status;
-	fd_t *file_descriptors[MAX_FDS];
+	int file_descriptors[MAX_FDS]; // es un array de fid's
 	kid_t kid;
 } task_t;
 
@@ -110,9 +111,10 @@ task_list_t *searchPid(int pid);
 task_list_t *searchName(char *name);
 int getTaskPid(char *name);
 void tawake(int pid);
-
 void ipc_receive(msg_t *message);
 void ipc_send(int pid, msg_t *message);
 uint32_t sys_whoami();
+int freeProc(int pid);
+int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);
 
 #endif

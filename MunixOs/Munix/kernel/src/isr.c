@@ -117,7 +117,10 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x05) {
 			tawake(regs->ebx);
 		} else if (regs->eax==0x06) {
-
+			// deberia controlar los permisos de ejecución
+			// mejor lo controlo en los permisos para abrirlo
+			// si no lo puedes abrir ya esta no?
+			regs->eax = sys_spawn(regs->ebx, regs->ecx, regs->edx. regs->edi);
 		} else if (regs->eax==0x07) {
 
 		} else if (regs->eax==0x08) {
@@ -136,6 +139,10 @@ registers_t *isr_handler(registers_t *regs) {
 
 		} else if (regs->eax==0x10) {
 			regs->eax = sys_whoami();
+		} else if (regs->eax==0x11) {
+
+		} else if (regs->eax==0x12) {
+
 		}
 		kernel_scheduler(regs);
 	}
