@@ -205,3 +205,8 @@ int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_p
 
 	return 0;
 }
+
+int sys_open(char *name) {
+	// para esto el sistema necesita tener un VFS activo
+	// antes de seguir añadire la carpeta VFS
+}

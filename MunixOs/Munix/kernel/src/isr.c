@@ -122,7 +122,8 @@ registers_t *isr_handler(registers_t *regs) {
 			// si no lo puedes abrir ya esta no?
 			regs->eax = sys_spawn(regs->ebx, regs->ecx, regs->edx. regs->edi);
 		} else if (regs->eax==0x07) {
-
+			// una de las llamadas más jodidas
+			sys_open((char*)reg->ebx);
 		} else if (regs->eax==0x08) {
 
 		} else if (regs->eax==0x09) {
@@ -142,6 +143,8 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x11) {
 
 		} else if (regs->eax==0x12) {
+
+		} else if (regs->eax==0x13) {
 
 		}
 		kernel_scheduler(regs);

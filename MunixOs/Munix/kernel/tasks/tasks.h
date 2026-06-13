@@ -117,4 +117,6 @@ uint32_t sys_whoami();
 int freeProc(int pid);
 int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);
 
+int sys_open(char *name);
+
 #endif

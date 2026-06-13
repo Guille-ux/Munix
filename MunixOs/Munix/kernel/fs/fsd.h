@@ -52,7 +52,7 @@ typedef struct fd {
 
 void initFd(); // inicializa la memoria donde se guardan los fd's 
 
-int createFd(permission_lvl_t lvl, bool is_group, char *name);
+int createFd(explorer_t *explorer, char *name);
 					   // es xq hubo un error
 int removeFd(int fid);
 identity_t *getFd(int fid); // función PELIGROSA,

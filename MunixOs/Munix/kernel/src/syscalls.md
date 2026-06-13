@@ -19,7 +19,7 @@
 - [ ] `whoami();`
 - [ ] `release_mem();`
 - [ ] `change_my_name(char *new_name);`
-
+- [ ] `close(int fd);`
 
 The `int` prefix for MunixOs is `0x80`.
 
@@ -79,7 +79,7 @@ this will return to eax 0 if successful or -1 if an error happens
 set eax to 0x07
 set ebx to name ptr (you must add a \0, anyways the limit is 4096 charachters)
 
-the descriptor will be stored in eax
+the descriptor will be stored in eax, it the descriptor doesn't exist this will return -1
 
 ## `read(int fd, void *buffer, size_t size);`
 set eax to 0x08
@@ -141,3 +141,10 @@ set eax to 0x12
 set ebx to the name pointer
 
 *Note: max length is 128 bytes*
+
+## `close(int fd);` 
+
+set eax to 0x13
+set ebx to the file descriptor
+
+gives -1 if the fd didn't exist
