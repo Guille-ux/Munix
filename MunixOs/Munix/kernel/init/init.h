@@ -40,6 +40,8 @@
 #include "../tasks/tasks.h"
 #include "../fs/fsd.h"
 #include "../usr/usr.h"
+#include "../drivers/vga.h"
+#include "../drivers/keyboard.h"
 
 #define KERNEL_NIBTC 2 // teniendo en cuenta la frecuencia del reloj
 		       // seria cambiar de tarea cada 20 ms

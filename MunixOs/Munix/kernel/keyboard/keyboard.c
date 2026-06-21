@@ -118,4 +118,5 @@ uint16_t kgetchar() {
 			}
 			return (kbd_es[key][index] == 0) ? key : kbd_es[key][index];
 		}
+		return 0;
 }

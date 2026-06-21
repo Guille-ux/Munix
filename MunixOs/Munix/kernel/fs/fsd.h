@@ -56,6 +56,6 @@ void initFd(); // inicializa la memoria donde se guardan los fd's
 int createFd(explorer_t *explorer, char *name);
 					   // es xq hubo un error
 int removeFd(int fid);
-identity_t *getFd(int fid); // función PELIGROSA,
+fd_t *getFd(int fid); // función PELIGROSA,
 				  // NO USAR A MENOS Q SEPAS LO Q HACES
 #endif

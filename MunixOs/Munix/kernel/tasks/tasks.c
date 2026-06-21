@@ -268,3 +268,8 @@ int sys_write(int fd, void *buffer, size_t size) {
 	fd_t *ifd = getFd(real_fd);
 	return ifd->file.write(&ifd->file, buffer, size);
 }
+
+int sys_openg(int fd) {
+	kernel_fds[fd].ref_count++;
+	return newsubfd(fd, &k_scheduler.current->task);
+}

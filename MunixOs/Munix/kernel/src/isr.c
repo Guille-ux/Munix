@@ -125,17 +125,17 @@ registers_t *isr_handler(registers_t *regs) {
 			regs->eax = sys_spawn(regs->ebx, regs->ecx, regs->edx. regs->edi);
 		} else if (regs->eax==0x07) {
 			// una de las llamadas más jodidas
-			sys_open((char*)(reg->ebx+(size_t)&_kernel_end));
+			regs->eax = sys_open((char*)(reg->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x08) {
-			sys_read(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
+			regs->eax = sys_read(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
 		} else if (regs->eax==0x09) {
-			sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
+			regs->eax = sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
 		} else if (regs->eax==0x0A) {
 
 		} else if (regs->eax==0x0B) {
 
 		} else if (regs->eax==0x0C) {
-
+			regs->eax==sys_openg(regs->ebx);
 		} else if (regs->eax==0x0D) {
 
 		} else if (regs->eax==0x0F) {

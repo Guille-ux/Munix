@@ -13,7 +13,6 @@
 - [x] `write(int fd, void *buffer, size_t size);`
 - [ ] `extend(int fd);`
 - [ ] `remove(char *name);`
-- [ ] `getch();`
 - [ ] `register_mem(int how_many_pages);`
 - [ ] `who();`
 - [x] `whoami();`
@@ -22,6 +21,7 @@
 - [x] `close(int fd);`
 - [ ] `touch(char *name);`
 - [ ] `cd(char *name);`
+- [x] `openg(int fd);`
 
 The `int` prefix for MunixOs is `0x80`.
 
@@ -107,10 +107,11 @@ set eax to 0x0B
 set ebx to the file name or route pointer to delete
 removes the file entry and clears its block chain from the disk
 
-## `getch();`
+## `openg(int fd);`
 set eax to 0x0C
-fetches an ASCII character from the kernel's circular keyboard buffer
-the ASCII value will be stored in eax, if none 0 will be stored
+set ebx to the fd
+
+gets a global fd, returns your fd
 
 ## `register_mem(int how_many_pages);`
 

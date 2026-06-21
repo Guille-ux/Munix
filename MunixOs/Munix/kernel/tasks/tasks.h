@@ -131,4 +131,6 @@ int sys_close(int fd);
 int sys_read(int fd, void *buffer, size_t size);
 int sys_write(int fd, void *buffer, size_t size);
 
+int sys_openg(int fd);
+
 #endif

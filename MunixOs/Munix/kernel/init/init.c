@@ -95,6 +95,10 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 	initIdentities();
 	initFd();
 
+	// ahora inicializamos los file descriptors de teclado y pantalla
+	init_vga_fd(1);
+	init_keyboard_fd(0);
+
 	// Activar Interrupciones
 	__asm__ volatile("sti");
 }
