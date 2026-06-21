@@ -5089,154 +5089,6 @@ void buddy_free(void *ptr) __attribute__((no_instrument_function));
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/src/syscalls.md
-========================================
-# SysCalls for MunixOs
-
-## Syscalls Implemented
-- [x] `wait();`
-- [x] `getPid();`
-- [x] `kill(int pid);` 
-- [x] `ipc_send(int pid, msg_t *message);`
-- [x] `ipc_receive(msg_t *message);`
-- [x] `awake(int pid);`
-- [x] `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);` 
-- [ ] `open(char *name);`
-- [ ] `read(int fd, void *buffer, size_t size);`
-- [ ] `write(int fd, void *buffer, size_t size);`
-- [ ] `extend(int fd);`
-- [ ] `remove(char *name);`
-- [ ] `getch();`
-- [ ] `register_mem(int how_many_pages);`
-- [ ] `who();`
-- [ ] `whoami();`
-- [ ] `release_mem();`
-- [ ] `change_my_name(char *new_name);`
-
-
-The `int` prefix for MunixOs is `0x80`.
-
-## `wait();`
-set eax 0x00
-put's the job to sleep
-
-## `getPid();`
-set eax 0x01
-store's in eax the program's pid
-
-## `kill(int pid);`
-set eax 0x02
-set ebx to the pid u want to kill
-kills the pid
-
-## `ipc_send(int pid, msg_t *message);`
-set eax to 0x03
-set ebx to pid
-set ecx to the pointer
-set edx to 1 if the msg is from program's memory or 0 if it's a far pointer
-
-```c
-// messages
-typedef struct {
-    int pid; // the one who sent this message
-    uint8_t data[124]; // it isn't 128 because i wanted the messages were 128 bytes
-} msg_t;
-
-```
-
-## `ipc_receive(msg_t *message);`
-set eax to 0x04
-set ebx to message ptr
-set ecx to 1 if to program's memory or 0 if to far pointer
-
-## `awake(int pid);`
-set eax to 0x05
-set ebx to pid
-
-## `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);`
-*note that this call will use the caller's code segment and data segment*
-
-set eax to 0x06
-set ebx to the ram amount
-set ecx to the blob pointer
-set edx to the blob length
-set edi to the position where code starts
-
-this will return to eax 0 if successful or -1 if an error happens
-
-# NOTE: AHEAD IF A INTERRUPT ASK FOR A BUFFER IS RELATIVE TO THE FAR POINTER
-
-## `open(char *name);` 
-*note: this is relative to the main partition root, new symbols will be added*
-
-set eax to 0x07
-set ebx to name ptr (you must add a \0, anyways the limit is 4096 charachters)
-
-the descriptor will be stored in eax
-
-## `read(int fd, void *buffer, size_t size);`
-set eax to 0x08
-set ebx to the file descriptor (fd)
-set ecx to the destination buffer pointer in user memory
-set edx to the size in bytes to read from the file
-stores the amount of read bytes in eax (or -1 on error)
-
-## `write(int fd, void *buffer, size_t size);`
-set eax to 0x09
-set ebx to the file descriptor (fd)
-set ecx to the source buffer pointer in user memory
-set edx to the size in bytes to write to the file
-stores the amount of written bytes in eax (or -1 on error)
-
-# `extend(int fd);`
-set eax to 0x0A
-set ebx to the file descriptor (fd)
-allocates and appends a new block to the file chain on the MFS partition
-
-## `remove(char *name);`
-set eax to 0x0B
-set ebx to the file name or route pointer to delete
-removes the file entry and clears its block chain from the disk
-
-## `getch();`
-set eax to 0x0C
-fetches an ASCII character from the kernel's circular keyboard buffer
-the ASCII value will be stored in eax, if none 0 will be stored
-
-## `register_mem(int how_many_pages);`
-
-set eax to 0x0D
-set ebx to the amount of pages you want
-this returns you a far pointer to a new memory region, returns -1 if error
-
-## `who();`
-
-set eax to 0x0F
-set ebx to ptr to a 16kb memory space
-
-this will write in ebx a lot of info of the kernel, it's 16kb because it will be huge
-
-## `whoami();`
-
-set eax to 0x10
-
-this returns you where your memory starts relative to the far pointer (to eax)
-
-## `release_mem();`
-
-set eax to 0x11
-
-this releases all the mem you got by register_mem
-
-## `change_my_name(char *new_name);`
-
-set eax to 0x12
-set ebx to the name pointer
-
-*Note: max length is 128 bytes*
-
-
-========================================
  FILE: ./MunixOs/Munix/kernel/src/gdt.c
 ========================================
 #include "../include/libcs2.h"
@@ -6427,6 +6279,196 @@ void init_tss(void) {
 
 
 ========================================
+ FILE: ./MunixOs/Munix/kernel/src/syscalls.md
+========================================
+# SysCalls for MunixOs
+
+## Syscalls Implemented
+- [x] `wait();`
+- [x] `getPid();`
+- [x] `kill(int pid);` 
+- [x] `ipc_send(int pid, msg_t *message);`
+- [x] `ipc_receive(msg_t *message);`
+- [x] `awake(int pid);`
+- [x] `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);` 
+- [x] `open(char *name);`
+- [ ] `read(int fd, void *buffer, size_t size);`
+- [ ] `write(int fd, void *buffer, size_t size);`
+- [ ] `extend(int fd);`
+- [ ] `remove(char *name);`
+- [ ] `getch();`
+- [ ] `register_mem(int how_many_pages);`
+- [ ] `who();`
+- [ ] `whoami();`
+- [ ] `release_mem();`
+- [ ] `change_my_name(char *new_name);`
+- [x] `close(int fd);`
+- [ ] `touch(char *name);`
+- [ ] `cd(char *name);`
+
+The `int` prefix for MunixOs is `0x80`.
+
+## `wait();`
+set eax 0x00
+put's the job to sleep
+
+## `getPid();`
+set eax 0x01
+store's in eax the program's pid
+
+## `kill(int pid);`
+set eax 0x02
+set ebx to the pid u want to kill
+kills the pid
+
+## `ipc_send(int pid, msg_t *message);`
+set eax to 0x03
+set ebx to pid
+set ecx to the pointer
+set edx to 1 if the msg is from program's memory or 0 if it's a far pointer
+
+```c
+// messages
+typedef struct {
+    int pid; // the one who sent this message
+    uint8_t data[124]; // it isn't 128 because i wanted the messages were 128 bytes
+} msg_t;
+
+```
+
+## `ipc_receive(msg_t *message);`
+set eax to 0x04
+set ebx to message ptr
+set ecx to 1 if to program's memory or 0 if to far pointer
+
+## `awake(int pid);`
+set eax to 0x05
+set ebx to pid
+
+## `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);`
+*note that this call will use the caller's code segment and data segment*
+
+set eax to 0x06
+set ebx to the ram amount
+set ecx to the blob pointer
+set edx to the blob length
+set edi to the position where code starts
+
+this will return to eax 0 if successful or -1 if an error happens
+
+# NOTE: AHEAD IF A INTERRUPT ASK FOR A BUFFER IS RELATIVE TO THE FAR POINTER
+
+## `open(char *name);` 
+*note: this is relative to the main partition root, new symbols will be added*
+
+set eax to 0x07
+set ebx to name ptr (you must add a \0, anyways the limit is 4096 charachters)
+
+the descriptor will be stored in eax, it the descriptor doesn't exist this will return -1 (also returns -1 if there isn't enough space for fd's)
+
+## `read(int fd, void *buffer, size_t size);`
+set eax to 0x08
+set ebx to the file descriptor (fd)
+set ecx to the destination buffer pointer in user memory
+set edx to the size in bytes to read from the file
+stores the amount of read bytes in eax (or -1 on error)
+
+## `write(int fd, void *buffer, size_t size);`
+set eax to 0x09
+set ebx to the file descriptor (fd)
+set ecx to the source buffer pointer in user memory
+set edx to the size in bytes to write to the file
+stores the amount of written bytes in eax (or -1 on error)
+
+# `extend(int fd);`
+set eax to 0x0A
+set ebx to the file descriptor (fd)
+allocates and appends a new block to the file chain on the MFS partition
+
+## `remove(char *name);`
+set eax to 0x0B
+set ebx to the file name or route pointer to delete
+removes the file entry and clears its block chain from the disk
+
+## `getch();`
+set eax to 0x0C
+fetches an ASCII character from the kernel's circular keyboard buffer
+the ASCII value will be stored in eax, if none 0 will be stored
+
+## `register_mem(int how_many_pages);`
+
+set eax to 0x0D
+set ebx to the amount of pages you want
+this returns you a far pointer to a new memory region, returns -1 if error
+
+## `who();`
+
+set eax to 0x0F
+set ebx to ptr to a 16kb memory space
+
+this will write in ebx a lot of info of the kernel, it's 16kb because it will be huge
+
+## `whoami();`
+
+set eax to 0x10
+
+this returns you where your memory starts relative to the far pointer (to eax)
+
+## `release_mem();`
+
+set eax to 0x11
+
+this releases all the mem you got by register_mem
+
+## `change_my_name(char *new_name);`
+
+set eax to 0x12
+set ebx to the name pointer
+
+*Note: max length is 128 bytes*
+
+## `close(int fd);` 
+
+set eax to 0x13
+set ebx to the file descriptor
+
+gives -1 if the fd didn't exist
+
+## `remove(int fd);`
+
+set eax t0 0x14
+set ebx to the file descriptor
+
+## `touch(char *name);`
+
+set eax to 0x15
+set ebx to the name ptr, max size is 256 characters (must end with \0)
+
+returns 0 if no error
+returns -1 if the file exists
+return -2 if there isn't enough space (idk how i'm going to make this)
+
+## `cd(char *name);`
+*NOTE: Only one level of changed*
+
+set eax to 0x16
+set ebx to the name ptr max size is 256 charachters (must end with \0)
+
+return 0 if no problem
+if the directory doesn't exist returns -1
+if that's a file returns -2
+(the kernel will move to where the program is to verify that file exist)
+
+## `ls();`
+
+set eax to 0x17
+
+returns a list of every file in the directory with the following struct
+
+(this is for the future, i'm not going to work this, in a long time)
+
+
+========================================
  FILE: ./MunixOs/Munix/kernel/src/isr.c
 ========================================
 #include "../include/isr.h"
@@ -6506,6 +6548,8 @@ registers_t *isr_handler(registers_t *regs) {
 	        	return regs;
         	}
 	} else if (regs->int_no==0x80) { // para las syscalls
+		disableClockTask(); // esto evitara cambios de contexto
+				    // sin cargarnos las interrupciones
 		if (regs->eax==0x00) {
 			// wait
 			twait();
@@ -6553,7 +6597,8 @@ registers_t *isr_handler(registers_t *regs) {
 			// si no lo puedes abrir ya esta no?
 			regs->eax = sys_spawn(regs->ebx, regs->ecx, regs->edx. regs->edi);
 		} else if (regs->eax==0x07) {
-
+			// una de las llamadas más jodidas
+			sys_open((char*)(reg->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x08) {
 
 		} else if (regs->eax==0x09) {
@@ -6574,7 +6619,18 @@ registers_t *isr_handler(registers_t *regs) {
 
 		} else if (regs->eax==0x12) {
 
+		} else if (regs->eax==0x13) {
+			sys_close(regs->ebx);
+		} else if (regs->eax==0x14) {
+
+		} else if (regs->eax==0x15) {
+
+		} else if (regs->eax==0x16) {
+
+		} else if (regs->eax==0x17) {
+
 		}
+		enableClockTask(); // reactivamos para q no nos roben la cpu
 		kernel_scheduler(regs);
 	}
 	return regs;
@@ -12005,71 +12061,6 @@ int mfs_fd_extend(file_t *file) {
 
 
 ========================================
- FILE: ./MunixOs/Munix/kernel/fs/fsd.h
-========================================
-#ifndef FSD
-#define FSD
-
-#include <stdint.h>
-#include <stddef.h>
-#include "../disk/general.h"
-#include "../partitions/partitions.h"
-#include "../partitions/partition_mng.h"
-#include "../disk/diski.h"
-#include "fs.h"
-#include "../usr/usr.h"
-
-// esto contiene el descriptor de archivos, q permitira un uso más sencillo
-// de los archivos, vamos no habra q usar el explorador
-
-typedef struct {
-	uint32_t first_block;
-	uint32_t size_in_blocks;
-	uint32_t modified;
-	uint8_t attr;
-	uint32_t folder_size;
-	uint32_t folder_block;
-} mfs_file_t;
-
-struct file;
-
-#define MAX_FD_NAME_SIZE 256
-
-typedef struct file {
-	char name[256];
-	union {
-		mfs_file_t mfs;
-	} as;
-	explorer_t *explorer;
-	int (*read)(struct file *file, void *buffer, size_t size);
-	int (*write)(struct file *file, void *buffer, size_t size);
-	int (*extend)(struct file *file);
-} file_t;
-
-#define 
-
-typedef struct fd {
-	uint8_t flags; // para los permisos, no con los q se abre, pero para
-		       // los del archivo, y ser más fácil gestionarlos
-	
-
-	uint32_t ref_count; // contador de referencias
-	file_t file; // recordemos q file puede usarse para cualquier cosa
-		     // realmente
-} __attribute__((packed)) fd_t;
-
-
-void initFd(); // inicializa la memoria donde se guardan los fd's 
-
-int createFd(permission_lvl_t lvl, bool is_group, char *name);
-					   // es xq hubo un error
-int removeFd(int fid);
-identity_t *getFd(int fid); // función PELIGROSA,
-				  // NO USAR A MENOS Q SEPAS LO Q HACES
-#endif
-
-
-========================================
  FILE: ./MunixOs/Munix/kernel/fs/fat12.c
 ========================================
 #include "fat12.h"
@@ -13040,6 +13031,71 @@ void MFStatChDir(void *dir, uint16_t permissions, uint16_t owner_id, uint16_t gr
 
 
 ========================================
+ FILE: ./MunixOs/Munix/kernel/fs/fsd.h
+========================================
+#ifndef FSD
+#define FSD
+
+#include <stdint.h>
+#include <stddef.h>
+#include "../disk/general.h"
+#include "../partitions/partitions.h"
+#include "../partitions/partition_mng.h"
+#include "../disk/diski.h"
+#include "fs.h"
+#include "../usr/usr.h"
+
+// esto contiene el descriptor de archivos, q permitira un uso más sencillo
+// de los archivos, vamos no habra q usar el explorador
+
+typedef struct {
+	uint32_t first_block;
+	uint32_t size_in_blocks;
+	uint32_t modified;
+	uint8_t attr;
+	uint32_t folder_size;
+	uint32_t folder_block;
+} mfs_file_t;
+
+struct file;
+
+#define MAX_FD_NAME_SIZE 256
+
+typedef struct file {
+	char name[256];
+	union {
+		mfs_file_t mfs;
+	} as;
+	explorer_t *explorer;
+	int (*read)(struct file *file, void *buffer, size_t size);
+	int (*write)(struct file *file, void *buffer, size_t size);
+	int (*extend)(struct file *file);
+} file_t;
+
+#define 
+
+typedef struct fd {
+	uint8_t flags; // para los permisos, no con los q se abre, pero para
+		       // los del archivo, y ser más fácil gestionarlos
+	
+
+	uint32_t ref_count; // contador de referencias
+	file_t file; // recordemos q file puede usarse para cualquier cosa
+		     // realmente
+} __attribute__((packed)) fd_t;
+
+
+void initFd(); // inicializa la memoria donde se guardan los fd's 
+
+int createFd(explorer_t *explorer, char *name);
+					   // es xq hubo un error
+int removeFd(int fid);
+identity_t *getFd(int fid); // función PELIGROSA,
+				  // NO USAR A MENOS Q SEPAS LO Q HACES
+#endif
+
+
+========================================
  FILE: ./MunixOs/Munix/kernel/fs/mfs.h
 ========================================
 #ifndef MFS
@@ -13387,12 +13443,148 @@ void bitmap_clear_range(bitmap_t *bitmap, size_t start, size_t len);
 
 
 ========================================
+ FILE: ./MunixOs/Munix/kernel/tasks/tasks.h
+========================================
+#ifndef MUNIX_TASKS_H
+#define MUNIX_TASKS_H
+
+#include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h> 
+#include "../include/libcs2.h"
+#include "../include/isr.h"
+#include "../fs/fsd.h"
+#include "../usr/usr.h"
+
+#define KERNEL_FAR_PTR 48
+#define MAX_FILE_DESCRIPTORS 32
+
+
+
+
+typedef struct {
+	int pid;
+	uint8_t data[124];
+} __attribute__((packed)) msg_t;
+
+typedef struct {
+	int pid;
+	uint32_t tail;
+	uint32_t head;
+	uint32_t count;
+	uint32_t max_msg;
+	uint8_t padding[104];
+	uint8_t buffer[3968]
+} __attribute__((packed)) MailBox_t;
+
+typedef struct {
+	bool is_enabled; // el reloj necesita saber como va
+	int current_count; // interrupciones de reloj desde
+			   // q se hizo el último cambio de tarea
+	int nibtc; // nº de interrupciones de reloj antes
+			// de volver a hacer un cambio de tarea
+} multitask_clock_t; // es una estructura con estados del multitask
+		     // necesarios para el reloj
+
+extern multitask_clock_t clock_task;
+
+typedef enum {
+	TASK_NULL=0,
+	TASK_RUNNING,
+	TASK_READY,
+	TASK_WAITING,
+	TASK_FINNISH, // la tarea es finlandesa una vez q acaba
+	TASK_ZOMBIE, // si no cierra correctamente
+} taskState;
+
+struct pma; // physical memory access
+
+typedef struct pma {
+	size_t start;
+	size_t length; // in pages
+} pma_t;
+
+#define MAX_REGIONS 32
+#define MAX_FDS 32
+#define MAX_MSG 31
+#define PATH_MAX 1024
+
+typedef struct {
+	char *name;
+	registers_t registers;
+	//uint32_t stack_base;
+	void *main_memory;
+	uint32_t main_mem_len; // in bytes
+	pma_t registered_mem[MAX_REGIONS]; // me parece q es muy probable q no lo use
+	MailBox_t *mailbox;
+	int pid;
+	taskState status;
+	int file_descriptors[MAX_FDS]; // es un array de fid's
+	kid_t kid;
+	char route[PATH_MAX];
+} task_t;
+
+struct task_list;
+
+typedef struct task_list {
+	task_t task;
+	struct task_list *next;
+} task_list_t;
+
+typedef struct {
+	task_list_t *start;
+	task_list_t *current;
+} scheduler_t;
+
+void initClockTask(int nibtc); 
+// nibtc == Number of Interrupts Before Task Change
+
+inline void enableClockTask() {
+	clock_task.is_enabled = true;
+}
+
+inline void disableClockTask() {
+	clock_task.is_enabled = false;
+}
+
+extern scheduler_t k_scheduler;
+
+void initKernelScheduler(void);
+registers_t *kernel_scheduler(registers_t *regs);
+int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount, uint32_t eip, char *name);
+
+// funciones para los subfd
+int newsubfd(int real_fd, task_t *task);
+int removesubfd(int subfd, task_t *task);
+int initsubfd(task_t *task);
+
+int getPid(void);
+void twait(void);
+void tkill(int pid);
+task_list_t *searchPid(int pid);
+task_list_t *searchName(char *name);
+int getTaskPid(char *name);
+void tawake(int pid);
+void ipc_receive(msg_t *message);
+void ipc_send(int pid, msg_t *message);
+uint32_t sys_whoami();
+int freeProc(int pid);
+int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);
+
+int sys_open(char *name);
+int sys_close(int fd);
+
+#endif
+
+
+========================================
  FILE: ./MunixOs/Munix/kernel/tasks/tasks.c
 ========================================
 #include "tasks.h"
 #include "../include/gdt.h"
 #include "../memory/bitmap.h"
 #include "../fs/fsd.h"
+#include "../vfs/vfs.h"
 
 extern char _bitmap_data;
 
@@ -13476,7 +13668,7 @@ int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount
 	newProc->task.mailbox->head = 0;
 	newProc->task.mailbox->count = 0;
 	newProc->task.mailbox->max_msg = MAX_MSG;
-	
+	initsubfd(&newProc->task);
 	k_scheduler.start = newProc;
 
 	return 0;
@@ -13593,134 +13785,52 @@ int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_p
 	uint16_t ds = k_scheduler.current->task.registers.ds;
 
 	spawnProccess(cs, ds, mem_start, ram_amount, start_pos, standard_proc_name);
+	task_list_t *ctk = k_scheduler.start; // este es el nuevo proceso
+			   // como no queria modificar de nuevo la función
+			   // lo q hare sera acceder al proceso y cambiar
+			   // sus datos
+
+	memcpy(ctk->task.route, k_scheduler.current->task.route, PATH_MAX);
 
 	return 0;
 }
 
+int sys_open(char *name) {
+	// para esto el sistema necesita tener un VFS activo
+	// antes de seguir añadire la carpeta VFS
+	if (ucd(k_scheduler.current->task.route)) return -1;
 
-========================================
- FILE: ./MunixOs/Munix/kernel/tasks/tasks.h
-========================================
-#ifndef MUNIX_TASKS_H
-#define MUNIX_TASKS_H
+	int fd = ufd(name);
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h> 
-#include "../include/libcs2.h"
-#include "../include/isr.h"
-#include "../fs/fsd.h"
-#include "../usr/usr.h"
-
-#define KERNEL_FAR_PTR 48
-#define MAX_FILE_DESCRIPTORS 32
-
-// TODO: AÑADIR FREE_PROC, las syscalls (TODAS)
-
-
-typedef struct {
-	int pid;
-	uint8_t data[124];
-} __attribute__((packed)) msg_t;
-
-typedef struct {
-	int pid;
-	uint32_t tail;
-	uint32_t head;
-	uint32_t count;
-	uint32_t max_msg;
-	uint8_t padding[104];
-	uint8_t buffer[3968]
-} __attribute__((packed)) MailBox_t;
-
-typedef struct {
-	bool is_enabled; // el reloj necesita saber como va
-	int current_count; // interrupciones de reloj desde
-			   // q se hizo el último cambio de tarea
-	int nibtc; // nº de interrupciones de reloj antes
-			// de volver a hacer un cambio de tarea
-} multitask_clock_t; // es una estructura con estados del multitask
-		     // necesarios para el reloj
-
-extern multitask_clock_t clock_task;
-
-typedef enum {
-	TASK_NULL=0,
-	TASK_RUNNING,
-	TASK_READY,
-	TASK_WAITING,
-	TASK_FINNISH, // la tarea es finlandesa una vez q acaba
-	TASK_ZOMBIE, // si no cierra correctamente
-} taskState;
-
-struct pma; // physical memory access
-
-typedef struct pma {
-	size_t start;
-	size_t length; // in pages
-} pma_t;
-
-#define MAX_REGIONS 32
-#define MAX_FDS 32
-#define MAX_MSG 31
-
-typedef struct {
-	char *name;
-	registers_t registers;
-	//uint32_t stack_base;
-	void *main_memory;
-	uint32_t main_mem_len; // in bytes
-	pma_t registered_mem[MAX_REGIONS]; // me parece q es muy probable q no lo use
-	MailBox_t *mailbox;
-	int pid;
-	taskState status;
-	int file_descriptors[MAX_FDS]; // es un array de fid's
-	kid_t kid;
-} task_t;
-
-struct task_list;
-
-typedef struct task_list {
-	task_t task;
-	struct task_list *next;
-} task_list_t;
-
-typedef struct {
-	task_list_t *start;
-	task_list_t *current;
-} scheduler_t;
-
-void initClockTask(int nibtc); 
-// nibtc == Number of Interrupts Before Task Change
-
-inline void enableClockTask() {
-	clock_task.is_enabled = true;
+	return newsubfd(fd, &k_scheduler.current->task);
 }
 
-inline void disableClockTask() {
-	clock_task.is_enabled = false;
+int newsubfd(int real_fd, task_t *task) {
+	if (task==NULL) return -1;
+	for (int i=0;i<MAX_FDS;i++) {
+		if (task->file_descriptors[i]==-1) {
+			task->file_descriptors[i]=real_fd;
+			return i;
+		}
+	}
+	return -1;
 }
 
-extern scheduler_t k_scheduler;
+int removesubfd(int subfd, task_t *task) {
+	if (subfd>MAX_FDS || task == NULL) return -1;
+	task->file_descriptors[subfd]=-1;
+	return 0;
+}
 
-void initKernelScheduler(void);
-registers_t *kernel_scheduler(registers_t *regs);
-int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount, uint32_t eip, char *name);
+int initsubfd(task_t *task) {
+	if (task==NULL) return -1;
+	memset(task->file_descriptors, -1, sizeof(task->file_descriptors));
+	return 0;
+}
 
-int getPid(void);
-void twait(void);
-void tkill(int pid);
-task_list_t *searchPid(int pid);
-task_list_t *searchName(char *name);
-int getTaskPid(char *name);
-void tawake(int pid);
-void ipc_receive(msg_t *message);
-void ipc_send(int pid, msg_t *message);
-uint32_t sys_whoami();
-int freeProc(int pid);
-int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);
-
-#endif
+int sys_close(int fd) {
+	return removesubfd(fd, &k_scheduler.current->task);
+}
 
 
 ========================================
@@ -15239,6 +15349,123 @@ int removeIdentity(int iid) {
 identity_t *getIdentity(int iid) {
 	return &kernel_identities[iid];
 }
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/vfs/vfs.c
+========================================
+#include "vfs.h"
+#include "../include/libcs2.h"
+#include "../fs/fsd.h"
+
+// TODO: IMPLEMENT TAR FUNCS, also a way to automatically init the vfs
+
+
+vfs_t kernel_vfs;
+
+int initKernelVFS_EXP(vfs_type type, explorer_t *expfs) {
+	if (expfs==NULL) return -1;
+
+	kernel_vfs.type = EXPLORER_FS;
+	kernel_vfs.fs.expfs = expfs;
+
+	// no habia mucho más q hacer
+
+	return 0;
+}
+
+// ahora las funciones complejas de verdad, primero ucd
+// más adelante a parte de esto, los procesos tmb seran capaces de hacer otras cosas
+
+int ucd(const char *names) {
+	char *name = strdup(names);
+	if (kernel_vfs.type == TAR_FS) {
+		// de momento nada
+	} else if (kernel_vfs.type == EXPLORER_FS) {
+		// aqui hay q parsear, esta función servira de base para muchas otras
+		char delimiters[] = "/";
+		char *chain = kernel_vfs.fs.expfs->path;
+		char *token = strtok(chain, delimiters);
+
+		while (token!=NULL) {
+			int result = kernel_vfs.fs.expfs->cd(kernel_vfs.fs.expfs, token);
+			if (result == -1) {
+				return -1; // vamos, q la ruta es incorrecta
+			}
+			token = strtok(NULL, delimiters);
+		}
+		// si salimos del bucle es xq era null
+
+	}
+	free(name);
+	return 0;
+}
+
+int ufd(const char *names) {
+	char *name = strdup(names);
+	int ifd = -1;
+	if (kernel_vfs.type == TAR_FS) {
+		// idk
+	} else if (kernel_vfs.type == EXPLORER_FS) {
+		char *name_start = strrchr(name, "/");
+		int index = name_start - name;
+		name[index++] = '\0';
+		// ahora llamamos a ucd
+		int result = ucd(name); // si ya se q ahora hay 2 copias en memoria
+		if (result != 0) {
+			return -1;
+		}
+		
+		ifd = createFd(kernel_vfs.fs.expfs, name_start);
+		
+		ucd("/"); // para volver al root, si el programa estaba en otra parte, ps ya volvera el solo
+		
+	}
+	free(name);
+	return ifd;
+}
+
+
+========================================
+ FILE: ./MunixOs/Munix/kernel/vfs/vfs.h
+========================================
+#ifndef MUNIX_VFS_H
+#define MUNIX_VFS_H
+
+/*
+ * No creas q es nada super complejo, solo una pequeña estructura y algo de
+ * código q mejoran las funciones para moverse y le dice al kernel
+ * una forma de acceder al disco principal sin muchos problemas
+ * nada más, en el futuro ya hare una cache de inodos y cosas raras
+ *
+ */
+
+#include "../fs/fs.h"
+#include "../tar/tar.h"
+#include <stdint.h>
+#include <stddef.h>
+
+typedef enum {
+	TAR_FS,
+	EXPLORER_FS,
+} vfs_type;
+
+typedef struct {
+	vfs_type type;
+
+	union {
+		explorer_t *expfs;
+		tar_t *tarfs;
+	} fs
+} vfs_t;
+
+extern vfs_t kernel_vfs;
+
+int initKernelVFS_EXP(vfs_type type, explorer_t *expfs);
+int ucd(const char *names); // better cd
+int ufd(const char *names); // better fd creator
+
+#endif
 
 
 ========================================

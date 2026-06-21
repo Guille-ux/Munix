@@ -9,14 +9,14 @@
 - [x] `awake(int pid);`
 - [x] `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);` 
 - [x] `open(char *name);`
-- [ ] `read(int fd, void *buffer, size_t size);`
-- [ ] `write(int fd, void *buffer, size_t size);`
+- [x] `read(int fd, void *buffer, size_t size);`
+- [x] `write(int fd, void *buffer, size_t size);`
 - [ ] `extend(int fd);`
 - [ ] `remove(char *name);`
 - [ ] `getch();`
 - [ ] `register_mem(int how_many_pages);`
 - [ ] `who();`
-- [ ] `whoami();`
+- [x] `whoami();`
 - [ ] `release_mem();`
 - [ ] `change_my_name(char *new_name);`
 - [x] `close(int fd);`

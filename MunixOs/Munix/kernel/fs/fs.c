@@ -345,16 +345,14 @@ int mfs_fd_read(file_t *file, void *buffer, size_t size) {
 	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
 	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
 
-	IFATreadChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
-	return 0;
+	return IFATreadChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
 }
 
 int mfs_fd_write(file_t *file,  void *buffer, size_t size) {
 	void *table = ((mfs_meta_t*)file->explorer->meta)->ifat_table;
 	mfs_superblock_t *block = ((mfs_meta_t*)file->explorer->meta)->superblock;
 
-	IFATwriteChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
-	return 0;
+	return IFATwriteChain(block, table, file->as.mfs.first_block, buffer, file->explorer->partition, size);
 }
 
 int mfs_fd_extend(file_t *file) {

@@ -110,6 +110,7 @@ int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount
 int newsubfd(int real_fd, task_t *task);
 int removesubfd(int subfd, task_t *task);
 int initsubfd(task_t *task);
+int getsubfd(int subfd, task_t *task);
 
 int getPid(void);
 void twait(void);
@@ -126,5 +127,8 @@ int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_p
 
 int sys_open(char *name);
 int sys_close(int fd);
+
+int sys_read(int fd, void *buffer, size_t size);
+int sys_write(int fd, void *buffer, size_t size);
 
 #endif

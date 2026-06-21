@@ -41,8 +41,8 @@ void IFATwriteEntry(mfs_superblock_t *sblock, void *table, uint32_t index, uint3
 }
 
 
-void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
-	if (buffer==NULL || table==NULL || sblock==NULL) return;
+int IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
+	if (buffer==NULL || table==NULL || sblock==NULL) return -1;
 
 	uint32_t start_idx=index;
 	uint32_t current_idx=index;
@@ -74,6 +74,7 @@ void IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 		start_idx = new_idx;
 		current_idx = new_idx;
 	}
+	return read;
 }
 
 
@@ -108,8 +109,8 @@ void IFATcleanTombstones(mfs_superblock_t *sblock, void *table) {
 }
 
 
-void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
-	if (buffer==NULL || table==NULL || sblock==NULL) return;
+int IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
+	if (buffer==NULL || table==NULL || sblock==NULL) return -1;
 	
 	uint32_t start_idx=index;
 	uint32_t current_idx=index;
@@ -144,6 +145,7 @@ void IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void 
 		start_idx = new_idx;	
 		current_idx = new_idx;
 	}
+	return write;
 }
 
 void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {

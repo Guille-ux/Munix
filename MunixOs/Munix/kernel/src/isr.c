@@ -127,9 +127,9 @@ registers_t *isr_handler(registers_t *regs) {
 			// una de las llamadas más jodidas
 			sys_open((char*)(reg->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x08) {
-
+			sys_read(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
 		} else if (regs->eax==0x09) {
-
+			sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
 		} else if (regs->eax==0x0A) {
 
 		} else if (regs->eax==0x0B) {

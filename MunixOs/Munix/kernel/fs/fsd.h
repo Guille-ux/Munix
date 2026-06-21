@@ -32,8 +32,9 @@ typedef struct file {
 		mfs_file_t mfs;
 	} as;
 	explorer_t *explorer;
-	int (*read)(struct file *file, void *buffer, size_t size);
+	int (*read)(struct file *file, void *buffer, size_t size); 
 	int (*write)(struct file *file, void *buffer, size_t size);
+	// these funcs should return how many bytes were read or written
 	int (*extend)(struct file *file);
 } file_t;
 

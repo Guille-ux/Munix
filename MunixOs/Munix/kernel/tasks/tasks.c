@@ -246,6 +246,25 @@ int initsubfd(task_t *task) {
 	return 0;
 }
 
+int getsubfd(int subfd, task_t *task) {
+	if (task==NULL) return -1;
+	return task->file_descriptors[subfd];
+}
+
 int sys_close(int fd) {
 	return removesubfd(fd, &k_scheduler.current->task);
+}
+
+int sys_read(int fd, void *buffer, size_t size) {
+	int real_fd = getsubfd(fd, &k_scheduler.current->task);
+
+	fd_t *ifd = getFd(real_fd);
+	return ifd->file.read(&ifd->file, buffer, size);
+}
+
+int sys_write(int fd, void *buffer, size_t size) {
+	int real_fd = getsubfd(fd, &k_scheduler.current->task);
+
+	fd_t *ifd = getFd(real_fd);
+	return ifd->file.write(&ifd->file, buffer, size);
 }
