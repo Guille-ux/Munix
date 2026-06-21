@@ -75,6 +75,8 @@ registers_t *isr_handler(registers_t *regs) {
 	        	return regs;
         	}
 	} else if (regs->int_no==0x80) { // para las syscalls
+		disableClockTask(); // esto evitara cambios de contexto
+				    // sin cargarnos las interrupciones
 		if (regs->eax==0x00) {
 			// wait
 			twait();
@@ -123,7 +125,7 @@ registers_t *isr_handler(registers_t *regs) {
 			regs->eax = sys_spawn(regs->ebx, regs->ecx, regs->edx. regs->edi);
 		} else if (regs->eax==0x07) {
 			// una de las llamadas más jodidas
-			sys_open((char*)reg->ebx);
+			sys_open((char*)(reg->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x08) {
 
 		} else if (regs->eax==0x09) {
@@ -145,8 +147,17 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x12) {
 
 		} else if (regs->eax==0x13) {
+			sys_close(regs->ebx);
+		} else if (regs->eax==0x14) {
+
+		} else if (regs->eax==0x15) {
+
+		} else if (regs->eax==0x16) {
+
+		} else if (regs->eax==0x17) {
 
 		}
+		enableClockTask(); // reactivamos para q no nos roben la cpu
 		kernel_scheduler(regs);
 	}
 	return regs;

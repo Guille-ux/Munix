@@ -2,7 +2,8 @@
 #include "../include/libcs2.h"
 #include "../fs/fsd.h"
 
-// TODO: IMPLEMENT TAR FUNCS
+// TODO: IMPLEMENT TAR FUNCS, also a way to automatically init the vfs
+
 
 vfs_t kernel_vfs;
 
@@ -46,6 +47,7 @@ int ucd(const char *names) {
 
 int ufd(const char *names) {
 	char *name = strdup(names);
+	int ifd = -1;
 	if (kernel_vfs.type == TAR_FS) {
 		// idk
 	} else if (kernel_vfs.type == EXPLORER_FS) {
@@ -58,11 +60,11 @@ int ufd(const char *names) {
 			return -1;
 		}
 		
-		createFd(kernel_vfs.fs.expfs, name_start);
+		ifd = createFd(kernel_vfs.fs.expfs, name_start);
 		
 		ucd("/"); // para volver al root, si el programa estaba en otra parte, ps ya volvera el solo
 		
 	}
 	free(name);
-	return 0;
+	return ifd;
 }

@@ -8,7 +8,7 @@
 - [x] `ipc_receive(msg_t *message);`
 - [x] `awake(int pid);`
 - [x] `spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);` 
-- [ ] `open(char *name);`
+- [x] `open(char *name);`
 - [ ] `read(int fd, void *buffer, size_t size);`
 - [ ] `write(int fd, void *buffer, size_t size);`
 - [ ] `extend(int fd);`
@@ -19,7 +19,9 @@
 - [ ] `whoami();`
 - [ ] `release_mem();`
 - [ ] `change_my_name(char *new_name);`
-- [ ] `close(int fd);`
+- [x] `close(int fd);`
+- [ ] `touch(char *name);`
+- [ ] `cd(char *name);`
 
 The `int` prefix for MunixOs is `0x80`.
 
@@ -79,7 +81,7 @@ this will return to eax 0 if successful or -1 if an error happens
 set eax to 0x07
 set ebx to name ptr (you must add a \0, anyways the limit is 4096 charachters)
 
-the descriptor will be stored in eax, it the descriptor doesn't exist this will return -1
+the descriptor will be stored in eax, it the descriptor doesn't exist this will return -1 (also returns -1 if there isn't enough space for fd's)
 
 ## `read(int fd, void *buffer, size_t size);`
 set eax to 0x08
@@ -148,3 +150,36 @@ set eax to 0x13
 set ebx to the file descriptor
 
 gives -1 if the fd didn't exist
+
+## `remove(int fd);`
+
+set eax t0 0x14
+set ebx to the file descriptor
+
+## `touch(char *name);`
+
+set eax to 0x15
+set ebx to the name ptr, max size is 256 characters (must end with \0)
+
+returns 0 if no error
+returns -1 if the file exists
+return -2 if there isn't enough space (idk how i'm going to make this)
+
+## `cd(char *name);`
+*NOTE: Only one level of changed*
+
+set eax to 0x16
+set ebx to the name ptr max size is 256 charachters (must end with \0)
+
+return 0 if no problem
+if the directory doesn't exist returns -1
+if that's a file returns -2
+(the kernel will move to where the program is to verify that file exist)
+
+## `ls();`
+
+set eax to 0x17
+
+returns a list of every file in the directory with the following struct
+
+(this is for the future, i'm not going to work this, in a long time)

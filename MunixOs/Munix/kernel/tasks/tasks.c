@@ -2,6 +2,7 @@
 #include "../include/gdt.h"
 #include "../memory/bitmap.h"
 #include "../fs/fsd.h"
+#include "../vfs/vfs.h"
 
 extern char _bitmap_data;
 
@@ -85,7 +86,7 @@ int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount
 	newProc->task.mailbox->head = 0;
 	newProc->task.mailbox->count = 0;
 	newProc->task.mailbox->max_msg = MAX_MSG;
-	
+	initsubfd(&newProc->task);
 	k_scheduler.start = newProc;
 
 	return 0;
@@ -202,6 +203,12 @@ int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_p
 	uint16_t ds = k_scheduler.current->task.registers.ds;
 
 	spawnProccess(cs, ds, mem_start, ram_amount, start_pos, standard_proc_name);
+	task_list_t *ctk = k_scheduler.start; // este es el nuevo proceso
+			   // como no queria modificar de nuevo la función
+			   // lo q hare sera acceder al proceso y cambiar
+			   // sus datos
+
+	memcpy(ctk->task.route, k_scheduler.current->task.route, PATH_MAX);
 
 	return 0;
 }
@@ -209,4 +216,36 @@ int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_p
 int sys_open(char *name) {
 	// para esto el sistema necesita tener un VFS activo
 	// antes de seguir añadire la carpeta VFS
+	if (ucd(k_scheduler.current->task.route)) return -1;
+
+	int fd = ufd(name);
+
+	return newsubfd(fd, &k_scheduler.current->task);
+}
+
+int newsubfd(int real_fd, task_t *task) {
+	if (task==NULL) return -1;
+	for (int i=0;i<MAX_FDS;i++) {
+		if (task->file_descriptors[i]==-1) {
+			task->file_descriptors[i]=real_fd;
+			return i;
+		}
+	}
+	return -1;
+}
+
+int removesubfd(int subfd, task_t *task) {
+	if (subfd>MAX_FDS || task == NULL) return -1;
+	task->file_descriptors[subfd]=-1;
+	return 0;
+}
+
+int initsubfd(task_t *task) {
+	if (task==NULL) return -1;
+	memset(task->file_descriptors, -1, sizeof(task->file_descriptors));
+	return 0;
+}
+
+int sys_close(int fd) {
+	return removesubfd(fd, &k_scheduler.current->task);
 }

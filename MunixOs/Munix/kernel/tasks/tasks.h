@@ -12,7 +12,7 @@
 #define KERNEL_FAR_PTR 48
 #define MAX_FILE_DESCRIPTORS 32
 
-// TODO: AÑADIR FREE_PROC, las syscalls (TODAS)
+
 
 
 typedef struct {
@@ -60,6 +60,7 @@ typedef struct pma {
 #define MAX_REGIONS 32
 #define MAX_FDS 32
 #define MAX_MSG 31
+#define PATH_MAX 1024
 
 typedef struct {
 	char *name;
@@ -73,6 +74,7 @@ typedef struct {
 	taskState status;
 	int file_descriptors[MAX_FDS]; // es un array de fid's
 	kid_t kid;
+	char route[PATH_MAX];
 } task_t;
 
 struct task_list;
@@ -104,6 +106,11 @@ void initKernelScheduler(void);
 registers_t *kernel_scheduler(registers_t *regs);
 int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount, uint32_t eip, char *name);
 
+// funciones para los subfd
+int newsubfd(int real_fd, task_t *task);
+int removesubfd(int subfd, task_t *task);
+int initsubfd(task_t *task);
+
 int getPid(void);
 void twait(void);
 void tkill(int pid);
@@ -118,5 +125,6 @@ int freeProc(int pid);
 int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_pos);
 
 int sys_open(char *name);
+int sys_close(int fd);
 
 #endif
