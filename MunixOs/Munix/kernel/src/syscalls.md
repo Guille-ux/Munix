@@ -72,7 +72,7 @@ set ecx to the blob pointer
 set edx to the blob length
 set edi to the position where code starts
 
-this will return to eax 0 if successful or -1 if an error happens
+this will return to eax the pid if successful or -1 if an error happens
 
 # NOTE: AHEAD IF A INTERRUPT ASK FOR A BUFFER IS RELATIVE TO THE FAR POINTER
 

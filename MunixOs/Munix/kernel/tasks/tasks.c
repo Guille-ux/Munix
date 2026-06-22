@@ -234,7 +234,7 @@ int sys_spawn(uint32_t ram_amount, void *blob, uint32_t length, uint32_t start_p
 
 	memcpy(ctk->task.route, k_scheduler.current->task.route, PATH_MAX);
 
-	return 0;
+	return ctk->task.pid;
 }
 
 int sys_open(char *name) {
