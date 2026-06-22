@@ -22,6 +22,7 @@
 - [ ] `touch(char *name);`
 - [ ] `cd(char *name);`
 - [x] `openg(int fd);`
+- [x] `exit();`
 
 The `int` prefix for MunixOs is `0x80`.
 
@@ -179,9 +180,15 @@ if the directory doesn't exist returns -1
 if that's a file returns -2
 (the kernel will move to where the program is to verify that file exist)
 
-## `ls();`
+## `exit();`
 
 set eax to 0x17
+kills the program itself
+
+
+## `ls();`
+
+set eax to 0x18
 
 returns a list of every file in the directory with the following struct
 

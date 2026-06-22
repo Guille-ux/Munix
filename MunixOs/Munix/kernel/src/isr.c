@@ -155,6 +155,8 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x16) {
 
 		} else if (regs->eax==0x17) {
+			sys_exit();
+		} else if (regs->eax==0x18) {
 
 		}
 		enableClockTask(); // reactivamos para q no nos roben la cpu

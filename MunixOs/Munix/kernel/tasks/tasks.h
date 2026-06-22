@@ -139,4 +139,6 @@ int sys_release_mem();
 
 int sys_change_name(char *new_name);
 
+int sys_exit();
+
 #endif

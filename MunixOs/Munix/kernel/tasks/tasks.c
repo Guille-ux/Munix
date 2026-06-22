@@ -341,3 +341,8 @@ int sys_change_name(char *new_name) {
 	memcpy(k_scheduler.current->task.name, new_name, 128);
 	return 0;
 }
+
+int sys_exit() {
+	tkill(getPid());
+	return 0;
+}
