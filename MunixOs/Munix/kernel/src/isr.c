@@ -137,15 +137,15 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x0C) {
 			regs->eax==sys_openg(regs->ebx);
 		} else if (regs->eax==0x0D) {
-
+			regs->eax==(uint32_t)sys_register_mem(regs->ebx);
 		} else if (regs->eax==0x0F) {
 
 		} else if (regs->eax==0x10) {
 			regs->eax = sys_whoami();
 		} else if (regs->eax==0x11) {
-
+			regs->eax = sys_release_mem();
 		} else if (regs->eax==0x12) {
-
+			regs->eax = sys_change_name((char*)regs->ebx);
 		} else if (regs->eax==0x13) {
 			sys_close(regs->ebx);
 		} else if (regs->eax==0x14) {

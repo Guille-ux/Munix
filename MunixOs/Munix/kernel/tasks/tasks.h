@@ -13,7 +13,7 @@
 #define MAX_FILE_DESCRIPTORS 32
 
 
-
+#define MAX_PID 2000000
 
 typedef struct {
 	int pid;
@@ -57,13 +57,14 @@ typedef struct pma {
 	size_t length; // in pages
 } pma_t;
 
+
 #define MAX_REGIONS 32
 #define MAX_FDS 32
 #define MAX_MSG 31
 #define PATH_MAX 1024
 
 typedef struct {
-	char *name;
+	char name[128];
 	registers_t registers;
 	//uint32_t stack_base;
 	void *main_memory;
@@ -132,5 +133,10 @@ int sys_read(int fd, void *buffer, size_t size);
 int sys_write(int fd, void *buffer, size_t size);
 
 int sys_openg(int fd);
+
+void *sys_register_mem(int hmp); // hmp = short for how many pages
+int sys_release_mem();
+
+int sys_change_name(char *new_name);
 
 #endif

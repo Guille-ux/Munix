@@ -13,11 +13,11 @@
 - [x] `write(int fd, void *buffer, size_t size);`
 - [ ] `extend(int fd);`
 - [ ] `remove(char *name);`
-- [ ] `register_mem(int how_many_pages);`
+- [x] `register_mem(int how_many_pages);`
 - [ ] `who();`
 - [x] `whoami();`
-- [ ] `release_mem();`
-- [ ] `change_my_name(char *new_name);`
+- [x] `release_mem();`
+- [x] `change_my_name(char *new_name);`
 - [x] `close(int fd);`
 - [ ] `touch(char *name);`
 - [ ] `cd(char *name);`
@@ -117,7 +117,7 @@ gets a global fd, returns your fd
 
 set eax to 0x0D
 set ebx to the amount of pages you want
-this returns you a far pointer to a new memory region, returns -1 if error
+this returns you a far pointer to a new memory region, returns NULL if error
 
 ## `who();`
 
@@ -136,12 +136,14 @@ this returns you where your memory starts relative to the far pointer (to eax)
 
 set eax to 0x11
 
-this releases all the mem you got by register_mem
+this releases all the mem you got by register_mem, returns 0 if ok, and -1 if
+nothing to release
 
 ## `change_my_name(char *new_name);`
 
 set eax to 0x12
 set ebx to the name pointer
+returns 0 if ok, -1 if error encountered
 
 *Note: max length is 128 bytes*
 

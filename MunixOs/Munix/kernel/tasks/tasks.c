@@ -69,8 +69,28 @@ int spawnProccess(uint16_t cs, uint16_t ds, void *mem_start, uint32_t mem_amount
 	// primero crear una entrada nueva, usando malloc
 	task_list_t *newProc = malloc(sizeof(task_list_t));
 	newProc->next = k_scheduler.start;
-	newProc->task.name = name; // chapuzas pero temporal
-	newProc->task.pid = g_pid++; // otra chapuza temporal
+	memcpy(newProc->task.name, name, 128);
+	task_list_t *st = k_scheduler.start;	
+	while (1) {
+		bool found = true;
+		if (g_pid>=MAX_PID) {
+			g_pid = 0;
+		}
+		st = k_scheduler.start;
+		while (1) {
+			if (st->task.pid == g_pid) {
+				found = false;
+				break;
+			}
+			if (st->next == NULL) break;
+			st = st->next;
+		}
+		if (found) {
+			newProc->task.pid = g_pid++;
+			break;
+		}
+		g_pid++;
+	}	
 	newProc->task.main_memory = mem_start;
 	newProc->task.main_mem_len = mem_amount;
 	newProc->task.status = TASK_READY;
@@ -272,4 +292,48 @@ int sys_write(int fd, void *buffer, size_t size) {
 int sys_openg(int fd) {
 	kernel_fds[fd].ref_count++;
 	return newsubfd(fd, &k_scheduler.current->task);
+}
+
+void *sys_register_mem(int hmp) {
+	if (hmp <= 0) return NULL; // why are they asking for no mem?
+	bitmap_t *bitmap = &_bitmap_data;	
+	void *result;	
+	pma_t *mem = k_scheduler.current->task.registered_mem;
+	for (int i=0;i<MAX_REGIONS;i++) {
+		if (mem[i].length == 0) {
+
+			result = bitmap_malloc(bitmap, hmp);
+			if (result==NULL) return NULL;
+			mem[i].length = hmp;
+			mem[i].start = result;
+			return (void*)((uint32_t)result + (uint32_t)&_kernel_end);
+		}
+	}
+	return NULL;
+	
+}
+
+int sys_release_mem() {
+	if (k_scheduler.current->task.registered_mem[0].length == 0) {
+		return -1; // oh, it's empty
+	}
+	
+	bitmap_t *bitmap = &_bitmap_data;
+
+	// else
+	pma_t *mem = k_scheduler.current->task.registered_mem; // this is ptr
+
+	for (int i=0;i<MAX_REGIONS;i++) {
+		if (mem[i].length == 0) return 0; // this there isn't
+						  // any garbage remaining
+		bitmap_frees(bitmap, (void*)mem[i].start, mem[i].length);
+	}
+
+	return 0;
+}
+
+int sys_change_name(char *new_name) {
+	if (new_name == NULL) return -1;
+	memcpy(k_scheduler.current->task.name, new_name, 128);
+	return 0;
 }
