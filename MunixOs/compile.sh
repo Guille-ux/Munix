@@ -13,7 +13,7 @@
 # Copyright (c) 2025 Guillermo Leira Temes
 #
 
-CFLAGS="-g -mno-sse -fno-stack-protector -m32"
+CFLAGS="-g -mno-sse -fno-stack-protector -fno-builtin -nostdlib -m32"
 
 cd Munix/kernel
 rm -rf *.o
