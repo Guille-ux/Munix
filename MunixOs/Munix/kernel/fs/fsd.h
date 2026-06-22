@@ -38,7 +38,6 @@ typedef struct file {
 	int (*extend)(struct file *file);
 } file_t;
 
-#define 
 
 typedef struct fd {
 	uint8_t flags; // para los permisos, no con los q se abre, pero para

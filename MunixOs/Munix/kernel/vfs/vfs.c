@@ -51,7 +51,7 @@ int ufd(const char *names) {
 	if (kernel_vfs.type == TAR_FS) {
 		// idk
 	} else if (kernel_vfs.type == EXPLORER_FS) {
-		char *name_start = strrchr(name, "/");
+		char *name_start = strrchr(name, (int)'/');
 		int index = name_start - name;
 		name[index++] = '\0';
 		// ahora llamamos a ucd

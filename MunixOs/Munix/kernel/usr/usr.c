@@ -1,13 +1,15 @@
 #include "usr.h"
 
+#include "../include/libcs2.h"
+
 extern char _kernel_identities_start;
 extern char _kernel_identities_end;
 
-identity_t *kernel_identities = &_kernel_identities_start;
+identity_t *kernel_identities = (identity_t*)&_kernel_identities_start;
 uint32_t kernel_identities_size = 0;
 
 void initIdentities() {
-	kernel_identities_size = ((uint32_t)&_kernel_identities_end - (uint32_t)&kernel_identities_start);
+	kernel_identities_size = ((uint32_t)&_kernel_identities_end - (uint32_t)&_kernel_identities_start);
 	memset(&_kernel_identities_start, 0, kernel_identities_size);
 }
 
@@ -28,21 +30,21 @@ int createIdentity(permission_lvl_t lvl, bool is_group, char *name) {
 	identity_t *identity = &kernel_identities[iid];
 
 	if (name != NULL) {
-		strncpy(identity.name, name, IDENTITY_NAME_SIZE);
+		strncpy(identity->name, name, IDENTITY_NAME_SIZE);
 	}
-	identity.is_group = is_group;
+	identity->is_group = is_group;
 	
-	identity.level = lvl;
+	identity->level = lvl;
 	
 	return iid;
 }
 
 int removeIdentity(int iid) {
-	if (kernel_identity[iid].used == false) {
+	if (kernel_identities[iid].used == false) {
 		return -1;
 	}
 	
-	kernel_identity[iid].used = false;
+	kernel_identities[iid].used = false;
 
 	return 0;
 }

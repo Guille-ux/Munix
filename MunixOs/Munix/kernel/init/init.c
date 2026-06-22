@@ -54,7 +54,7 @@ void kernel_init(multiboot_info_t *mbi) { // Subrutina para inicializar cosas de
 
 	
 	// Inicializar la Gestión de memoria dinámica
-	current_buddy = kernel_bud;
+	current_buddy = &kernel_bud;
 	config_stdmem_buddy((void*)heap_start, ALL_SIZE, mini_order, ((free_node***)&my_free_list));
 	libcs_mem_init(stdmem_interface.kmalloc, stdmem_interface.kfree);
 	kprintf("Cleaning Buddy Heap...\n");

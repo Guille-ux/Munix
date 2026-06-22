@@ -6,11 +6,11 @@
 extern char _kernel_fds_start;
 extern char _kernel_fds_end;
 
-fd_t *kernel_fds = &_kernel_fds_start;
+fd_t *kernel_fds = (fd_t*)&_kernel_fds_start;
 uint32_t kernel_fds_size = 0;
 
 void initFd() {
-	kernel_fds_size = ((uint32_t)&_kernel_fds_end - (uint32_t)&kernel_fds_start);
+	kernel_fds_size = ((uint32_t)&_kernel_fds_end - (uint32_t)&_kernel_fds_start);
 	memset(&_kernel_fds_start, 0, kernel_fds_size);
 }
 
@@ -38,7 +38,7 @@ int createFd(explorer_t *explorer, char *name) {
 	}
 
 	fd_t *filed = &kernel_fds[fid];
-	explorer->new_fd(explorer, filed, name);
+	explorer->new_fd(explorer, &filed->file, name);
 	
 	
 	return fid;

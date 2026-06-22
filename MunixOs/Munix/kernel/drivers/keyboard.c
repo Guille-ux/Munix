@@ -1,5 +1,9 @@
 #include "keyboard.h"
 
+extern char _kernel_fds_start;
+
+extern fd_t *kernel_fds;
+
 int kb_read(file_t  *file, void *buffer, size_t size) {
 	if (buffer==NULL) return -1;
 	int read;

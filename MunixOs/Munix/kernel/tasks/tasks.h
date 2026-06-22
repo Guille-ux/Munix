@@ -93,11 +93,11 @@ typedef struct {
 void initClockTask(int nibtc); 
 // nibtc == Number of Interrupts Before Task Change
 
-inline void enableClockTask() {
+static inline void enableClockTask() {
 	clock_task.is_enabled = true;
 }
 
-inline void disableClockTask() {
+static inline void disableClockTask() {
 	clock_task.is_enabled = false;
 }
 

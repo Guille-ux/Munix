@@ -5,6 +5,10 @@
 #include "../vfs/vfs.h"
 
 extern char _bitmap_data;
+extern char _kernel_end;
+extern char _kernel_fds_start;
+
+extern fd_t *kernel_fds;
 
 multitask_clock_t clock_task;
 scheduler_t k_scheduler;
@@ -189,7 +193,7 @@ uint32_t sys_whoami() {
 }
 
 int freeProc(int pid) {
-	task_t *t = searchPid(pid)->task;
+	task_t *t = &searchPid(pid)->task;
 	
 	// desasignamos sus páginas asignadas a su memoria principal
 	bitmap_t *bitmap = (bitmap_t*)&_bitmap_data;
@@ -197,7 +201,7 @@ int freeProc(int pid) {
 
 	// ahora a desasignar sus espacios del pma
 	for (int i=0;i<MAX_REGIONS;i++) {
-		bitmap_frees(bitmap, t->registered_mem[i].start, t->registered_mem[i].length/bitmap->page_size);
+		bitmap_frees(bitmap, (void*)t->registered_mem[i].start, t->registered_mem[i].length/bitmap->page_size);
 	}
 
 	// ahora nos encargamos de sus descriptores de archivo
@@ -296,7 +300,7 @@ int sys_openg(int fd) {
 
 void *sys_register_mem(int hmp) {
 	if (hmp <= 0) return NULL; // why are they asking for no mem?
-	bitmap_t *bitmap = &_bitmap_data;	
+	bitmap_t *bitmap = (bitmap_t*)&_bitmap_data;	
 	void *result;	
 	pma_t *mem = k_scheduler.current->task.registered_mem;
 	for (int i=0;i<MAX_REGIONS;i++) {
@@ -305,7 +309,7 @@ void *sys_register_mem(int hmp) {
 			result = bitmap_malloc(bitmap, hmp);
 			if (result==NULL) return NULL;
 			mem[i].length = hmp;
-			mem[i].start = result;
+			mem[i].start = (size_t)result;
 			return (void*)((uint32_t)result + (uint32_t)&_kernel_end);
 		}
 	}
@@ -318,7 +322,7 @@ int sys_release_mem() {
 		return -1; // oh, it's empty
 	}
 	
-	bitmap_t *bitmap = &_bitmap_data;
+	bitmap_t *bitmap = (bitmap_t*)&_bitmap_data;
 
 	// else
 	pma_t *mem = k_scheduler.current->task.registered_mem; // this is ptr

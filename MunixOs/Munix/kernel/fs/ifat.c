@@ -56,7 +56,7 @@ int IFATreadChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *b
 			    new_idx == IFAT_FREE_BLOCK ||
 			    new_idx == IFAT_TOMBSTONE) {
 				
-				return;
+				return -1;
 			}
 
 			if (new_idx == IFAT_END_OF_CHAIN) {
@@ -124,7 +124,7 @@ int IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 			    new_idx == IFAT_FREE_BLOCK ||
 			    new_idx == IFAT_TOMBSTONE) {
 				
-				return;
+				return -1;
 			}
 
 			if (new_idx == IFAT_END_OF_CHAIN) {

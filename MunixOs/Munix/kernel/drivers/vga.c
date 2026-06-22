@@ -1,15 +1,19 @@
 #include "vga.h"
 
+extern char _kernel_fds_start;
+
+extern fd_t *kernel_fds;
+
 int vga_read(file_t  *file, void *buffer, size_t size) {
 	if (buffer == NULL) return -1;
-	int read = size < ? size : _VGA_SIZE;
+	int read = size < _VGA_SIZE ? size : _VGA_SIZE;
 	memcpy(buffer, (void*)_VGA_BASE_DIRECTION, read);
 	return read;
 }
 
 int vga_write(file_t *file, void *buffer, size_t size) {
 	if (buffer == NULL) return -1;
-	int written = size < ? size : _VGA_SIZE;
+	int written = size < _VGA_SIZE ? size : _VGA_SIZE;
 	memcpy((void*)_VGA_BASE_DIRECTION, buffer, written);
 	return written;
 }

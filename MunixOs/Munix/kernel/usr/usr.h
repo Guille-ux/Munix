@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 // aqui tengo el KID o Kernel Identity Document, para nada el nombre basado en DNI
 

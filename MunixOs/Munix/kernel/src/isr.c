@@ -122,14 +122,14 @@ registers_t *isr_handler(registers_t *regs) {
 			// deberia controlar los permisos de ejecución
 			// mejor lo controlo en los permisos para abrirlo
 			// si no lo puedes abrir ya esta no?
-			regs->eax = sys_spawn(regs->ebx, regs->ecx, regs->edx. regs->edi);
+			regs->eax = sys_spawn(regs->ebx, (void*)regs->ecx, regs->edx, regs->edi);
 		} else if (regs->eax==0x07) {
 			// una de las llamadas más jodidas
-			regs->eax = sys_open((char*)(reg->ebx+(size_t)&_kernel_end));
+			regs->eax = sys_open((char*)(regs->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x08) {
-			regs->eax = sys_read(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
+			regs->eax = sys_read(regs->ebx, (void*)(regs->ecx+(size_t)&_kernel_end), regs->edx);
 		} else if (regs->eax==0x09) {
-			regs->eax = sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&kernel_end), regs->edx);
+			regs->eax = sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&_kernel_end), regs->edx);
 		} else if (regs->eax==0x0A) {
 
 		} else if (regs->eax==0x0B) {

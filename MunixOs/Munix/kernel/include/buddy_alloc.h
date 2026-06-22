@@ -19,8 +19,6 @@
 #endif
 */
 
-extern meta_bud_t *current_buddy;
-
 typedef struct free_node {
     struct free_node *next;
 } free_node;
@@ -33,6 +31,8 @@ typedef struct {
 	int num_orders;
 	free_node **free_list;
 } meta_bud_t;
+
+extern meta_bud_t *current_buddy;
 
 void buddy_init(void *heap_start, size_t heap_size, int min_block_order, free_node ***new_free_list);
 void *buddy_malloc(size_t size) __attribute__((malloc));
