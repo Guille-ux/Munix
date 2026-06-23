@@ -133,7 +133,7 @@ task_list_t *searchPid(int pid) {
 
 task_list_t *searchName(char *name) {
 	task_list_t *cdx=k_scheduler.start;
-	while (strcmp(cdx->task.name, name)!=0) cdx = cdx->next;
+	while (strncmp(cdx->task.name, name, 128)!=0) cdx = cdx->next;
 	return cdx;
 }
 

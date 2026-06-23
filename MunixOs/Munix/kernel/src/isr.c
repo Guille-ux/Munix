@@ -158,6 +158,8 @@ registers_t *isr_handler(registers_t *regs) {
 			sys_exit();
 		} else if (regs->eax==0x18) {
 
+		} else if (regs->eax==0x19) {
+			regs->eax=searchName((char*)regs->ebx)->task.pid;
 		}
 		enableClockTask(); // reactivamos para q no nos roben la cpu
 		kernel_scheduler(regs);

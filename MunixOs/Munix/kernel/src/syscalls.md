@@ -23,6 +23,7 @@
 - [ ] `cd(char *name);`
 - [x] `openg(int fd);`
 - [x] `exit();`
+- [x] `searchPid(char *name);`
 
 The `int` prefix for MunixOs is `0x80`.
 
@@ -235,3 +236,11 @@ set eax to 0x18
 returns a list of every file in the directory with the following struct
 
 (this is for the future, i'm not going to work this, in a long time)
+
+## `searchPid(char *name);`
+
+set eax to 0x19
+
+set ebx to name ptr, max length is of 128 bytes
+
+returns the pid of the process, if doesn't exist returns -1
