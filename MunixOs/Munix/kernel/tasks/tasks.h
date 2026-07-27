@@ -131,6 +131,8 @@ int sys_close(int fd);
 
 int sys_read(int fd, void *buffer, size_t size);
 int sys_write(int fd, void *buffer, size_t size);
+int sys_extend(int fd);
+int sys_remove(char *name);
 
 int sys_openg(int fd);
 
@@ -140,5 +142,7 @@ int sys_release_mem();
 int sys_change_name(char *new_name);
 
 int sys_exit();
+
+int sys_extend(int fd);
 
 #endif

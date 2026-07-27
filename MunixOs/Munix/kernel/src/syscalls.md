@@ -11,7 +11,7 @@
 - [x] `open(char *name);`
 - [x] `read(int fd, void *buffer, size_t size);`
 - [x] `write(int fd, void *buffer, size_t size);`
-- [ ] `extend(int fd);`
+- [x] `extend(int fd);`
 - [ ] `remove(char *name);`
 - [x] `register_mem(int how_many_pages);`
 - [ ] `who();`

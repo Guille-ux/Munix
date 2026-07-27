@@ -131,7 +131,7 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x09) {
 			regs->eax = sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&_kernel_end), regs->edx);
 		} else if (regs->eax==0x0A) {
-
+			regs->eax = sys_extend(regs->ebx);
 		} else if (regs->eax==0x0B) {
 
 		} else if (regs->eax==0x0C) {
