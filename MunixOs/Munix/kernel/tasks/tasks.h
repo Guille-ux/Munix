@@ -145,4 +145,6 @@ int sys_exit();
 
 int sys_extend(int fd);
 
+int sys_remove(char *name);
+
 #endif

@@ -68,3 +68,27 @@ int ufd(const char *names) {
 	free(name);
 	return ifd;
 }
+
+int urm(const char *names) {
+	char *name = strdup(names);
+	int res;
+	if (kernel_vfs.type == TAR_FS) {
+		// idk
+	} else if (kernel_vfs.type == EXPLORER_FS) {
+		char *name_start = strrchr(name, (int)'/');
+		int index = name_start - name;
+		name[index++] = '\0';
+		// ahora llamamos a ucd
+		int result = ucd(name); // si ya se q ahora hay 2 copias en memoria
+		if (result != 0) {
+			return -1;
+		}
+		
+		res = kernel_vfs.fs.expfs->remove(kernel_vfs.fs.expfs, name_start);
+		
+		ucd("/"); // para volver al root, si el programa estaba en otra parte, ps ya volvera el solo
+		
+	}
+	free(name);
+	return res;
+}

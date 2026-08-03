@@ -353,3 +353,7 @@ int sys_extend(int fd) {
 	fd_t *FD_S = getFd(real_fd);
 	return FD_S->file.extend(&FD_S->file);
 }
+
+int sys_remove(char *name) {
+	return urm(name);
+}

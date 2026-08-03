@@ -133,7 +133,7 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x0A) {
 			regs->eax = sys_extend(regs->ebx);
 		} else if (regs->eax==0x0B) {
-
+			regs->eax = sys_remove((char*)(void*)(regs->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x0C) {
 			regs->eax==sys_openg(regs->ebx);
 		} else if (regs->eax==0x0D) {

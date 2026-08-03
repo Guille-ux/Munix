@@ -136,6 +136,8 @@ set ebx to the file name or route pointer to delete
 
 removes the file entry and clears its block chain from the disk
 
+if error returns -1, if no problem returns 0
+
 ## `openg(int fd);`
 set eax to 0x0C
 
