@@ -355,5 +355,6 @@ int sys_extend(int fd) {
 }
 
 int sys_remove(char *name) {
+	if (ucd(k_scheduler.current->task.route)) return -1;
 	return urm(name);
 }

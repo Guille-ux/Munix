@@ -12,7 +12,7 @@
 - [x] `read(int fd, void *buffer, size_t size);`
 - [x] `write(int fd, void *buffer, size_t size);`
 - [x] `extend(int fd);`
-- [ ] `remove(char *name);`
+- [x] `remove(char *name);`
 - [x] `register_mem(int how_many_pages);`
 - [ ] `who();`
 - [x] `whoami();`
@@ -21,6 +21,7 @@
 - [x] `close(int fd);`
 - [ ] `touch(char *name);`
 - [ ] `cd(char *name);`
+- [ ] `pwd();`
 - [x] `openg(int fd);`
 - [x] `exit();`
 - [x] `searchPid(char *name);`
@@ -191,11 +192,11 @@ set ebx to the file descriptor
 
 gives -1 if the fd didn't exist
 
-## `remove(int fd);`
+## `remove(char *name);`
 
 set eax t0 0x14
 
-set ebx to the file descriptor
+set ebx to the ptr to the name, IT HAS TO BE FROM FS
 
 ## `touch(char *name);`
 
@@ -231,13 +232,11 @@ set eax to 0x17
 kills the program itself
 
 
-## `ls();`
+## `pwd();`
 
 set eax to 0x18
 
-returns a list of every file in the directory with the following struct
-
-(this is for the future, i'm not going to work this, in a long time)
+returns a pointer to a string on the user data space containing the program path.
 
 ## `searchPid(char *name);`
 
