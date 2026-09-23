@@ -147,4 +147,6 @@ int sys_extend(int fd);
 
 int sys_remove(char *name);
 
+int sys_pwd(char *string);
+
 #endif

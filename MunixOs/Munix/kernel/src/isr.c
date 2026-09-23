@@ -145,7 +145,7 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x11) {
 			regs->eax = sys_release_mem();
 		} else if (regs->eax==0x12) {
-			regs->eax = sys_change_name((char*)regs->ebx);
+			regs->eax = sys_change_name((char*)regs->ebx+(size_t)&_kernel_end);
 		} else if (regs->eax==0x13) {
 			sys_close(regs->ebx);
 		} else if (regs->eax==0x14) {
@@ -157,9 +157,9 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x17) {
 			sys_exit();
 		} else if (regs->eax==0x18) {
-
+			sys_pwd((char*)regs->ebx+(size_t)&_kernel_end);
 		} else if (regs->eax==0x19) {
-			regs->eax=searchName((char*)regs->ebx)->task.pid;
+			regs->eax=searchName((char*)regs->ebx+(size_t)&_kernel_end)->task.pid;
 		}
 		enableClockTask(); // reactivamos para q no nos roben la cpu
 		kernel_scheduler(regs);

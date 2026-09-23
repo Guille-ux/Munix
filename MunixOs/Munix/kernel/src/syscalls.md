@@ -21,7 +21,7 @@
 - [x] `close(int fd);`
 - [ ] `touch(char *name);`
 - [ ] `cd(char *name);`
-- [ ] `pwd();`
+- [x] `pwd(char *path);`
 - [x] `openg(int fd);`
 - [x] `exit();`
 - [x] `searchPid(char *name);`
@@ -232,11 +232,12 @@ set eax to 0x17
 kills the program itself
 
 
-## `pwd();`
+## `pwd(char *pat);`
 
 set eax to 0x18
+set ebx to a pointer to the user data space of the at least 1024 bytes long
+will write on that pointer the path of the program
 
-returns a pointer to a string on the user data space containing the program path.
 
 ## `searchPid(char *name);`
 

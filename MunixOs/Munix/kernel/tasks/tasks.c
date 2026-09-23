@@ -358,3 +358,8 @@ int sys_remove(char *name) {
 	if (ucd(k_scheduler.current->task.route)) return -1;
 	return urm(name);
 }
+
+int sys_pwd(char *string) {
+	memcpy(string, k_scheduler.current->task.route, 1024);
+	return 0;
+}
