@@ -77,6 +77,22 @@ registers_t *isr_handler(registers_t *regs) {
 	} else if (regs->int_no==0x80) { // para las syscalls
 		disableClockTask(); // esto evitara cambios de contexto
 				    // sin cargarnos las interrupciones
+		// OK ESTUVE REVISANDO, Y PARECE Q HAY PROBLEMAS DE SEGURIDAD, ASI Q HARE?
+		// muy simple, revisare si ebx o ecx tienen números anormalmente altos, si pasas un número demasiado alto
+		// a una syscall q use ebx o ecx respectivamente como punteros entonces te comes un fallo silencioso,
+		// además asi si no te lees el código fuente buena suerte averiguando xq coño el kernel no te borra el programa o crashea
+		// cuando intentas joderlo con algo así
+
+
+		bool beware_ebx = (((uint32_t)0xFFFFFFFF-(uint32_t)regs->ebx)<=&_kernel_end) ? true : false;
+		bool beware_ecx = (((uint32_t)0xFFFFFFFF-(uint32_t)regs->ecx)<=&_kernel_end) ? true : false;
+		if (!beware_ebx) {
+			
+		}
+		if (!beware_ecx) {
+
+		}
+
 		if (regs->eax==0x00) {
 			// wait
 			twait();
@@ -86,7 +102,7 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x02) {
 			// kill
 			tkill(regs->ebx);
-		} else if (regs->eax==0x03) {
+		} else if (regs->eax==0x03 && !beware_ecx) {
 			uint32_t ptr = regs->ecx;
 			if (regs->edx==0) {
 				ptr+=(uint32_t)&_kernel_end;
@@ -97,11 +113,12 @@ registers_t *isr_handler(registers_t *regs) {
 					// código para matar al ofensor
 					tkill(getPid());
 				} else {
+					if (((uint32_t)0xFFFFFFFF-ptr) < proc->main_memory) tkill(getPid());
 					ptr+=(uint32_t)proc->main_memory;
 				}
 			}
 			ipc_send(regs->ebx, (msg_t*)ptr);
-		} else if (regs->eax==0x04) {
+		} else if (regs->eax==0x04 && !beware_ebx) {
 			uint32_t ptr = regs->ebx;
 			if (regs->ecx==0) {
 				ptr+=(uint32_t)&_kernel_end;
@@ -112,27 +129,28 @@ registers_t *isr_handler(registers_t *regs) {
 					// código para matar al ofensor
 					tkill(getPid());
 				} else {
+					if (((uint32_t)0xFFFFFFFF-ptr) < proc->main_memory) tkill(getPid());
 					ptr+=(uint32_t)proc->main_memory;
 				}
 			}
 			ipc_receive((msg_t*)ptr);
 		} else if (regs->eax==0x05) {
 			tawake(regs->ebx);
-		} else if (regs->eax==0x06) {
+		} else if (regs->eax==0x06 && !beware_ecx) {
 			// deberia controlar los permisos de ejecución
 			// mejor lo controlo en los permisos para abrirlo
 			// si no lo puedes abrir ya esta no?
 			regs->eax = sys_spawn(regs->ebx, (void*)regs->ecx, regs->edx, regs->edi);
-		} else if (regs->eax==0x07) {
+		} else if (regs->eax==0x07 && !beware_ebx) {
 			// una de las llamadas más jodidas
 			regs->eax = sys_open((char*)(regs->ebx+(size_t)&_kernel_end));
-		} else if (regs->eax==0x08) {
+		} else if (regs->eax==0x08 && !beware_ecx) {
 			regs->eax = sys_read(regs->ebx, (void*)(regs->ecx+(size_t)&_kernel_end), regs->edx);
-		} else if (regs->eax==0x09) {
+		} else if (regs->eax==0x09 && !beware_ecx) {
 			regs->eax = sys_write(regs->ebx, (void*)(regs->ecx+(size_t)&_kernel_end), regs->edx);
 		} else if (regs->eax==0x0A) {
 			regs->eax = sys_extend(regs->ebx);
-		} else if (regs->eax==0x0B) {
+		} else if (regs->eax==0x0B && !beware_ebx) {
 			regs->eax = sys_remove((char*)(void*)(regs->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x0C) {
 			regs->eax==sys_openg(regs->ebx);
@@ -144,7 +162,7 @@ registers_t *isr_handler(registers_t *regs) {
 			regs->eax = sys_whoami();
 		} else if (regs->eax==0x11) {
 			regs->eax = sys_release_mem();
-		} else if (regs->eax==0x12) {
+		} else if (regs->eax==0x12 && !beware_ebx) {
 			regs->eax = sys_change_name((char*)regs->ebx+(size_t)&_kernel_end);
 		} else if (regs->eax==0x13) {
 			sys_close(regs->ebx);
@@ -156,9 +174,9 @@ registers_t *isr_handler(registers_t *regs) {
 
 		} else if (regs->eax==0x17) {
 			sys_exit();
-		} else if (regs->eax==0x18) {
+		} else if (regs->eax==0x18 && !beware_ebx) {
 			sys_pwd((char*)regs->ebx+(size_t)&_kernel_end);
-		} else if (regs->eax==0x19) {
+		} else if (regs->eax==0x19 && !beware_ebx) {
 			regs->eax=searchName((char*)regs->ebx+(size_t)&_kernel_end)->task.pid;
 		}
 		enableClockTask(); // reactivamos para q no nos roben la cpu
