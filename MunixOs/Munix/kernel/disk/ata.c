@@ -25,7 +25,7 @@ ATAError wtfAtaErrors(uint8_t errOut) {
 DriveHeadRegCfg byte2driveHeadCfg(uint8_t byte) {
 	DriveHeadRegCfg cfg;
 	cfg.lba = ((byte & (1 << 6)) != 0) ? true : false;
-	cfg.drv = (byte & (1 << 4)==(1 << 4)) ? 1:0;
+	cfg.drv = ((byte & (1 << 4))==(1 << 4)) ? 1:0;
 	cfg.idk = ( (byte & 1) | (byte & 2) | (byte & (1 << 2)));
 	return cfg;
 }
