@@ -34,5 +34,8 @@ int initKernelVFS_EXP(vfs_type type, explorer_t *expfs);
 int ucd(const char *names); // better cd
 int ufd(const char *names); // better fd creator
 int urm(const char *names); // better removing
+int umkdir(const char *name);
+int utouch(const char *name, uint32_t size);
+int fsck();
 
 #endif

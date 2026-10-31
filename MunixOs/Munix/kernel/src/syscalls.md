@@ -19,12 +19,14 @@
 - [x] `release_mem();`
 - [x] `change_my_name(char *new_name);`
 - [x] `close(int fd);`
-- [ ] `touch(char *name);`
-- [ ] `cd(char *name);`
+- [x] `touch(char *name, uint32_t size);`
+- [x] `cd(char *name);`
+- [x] `mkdir(char *name);`
 - [x] `pwd(char *path);`
 - [x] `openg(int fd);`
 - [x] `exit();`
 - [x] `searchPid(char *name);`
+- [x] `fsck();`
 
 The `int` prefix for MunixOs is `0x80`.
 
@@ -192,17 +194,12 @@ set ebx to the file descriptor
 
 gives -1 if the fd didn't exist
 
-## `remove(char *name);`
-
-set eax t0 0x14
-
-set ebx to the ptr to the name, IT HAS TO BE FROM FS
-
-## `touch(char *name);`
+## `touch(char *name, uint32_t size);`
 
 set eax to 0x15
 
 set ebx to the name ptr, max size is 256 characters (must end with \0)
+set ecx to the size of the file
 
 returns 0 if no error
 
@@ -215,7 +212,7 @@ return -2 if there isn't enough space (idk how i'm going to make this)
 
 set eax to 0x16
 
-set ebx to the name ptr max size is 256 charachters (must end with \0)
+set ebx to the name ptr max size is 256 characters (must end with \0)
 
 return 0 if no problem
 
@@ -224,6 +221,15 @@ if the directory doesn't exist returns -1
 if that's a file returns -2
 
 (the kernel will move to where the program is to verify that file exist)
+
+## `mkdir(char *name);`
+*Note: not complex paths yk?*
+
+set eax to 0x1A
+set ebx to the name ptr (max size 256) and also must end with '\0'
+
+returns 0 if no problem
+if it's name is already taken returns -1
 
 ## `exit();`
 
@@ -246,3 +252,8 @@ set eax to 0x19
 set ebx to name ptr, max length is of 128 bytes
 
 returns the pid of the process, if doesn't exist returns -1
+
+## `fsck();`
+
+set eax to 0x14
+returns 0 if no errors while cleaning the file system

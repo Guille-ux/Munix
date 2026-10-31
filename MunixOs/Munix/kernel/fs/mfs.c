@@ -8,6 +8,7 @@
 #define kmalloc(size) (stdmem_interface.kmalloc((size)))
 #define kfree(ptr) (stdmem_interface.kfree((ptr)))
 
+// ya no se q significaba n
 void MBRformatMFS(disk_t *disk, uint8_t n, uint32_t blockSize, lba_t start, uint32_t size) {
 	if (n > 3) return;
 	mbr_t *mbr = (mbr_t*)kmalloc(sizeof(mbr_t));

@@ -149,4 +149,10 @@ int sys_remove(char *name);
 
 int sys_pwd(char *string);
 
+int sys_mkdir(char *name);
+int sys_touch(char *name, uint32_t size);
+int sys_cd(char *name);
+
+int sys_fsck();
+
 #endif

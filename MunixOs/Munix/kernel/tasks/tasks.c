@@ -363,3 +363,48 @@ int sys_pwd(char *string) {
 	memcpy(string, k_scheduler.current->task.route, 1024);
 	return 0;
 }
+
+
+
+int sys_mkdir(char *name) {
+	if (ucd(k_scheduler.current->task.route)) return -1;
+	return umkdir(name);	
+}
+
+int sys_touch(char *name, uint32_t size) {
+	if (ucd(k_scheduler.current->task.route)) return -1;
+	return utouch(name, size);
+}
+
+int sys_cd(char *name) {
+	char *path = k_scheduler.current->task.route;
+	if (strcmp(name, "/")) {
+		path[1] = '\0'; // solucionado
+	} else if (strcmp(name, ".")) {
+		return 0;
+	} else if (strcmp(name, "..")) {
+		char *last_slash = strrchr(path, '/');
+		*last_slash = '\0'; // con eso eliminamos lo anterior
+				    // jijiji
+	} else {
+		// en caso de q sea un nombre de directorio normal
+		// y corriente
+		int lenPath = strlen(path);
+		int lenDir = strlen(name);
+		if ((lenPath+lenDir+2)<PATH_MAX) { // hay q incluir '\0'
+			path[lenPath] = '/'; // ok, nice
+			memcpy(&path[lenPath+1], name, lenDir);
+			path[lenPath+1+lenDir] = '\0';
+		} else {
+			// no se a lo mejor es conveniente avisar
+			// del error, qn sabe
+		}
+	}
+	// por si acaso
+	path[0] = '/'; // MUY IMPORTANTE, no hay nada antes de root
+	return 0;
+}
+
+int sys_fsck() {
+	return fsck();
+}

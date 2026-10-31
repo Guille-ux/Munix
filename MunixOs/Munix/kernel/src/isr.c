@@ -167,17 +167,21 @@ registers_t *isr_handler(registers_t *regs) {
 		} else if (regs->eax==0x13) {
 			sys_close(regs->ebx);
 		} else if (regs->eax==0x14) {
-
-		} else if (regs->eax==0x15) {
-
-		} else if (regs->eax==0x16) {
-
+			// what the shit, i had remove duplicated
+			regs->eax = sys_fsck();
+		} else if (regs->eax==0x15 && !beware_ebx) {
+			regs->eax=sys_touch((char*)(regs->ebx+(size_t)&_kernel_end), regs->ecx);
+		} else if (regs->eax==0x16 && !beware_ebx) {
+			regs->eax=sys_cd((char*)(regs->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x17) {
 			sys_exit();
 		} else if (regs->eax==0x18 && !beware_ebx) {
-			sys_pwd((char*)regs->ebx+(size_t)&_kernel_end);
+			sys_pwd((char*)(regs->ebx+(size_t)&_kernel_end));
 		} else if (regs->eax==0x19 && !beware_ebx) {
-			regs->eax=searchName((char*)regs->ebx+(size_t)&_kernel_end)->task.pid;
+			regs->eax=searchName((char*)(regs->ebx+(size_t)&_kernel_end))->task.pid;
+		} else if (regs->eax==0x1A && !beware_ebx) {
+			// hum
+			regs->eax=sys_mkdir((char*)(regs->ebx+(size_t)&_kernel_end));
 		}
 		enableClockTask(); // reactivamos para q no nos roben la cpu
 		kernel_scheduler(regs);

@@ -27,6 +27,11 @@ int ucd(const char *names) {
 		// de momento nada
 	} else if (kernel_vfs.type == EXPLORER_FS) {
 		// aqui hay q parsear, esta función servira de base para muchas otras
+		// un arreglo para poder ir a root creo
+		if (name[0]=='/') {
+			// entonces vamos directamente a root no crees?
+			kernel_vfs.fs.expfs->cd(kernel_vfs.fs.expfs, "/");
+		}
 		char delimiters[] = "/";
 		char *chain = kernel_vfs.fs.expfs->path;
 		char *token = strtok(chain, delimiters);
@@ -91,4 +96,61 @@ int urm(const char *names) {
 	}
 	free(name);
 	return res;
+}
+
+int utouch(const char *names, uint32_t size) {
+	char *name = strdup(names);
+	int res;
+	if (kernel_vfs.type == TAR_FS) {
+		// idk
+	} else if (kernel_vfs.type == EXPLORER_FS) {
+		char *name_start = strrchr(name, (int)'/');
+		int index = name_start - name;
+		name[index++] = '\0';
+		// ahora llamamos a ucd
+		int result = ucd(name); // si ya se q ahora hay 2 copias en memoria
+		if (result != 0) {
+			return -1;
+		}
+		
+		res = kernel_vfs.fs.expfs->touch(kernel_vfs.fs.expfs, name_start, size);
+		
+		ucd("/"); // para volver al root, si el programa estaba en otra parte, ps ya volvera el solo
+		
+	}
+	free(name);
+	return res;
+}
+
+int umkdir(const char *names) {
+	char *name = strdup(names);
+	int res;
+	if (kernel_vfs.type == TAR_FS) {
+		// idk
+	} else if (kernel_vfs.type == EXPLORER_FS) {
+		char *name_start = strrchr(name, (int)'/');
+		int index = name_start - name;
+		name[index++] = '\0';
+		// ahora llamamos a ucd
+		int result = ucd(name); // si ya se q ahora hay 2 copias en memoria
+		if (result != 0) {
+			return -1;
+		}
+		
+		res = kernel_vfs.fs.expfs->mkdir(kernel_vfs.fs.expfs, name_start);
+		
+		ucd("/"); // para volver al root, si el programa estaba en otra parte, ps ya volvera el solo
+		
+	}
+	free(name);
+	return res;
+}
+
+int fsck() {
+	if (kernel_vfs.type == TAR_FS) {
+		// idk
+	} else if (kernel_vfs.type == EXPLORER_FS) {
+		kernel_vfs.fs.expfs->destroy(kernel_vfs.fs.expfs);
+	}
+	return 0;
 }
