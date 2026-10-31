@@ -110,6 +110,9 @@ void IFATcleanTombstones(mfs_superblock_t *sblock, void *table) {
 
 
 int IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *buffer, partition_t *partition, uint32_t max) {
+	kprintf("starting\n");
+	kprintf("max: %d\n", max);
+	kprintf("idk\n");
 	if (buffer==NULL || table==NULL || sblock==NULL) return -1;
 	
 	uint32_t start_idx=index;
@@ -119,7 +122,8 @@ int IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 	uint32_t write=0;
 	while (write < (max/512)/sblock->SectorsPerBlock) {
 		do {
-			new_idx = IFATreadEntry(sblock, table, current_idx++);
+			new_idx = IFATreadEntry(sblock, table, current_idx);
+			current_idx++;
 			if (new_idx == IFAT_BAD_BLOCK ||
 			    new_idx == IFAT_FREE_BLOCK ||
 			    new_idx == IFAT_TOMBSTONE) {
@@ -145,6 +149,7 @@ int IFATwriteChain(mfs_superblock_t *sblock, void *table, uint32_t index, void *
 		start_idx = new_idx;	
 		current_idx = new_idx;
 	}
+	kprintf("ending\n");
 	return write;
 }
 

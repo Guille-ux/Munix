@@ -165,23 +165,32 @@ int MFScreateEntry(mfs_superblock_t *block, void *dir, void *table, const char *
 }
 
 int mfsMkDir(mfs_superblock_t *block, void *dir, const char *name, partition_t *partition, void *table, uint32_t size) {
+	kprintf("hum?\n");
 	uint8_t attr = MFS_ATTR_TYPE_DIR;
 	int err = MFScreateEntry(block, dir, table, name, attr, size, partition);
-	if (err != 0) return -1;
+	kprintf("it starts failing here\n");
+	//if (err != 0) return -1;
 	void *new_dir = kmalloc(size*512*block->SectorsPerBlock);
+	kprintf("searching entry\n");
 	mfs_entry_t *entry = MFSearchEntry(dir, name);
+	kprintf("dir name found\n");
 	if (entry==NULL) {
 		kfree(new_dir);
 		return -1;
 	}
-	MFSloaDir(block, partition, table, new_dir, entry->first_block, size*512*block->SectorsPerBlock);
-
+	kprintf("loading\n");
+	//MFSloaDir(block, partition, table, new_dir, size*512*block->SectorsPerBlock, entry->first_block);
+	kprintf("loaded\n");
 	mfsDirHeaders(new_dir, size*512*block->SectorsPerBlock/32, size, 0, 0, 0, "MunixOs", entry->first_block);
+	kprintf("headered\n");
 	mfsNewDirEntry(".", attr | MFS_ATTR_IMMUTABLE, 0, entry->blockSize, entry->first_block, new_dir);
 	mfs_dir_header_t *prev_h=dir;
 	mfsNewDirEntry("..", attr | MFS_ATTR_IMMUTABLE, 0, prev_h->dirBlocks, prev_h->block, new_dir);
+	kprintf("both entries\n");
 
-	MFSsaveDir(block, partition, table, new_dir, size*512*block->SectorsPerBlock, entry->first_block);
+	IFATwriteChain(block, table, entry->first_block, new_dir, partition, size*512*block->SectorsPerBlock);
+	IFATSave(block, table, partition);
+	kprintf("end\n");
 	kfree(new_dir);
 }
 
