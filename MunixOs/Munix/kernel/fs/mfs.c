@@ -27,7 +27,7 @@ void MBRformatMFS(disk_t *disk, uint8_t n, uint32_t blockSize, lba_t start, uint
 	memcpy(mfs_spr->volName, "MFS VOL", 8);
 	uint32_t base = 128;
 	uint32_t remaining = size - 1;
-	uint32_t n_groups = remaining / ((128*blockSize)+1);
+	uint32_t n_groups = remaining / ((base*blockSize)+1);
 	uint32_t ifat_size = n_groups;
 	uint32_t data_size = n_groups * base;
 	
@@ -42,7 +42,7 @@ void MBRformatMFS(disk_t *disk, uint8_t n, uint32_t blockSize, lba_t start, uint
 	mfs_spr->IFATchecksum=0;
 	mfs_spr->LastAllocated=0;
 	mfs_spr->DataSize=data_size;
-	mfs_spr->DataBegin = (lba_t){.lo=1+ifat_size-1, .hi=0};
+	mfs_spr->DataBegin = (lba_t){.lo=1+ifat_size, .hi=0};
 	mfs_spr->FreeBlocks=data_size/blockSize;
 	mfs_spr->NumBlocks=data_size/blockSize;
 	mfs_spr->fs_status=0;

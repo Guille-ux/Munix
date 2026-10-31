@@ -79,6 +79,7 @@ partition_list_t *mbr_detect_partitions(disk_t *disk) {
 			tmp->parent_disk = disk;
 
 			part_list->count++;
+			//printMBRPartition(c_partition);
 
 		} else {
 			kprintf("[MBR]: Invalid Partition!\n");

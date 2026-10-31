@@ -6,8 +6,9 @@
 #include "ifat.h"
 #include "fsd.h"
 
-#define MFS_DIR_BLOCKS 1
+#define MFS_DIR_BLOCKS 2
 
+#define CHECK() (kprintf("HERE!\n"))
 #define kmallloc(size) (stdmem_interface.kmalloc((size)))
 #define kfree(ptr) (stdmem_interface.kfree((ptr)))
 
@@ -55,7 +56,7 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 	void *table = kmalloc(block->IFATSize*512);
 	
 	IFATload(block, table, partition);
-	
+	//CHECK();
 	mfs_meta_t *metadata = (mfs_meta_t*)kmalloc(sizeof(mfs_meta_t));
 	metadata->superblock = block;
 	metadata->ifat_table = table;
@@ -72,10 +73,12 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 		IFATSave(block, table, partition);
 		saveMFSuperBlock(partition, block);
 	}
+	//CHECK();
 	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
 	explorer->cwd = alloc_handle();
 	*explorer->cwd = kmalloc(n);
 	MFSloaDir(block, partition, table, *explorer->cwd, n, block->RootBlock);
+	//CHECK();
 	return explorer;
 }
 
