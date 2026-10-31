@@ -49,7 +49,7 @@ void kernel_main(uint32_t magic, multiboot_info_t *mbi) {
 	if (magic==MULTIBOOT_BOOT_MAGIC) {
 			kprintf("Loaded by multiboot 1 compliant bootloader.\n");
 	}
-	//MBRformatMFS(&system_disks[0], 0, 8, uint64_2_lba(1), 1024);
+	//MBRformatMFS(&system_disks[0], 0, 8, uint64_2_lba(1), 10240);
 	
 	kprintf("~ MunixOs ~\n");
 

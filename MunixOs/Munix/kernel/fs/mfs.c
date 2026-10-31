@@ -111,6 +111,11 @@ void makeMFSroot(partition_t *partition, mfs_superblock_t *block, void *ifat_tab
 	uint32_t root_start=0;
 	IFATallocChain(block, ifat_table, size, &root_start);
 	block->RootBlock = root_start;
+	if (block->RootBlock == 0) {
+		kprintf("[EXPLORER]: Root allocation failed, invalid MFS state\n");
+		kfree(block);
+		return; 
+	}
 	uint32_t max = size*block->SectorsPerBlock*512;
 	void *dir = kmalloc(max);
 	//IFATreadChain(block, ifat_table, root_start, dir, partition, max);

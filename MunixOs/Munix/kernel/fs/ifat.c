@@ -154,28 +154,37 @@ void IFATallocChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t 
 }
 
 void IFATallocateChain(mfs_superblock_t *sblock, void *table, uint32_t n, uint32_t *start) {
-	uint32_t last;
-	uint32_t current=0;
-	uint32_t count=0;
-	while (current++ < sblock->NumBlocks && count < n) {
-		if (IFATreadEntry(sblock, table, current)!=IFAT_FREE_BLOCK) continue;
-		if (*start == 0) {
-			*start = current;
-			last = current;
-		} else {
-			IFATwriteEntry(sblock, table, last, current);
-			last = current;
-		}
+    uint32_t current = 1;
+    uint32_t first = 0;
+    uint32_t last = 0;
+    uint32_t count = 0;
 
-		count++;
-	}
-	IFATwriteEntry(sblock, table, last, IFAT_END_OF_CHAIN);
-	if (count < n) {
-		IFATremoveChain(sblock, table, *start, true);
-		*start = 0;
-		return;
-	}
-	sblock->FreeBlocks -= n;
+    *start = 0;
+    while (current <= sblock->NumBlocks && count < n) { 
+	if (IFATreadEntry(sblock, table, current) == IFAT_FREE_BLOCK) {
+            if (first == 0) {
+                first = current;
+                last = current;
+            } else {
+                IFATwriteEntry(sblock, table, last, current);
+                last = current;
+            }
+            count++;
+        }
+        current++;
+    }
+
+    if (count < n) {
+        if (first != 0) {
+            IFATremoveChain(sblock, table, first, true);
+        }
+        *start = 0;
+        return;
+    }
+
+    IFATwriteEntry(sblock, table, last, IFAT_END_OF_CHAIN);
+    *start = first;
+    sblock->FreeBlocks -= n;
 }
 
 int IFATappendChain(mfs_superblock_t *sblock, void *table, uint32_t first, uint32_t last, partition_t *partition) {

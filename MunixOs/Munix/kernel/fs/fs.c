@@ -72,6 +72,11 @@ explorer_t *mfs_init_explorer(partition_t *partition, explorer_t *explorer, uint
 		block->RootSize=MFS_DIR_BLOCKS;
 		IFATSave(block, table, partition);
 		saveMFSuperBlock(partition, block);
+		mfs_superblock_t check;
+		loadMFSuperBlock(partition, &check);
+		if (check.RootBlock == 0) {
+			kprintf("[EXPLORER]: RootBlock did not persist!\n");
+		}
 	}
 	//CHECK();
 	uint32_t n = block->RootSize*block->SectorsPerBlock*512;
